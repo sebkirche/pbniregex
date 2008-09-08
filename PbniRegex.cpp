@@ -81,6 +81,7 @@ PBXRESULT PbniRegex::Hello( PBCallInfo * ci )
 
 	// return value
 	ci->returnValue->SetString( _T("Hello from PbniRegex") );
+	OutputDebugStringA(pcre_version());
 	return pbxr;
 }
 
