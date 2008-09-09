@@ -1,5 +1,6 @@
 // PbniRegex.cpp : PBNI class
 #define _CRT_SECURE_NO_DEPRECATE
+#define PCRE_STATIC 1
 
 #include <stdio.h>
 #include "PbniRegex.h"
@@ -125,6 +126,7 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 		if (re == NULL)
 		{
 		  sprintf(dbgMsg, "PCRE compilation failed at offset %d: %s\n", erroffset, error);
+		  OutputDebugStringA(dbgMsg);
 		  ci->returnValue->SetBool(false);
 		}
 		else

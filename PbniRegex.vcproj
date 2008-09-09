@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libpcre-0.lib"
+				AdditionalDependencies="libpcre.a libgcc.a"
 				OutputFile="$(OutDir)/PbniRegex.pbx"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 10.5\SDK\PBNI\lib&quot;"
