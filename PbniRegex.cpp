@@ -8,7 +8,7 @@
 #include "pcrecpp.h"
 
 char dbgMsg[512];
-#define OVECCOUNT 30    /* should be a multiple of 3 */
+#define OVECCOUNT 150    /* should be a multiple of 3 */
 
 // default constructor
 PbniRegex::PbniRegex()
@@ -49,6 +49,9 @@ PBXRESULT PbniRegex::Invoke
 
 	switch ( mid )
 	{
+		case mid_Version:
+			pbxr = this->Version( ci );
+			break;
 		case mid_Hello:
 			pbxr = this->Hello( ci );
 			break;
@@ -76,7 +79,24 @@ void PbniRegex::Destroy()
    delete this;
 }
 
-// Method callable from PowerBuilder
+/*====================== Methods exposed to PowerBuilder ==========================*/
+
+PBXRESULT PbniRegex::Version( PBCallInfo * ci )
+{
+	const char *verStr;
+	PBXRESULT	pbxr = PBX_OK;
+
+	verStr = pcre_version();
+	int verLen = mbstowcs(NULL, verStr, strlen(verStr)+1);
+	LPWSTR wstr = (LPWSTR)malloc((verLen+1) * sizeof(wchar_t));
+	mbstowcs(wstr, verStr, strlen(verStr)+1);
+
+	// return value
+	ci->returnValue->SetString(wstr);
+	free(wstr);
+	return pbxr;
+}
+
 PBXRESULT PbniRegex::Hello( PBCallInfo * ci )
 {
 	PBXRESULT	pbxr = PBX_OK;
@@ -138,6 +158,7 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 	return pbxr;
 }
 
+/* Tell is the given string matches the regexp pattern */
 PBXRESULT PbniRegex::Test( PBCallInfo * ci )
 {
 	PBXRESULT	pbxr = PBX_OK;

@@ -46,6 +46,7 @@ PBXEXPORT LPCTSTR PBXCALL PBX_GetDescription()
       /* PbniHash */
       _T("class uo_regex from nonvisualobject\n") \
       _T("   function string of_hello()\n") \
+      _T("   function string version()\n") \
       _T("   function boolean initialize(string as_pattern, boolean ab_globalscope, boolean ab_casesensitive)\n") \
       _T("   function boolean test(string teststring)\n") \
       _T("   subroutine setutf8(boolean isutf)\n") \

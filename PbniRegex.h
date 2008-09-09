@@ -28,6 +28,7 @@ public:
 	enum Function_Entrys
 	{
 		mid_Hello = 0,
+		mid_Version,
 		mid_Init,
 		mid_Test,
 		mid_SetUtf,
@@ -38,6 +39,7 @@ public:
 
 protected:
  	// methods callable from PowerBuilder
+	PBXRESULT Version( PBCallInfo * ci );
 	PBXRESULT Hello( PBCallInfo * ci );
 	PBXRESULT Initialize(PBCallInfo * ci);
 	PBXRESULT Test(PBCallInfo * ci);
