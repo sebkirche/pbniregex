@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\Dev\c_stuff\PbniRegex\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 10.5\SDK\PBNI\include&quot;"
+				AdditionalIncludeDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 10.5\SDK\PBNI\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;UNICODE;PBNIHASH_EXPORTS"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
@@ -125,7 +125,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="C:\Dev\c_stuff\PbniRegex\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 10.5\SDK\PBNI\include&quot;"
+				AdditionalIncludeDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 10.5\SDK\PBNI\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;UNICODE;PBNIHASH_EXPORTS"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
