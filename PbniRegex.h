@@ -52,6 +52,10 @@ protected:
 	bool m_butf8;
 	bool m_bGlobal;
 	bool m_bCaseSensitive;
+
+	//array of matches
+	pbarray matches;
+
  };
 
 #endif	// !defined(CPBNIREGEX_H)

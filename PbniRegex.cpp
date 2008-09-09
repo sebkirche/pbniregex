@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "PbniRegex.h"
 #include "pcre.h"
+#include "pcrecpp.h"
 
 char dbgMsg[512];
 #define OVECCOUNT 30    /* should be a multiple of 3 */
@@ -17,7 +18,7 @@ PbniRegex::PbniRegex()
 PbniRegex::PbniRegex( IPB_Session * pSession )
 :m_pSession( pSession )
 {
-	OutputDebugString(_T("PbniRegex :: Constructor"));
+	//OutputDebugString(_T("PbniRegex :: Constructor"));
 	m_bGlobal = false;
 	m_bCaseSensitive = false;
 	m_butf8 = false;
@@ -28,7 +29,7 @@ PbniRegex::PbniRegex( IPB_Session * pSession )
 // destructor
 PbniRegex::~PbniRegex()
 {
-	OutputDebugString(_T("PbniRegex :: Destructor"));
+	//OutputDebugString(_T("PbniRegex :: Destructor"));
 	if(m_sPattern)
 		free(m_sPattern);
 	if(re)
@@ -207,7 +208,50 @@ PBXRESULT PbniRegex::SetUtf(PBCallInfo *ci)
 
 PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 {
+	int nmatch = 0, limit = 0;
+	int maxmatch = 10;
+	int startoffset = 0;
+	int res;
+	int ovector[OVECCOUNT];
+
 	PBXRESULT pbxr = PBX_OK;
+	if(ci->pArgs->GetAt(0)->IsNull())
+	{
+		// if any of the passed arguments is null, return the null value
+		ci->returnValue->SetToNull();
+	}
+	else 
+	{
+		pbstring search = ci->pArgs->GetAt(0)->GetString();
+		LPCTSTR searchString = m_pSession->GetString(search);
+
+		int searchLen = wcstombs(NULL, (LPWSTR)searchString, 0) + 2;
+		LPSTR searchString_utf8 = (LPSTR)malloc(searchLen);
+		if (m_butf8)
+		{
+			WideCharToMultiByte(CP_UTF8,0,searchString,-1,searchString_utf8,searchLen,NULL,NULL);	
+		}
+		else
+			WideCharToMultiByte(CP_ACP,0,searchString,-1,searchString_utf8,searchLen,NULL,NULL);	
+
+		if(maxmatch > 0)
+			limit = 1;
+
+		while (!limit || nmatch < maxmatch) {
+			res = pcre_exec(re, NULL, searchString_utf8, (int)searchLen-2, startoffset, 0, ovector, OVECCOUNT);
+			if (res >= 0) {
+				nmatch++;
+				startoffset = ovector[1];
+			} else
+				break;
+		}
+		if (nmatch)
+			ci->returnValue->SetLong(nmatch);
+		else
+			ci->returnValue->SetLong(-1);
+
+		free(searchString_utf8);
+	}
 
 	return pbxr;
 }

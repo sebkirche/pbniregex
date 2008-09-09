@@ -45,7 +45,7 @@
 #if 0
 #define HAVE_TYPE_TRAITS
 #include <type_traits.h>
-#elif 1
+//#elif 1
 #define HAVE_TYPE_TRAITS
 #include <bits/type_traits.h>
 #endif
