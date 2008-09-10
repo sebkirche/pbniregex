@@ -58,6 +58,8 @@ PBXEXPORT LPCTSTR PBXCALL PBX_GetDescription()
       _T("   function string match(long al_index)\n") \
       _T("   function string group(long al_matchindex, long al_groupindex)\n") \
       _T("   function string replace(string as_sarchstring, string as_replacestring)\n") \
+      _T("   function long groupposition(long al_matchindex, long al_groupindex)\n") \
+      _T("   function long grouplength(long al_matchindex, long al_groupindex)\n") \
       _T("end class\n")
 	};
    return (LPCTSTR)classDesc;

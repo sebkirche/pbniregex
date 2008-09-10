@@ -88,6 +88,12 @@ PBXRESULT PbniRegex::Invoke
 		case mid_Group:
 			pbxr = this->Group(ci);
 			break;
+		case mid_GroupPos:
+			pbxr = this->GroupPos(ci);
+			break;
+		case mid_GroupLen:
+			pbxr = this->GroupLen(ci);
+			break;
 		case mid_Replace:
 			pbxr = this->Replace(ci);
 			break;
@@ -329,6 +335,52 @@ PBXRESULT PbniRegex::MatchLen(PBCallInfo *ci)
 
 	if(index >= 0 && index <= m_matchCount)
 		ci->returnValue->SetLong(m_matchinfo[index][1] - m_matchinfo[index][0]);
+	else
+		ci->returnValue->SetLong(-1);
+	return pbxr;
+}
+
+PBXRESULT PbniRegex::GroupPos(PBCallInfo *ci)
+{
+	PBXRESULT pbxr = PBX_OK;
+	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
+
+	if(ci->pArgs->GetCount() != 2)
+		return PBX_E_INVOKE_WRONG_NUM_ARGS;
+
+	long matchindex = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
+
+	if(matchindex >= 0 && matchindex <= m_matchCount)
+	{
+		long groupindex = ci->pArgs->GetAt(1)->GetLong() - 1;
+		if(groupindex >= 0 && groupindex <= m_groupcount[matchindex])
+			ci->returnValue->SetLong(m_matchinfo[index][2 * groupindex] + 1);
+		else
+			ci->returnValue->SetLong(-1);
+	}
+	else
+		ci->returnValue->SetLong(-1);
+	return pbxr;
+}
+
+PBXRESULT PbniRegex::GroupLen(PBCallInfo *ci)
+{
+	PBXRESULT pbxr = PBX_OK;
+	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
+
+	if(ci->pArgs->GetCount() != 2)
+		return PBX_E_INVOKE_WRONG_NUM_ARGS;
+
+	long matchindex = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
+
+	if(matchindex >= 0 && matchindex <= m_matchCount)
+	{
+		long groupindex = ci->pArgs->GetAt(1)->GetLong() - 1;
+		if(groupindex >= 0 && groupindex <= m_groupcount[matchindex])
+			ci->returnValue->SetLong(m_matchinfo[index][2 * groupindex + 1] - m_matchinfo[index][2 * groupindex]);
+		else
+			ci->returnValue->SetLong(-1);
+	}
 	else
 		ci->returnValue->SetLong(-1);
 	return pbxr;

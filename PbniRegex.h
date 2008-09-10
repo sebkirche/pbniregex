@@ -43,6 +43,8 @@ public:
 		mid_Match,
 		mid_Group,
 		mid_Replace,
+		mid_GroupPos,
+		mid_GroupLen,
 		NO_MORE_METHODS
 	};
 
@@ -62,6 +64,8 @@ protected:
 	PBXRESULT Match(PBCallInfo * ci);
 	PBXRESULT Group(PBCallInfo * ci);
 	PBXRESULT Replace(PBCallInfo * ci);
+	PBXRESULT GroupPos(PBCallInfo * ci);
+	PBXRESULT GroupLen(PBCallInfo * ci);
 
 protected:
     // member variables
