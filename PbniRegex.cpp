@@ -560,7 +560,6 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci)
 
 		pbstring source = ci->pArgs->GetAt(0)->GetString();
 		pbstring pattern = ci->pArgs->GetAt(1)->GetString();
-		pbstring replace = ci->pArgs->GetAt(2)->GetString();
 
 		LPCTSTR s = m_pSession->GetString(source);
 		LPCTSTR p = m_pSession->GetString(pattern);
@@ -568,6 +567,7 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci)
 		if(wcsstr(s, p)){
 			wstring sourcew(s);
 			wstring patternw(p);
+			pbstring replace = ci->pArgs->GetAt(2)->GetString();
 			wstring replacew(m_pSession->GetString(replace));
 
 			int p = 0, startoffset = 0;
@@ -578,7 +578,7 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci)
 			ci->returnValue->SetString(sourcew.c_str());
 		}
 		else
-			ci->returnValue->SetString(_T(""));
+			ci->returnValue->SetPBString(source);
 	}
 
 	return pbxr;
