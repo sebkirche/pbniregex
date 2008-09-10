@@ -5,6 +5,9 @@
 #include <pbext.h>
 #include "pcre.h"
 
+#define MAXMATCHES 30
+#define OVECCOUNT 60    /* should be a multiple of 3 */
+
 class PbniRegex : public IPBX_NonVisualObject
 {
 public:
@@ -33,6 +36,13 @@ public:
 		mid_Test,
 		mid_SetUtf,
 		mid_Search,
+		mid_MatchCount,
+		mid_MatchPos,
+		mid_MatchLen,
+		mid_GroupCount,
+		mid_Match,
+		mid_Group,
+		mid_Replace,
 		NO_MORE_METHODS
 	};
 
@@ -45,19 +55,28 @@ protected:
 	PBXRESULT Test(PBCallInfo * ci);
 	PBXRESULT SetUtf(PBCallInfo * ci);
 	PBXRESULT Search(PBCallInfo * ci);
+	PBXRESULT MatchCount(PBCallInfo * ci);
+	PBXRESULT MatchPos(PBCallInfo * ci);
+	PBXRESULT MatchLen(PBCallInfo * ci);
+	PBXRESULT GroupCount(PBCallInfo * ci);
+	PBXRESULT Match(PBCallInfo * ci);
+	PBXRESULT Group(PBCallInfo * ci);
+	PBXRESULT Replace(PBCallInfo * ci);
 
 protected:
     // member variables
-    IPB_Session * m_pSession;
-	LPSTR m_sPattern;
-	pcre *re;
-	bool m_butf8;
-	bool m_bGlobal;
-	bool m_bCaseSensitive;
+    IPB_Session * m_pSession;	// session PB
+	LPSTR m_sPattern;			// regexp pattern
+	LPSTR m_sData;				// data searched by the regex
+	pcre *re;					// compiled regexp
+	bool m_butf8;				// option : use utf-8 for regexen / data ?
+	bool m_bGlobal;				// option : global search / replace ?
+	bool m_bCaseSensitive;		// option : be case-sensitive ?
 
-	//array of matches
-	pbarray matches;
-
+	//space to store the matching info
+	int m_matchinfo[MAXMATCHES][OVECCOUNT];	//array of vectors to store matching info
+	int m_matchCount;						//number of matches for the current search()
+	int m_groupcount[MAXMATCHES];			//number of captured substrings for each match
  };
 
 #endif	// !defined(CPBNIREGEX_H)

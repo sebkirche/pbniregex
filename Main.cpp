@@ -51,6 +51,13 @@ PBXEXPORT LPCTSTR PBXCALL PBX_GetDescription()
       _T("   function boolean test(string teststring)\n") \
       _T("   subroutine setutf8(boolean isutf)\n") \
       _T("   function long search(string searchstring)\n") \
+      _T("   function long matchcount()\n") \
+      _T("   function long matchposition(long al_index)\n") \
+      _T("   function long matchlength(long al_index)\n") \
+      _T("   function long groupcount(long al_matchindex)\n") \
+      _T("   function string match(long al_index)\n") \
+      _T("   function string group(long al_matchindex, long al_groupindex)\n") \
+      _T("   function string replace(string as_sarchstring, string as_replacestring)\n") \
       _T("end class\n")
 	};
    return (LPCTSTR)classDesc;
