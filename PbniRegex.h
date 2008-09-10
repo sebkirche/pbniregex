@@ -48,6 +48,8 @@ public:
 		NO_MORE_METHODS
 	};
 
+public:
+	PBXRESULT FastReplace(PBCallInfo * ci);
 
 protected:
  	// methods callable from PowerBuilder

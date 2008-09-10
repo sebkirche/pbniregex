@@ -57,10 +57,13 @@ PBXEXPORT LPCTSTR PBXCALL PBX_GetDescription()
       _T("   function long groupcount(long al_matchindex)\n") \
       _T("   function string match(long al_index)\n") \
       _T("   function string group(long al_matchindex, long al_groupindex)\n") \
-      _T("   function string replace(string as_sarchstring, string as_replacestring)\n") \
+      _T("   function string replace(string as_searchstring, string as_replacestring)\n") \
       _T("   function long groupposition(long al_matchindex, long al_groupindex)\n") \
       _T("   function long grouplength(long al_matchindex, long al_groupindex)\n") \
-      _T("end class\n")
+      _T("end class\n") \
+      _T("globalfunctions \n") \
+      _T("function string fastreplaceall(string as_source, string as_pattern, string as_replace)\n") \
+      _T("end globalfunctions \n")
 	};
    return (LPCTSTR)classDesc;
 }
@@ -81,3 +84,23 @@ PBXEXPORT PBXRESULT PBXCALL PBX_CreateNonVisualObject
    return PBX_OK;
 }
 
+
+PBXEXPORT PBXRESULT PBXCALL PBX_InvokeGlobalFunction
+(
+	IPB_Session* pbsession,
+	LPCTSTR      functionName,
+	PBCallInfo* ci
+)
+{
+	PBXRESULT pbxr = PBX_E_NO_SUCH_CLASS;
+
+	if ( wcscmp( functionName, _T("fastreplaceall") ) == 0 ){
+
+		PbniRegex  *regex = new PbniRegex( pbsession ) ;
+		pbxr = regex->FastReplace( ci ) ;
+ 		if ( regex != NULL ) delete regex ;
+		return PBX_OK ;
+	} ;
+
+	return pbxr ;
+}

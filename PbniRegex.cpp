@@ -3,6 +3,7 @@
 #define PCRE_STATIC 1
 
 #include <stdio.h>
+#include <string>
 #include "PbniRegex.h"
 #include "pcre.h"
 #include "pcrecpp.h"
@@ -267,8 +268,8 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 	int startoffset = 0;
 	int res;
 	//int ovector[OVECCOUNT];
-
 	PBXRESULT pbxr = PBX_OK;
+
 	if(ci->pArgs->GetAt(0)->IsNull()){
 		// if any of the passed arguments is null, return the null value
 		ci->returnValue->SetToNull();
@@ -469,6 +470,12 @@ PBXRESULT PbniRegex::Group(PBCallInfo *ci)
 
 PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 {
+	int nmatch = 0;
+	int maxmatch = MAXMATCHES;
+	int startoffset = 0;
+	int res;
+	int mvector[OVECCOUNT];
+	char toexp[10];
 	PBXRESULT pbxr = PBX_OK;
 
 	if(ci->pArgs->GetCount() != 2)
@@ -477,7 +484,7 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 	if(ci->pArgs->GetAt(0)->IsNull() || ci->pArgs->GetAt(1)->IsNull())
 		ci->returnValue->SetToNull();
 	else {
-		//search string
+		//search string utf-16 -> ansi / utf-8
 		pbstring search = ci->pArgs->GetAt(0)->GetString();
 		LPCTSTR searchStr = m_pSession->GetString(search);
 		int searchLen = wcstombs(NULL, (LPWSTR)searchStr, 0) + 2;
@@ -489,8 +496,8 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 		else
 			WideCharToMultiByte(CP_ACP,0,searchStr,-1,search_utf8,searchLen,NULL,NULL);	
 
-		//replace string
-		pbstring replace = ci->pArgs->GetAt(0)->GetString();
+		//replace string utf-16 -> ansi / utf-8
+		pbstring replace = ci->pArgs->GetAt(1)->GetString();
 		LPCTSTR replaceStr = m_pSession->GetString(replace);
 		int repLen = wcstombs(NULL, (LPWSTR)replaceStr, 0) + 2;
 		LPSTR rep_utf8 = (LPSTR)malloc(repLen);
@@ -501,10 +508,72 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 		else
 			WideCharToMultiByte(CP_ACP,0,replaceStr,-1,rep_utf8,repLen,NULL,NULL);	
 
-		//pcrecpp::RE(std::string(m_sPattern));
+		using namespace std;
+		string working (search_utf8);
+		do {
+			//parcours les matches
+			res = pcre_exec(re, NULL, working.c_str(), strlen(working.c_str()), startoffset, 0, mvector, OVECCOUNT);
+			if (res > 0) {
+				//m_groupcount[nmatch] = res - 1;
+				basic_string <char> rep(rep_utf8);
+				//expansion des substrings
+				for(int j = 1; j <= res; j++)
+				{
+					sprintf(toexp, "\\%d", j);
+					int p;
+					while((p = rep.find(toexp)) != string::npos)
+						rep.replace(p,strlen(toexp), working.substr(mvector[(j-1)*2], mvector[(j-1)*2 +1]-mvector[(j-1)*2]));
+				}
+				//remplacement du match par la chaine de remplacement
+				working.replace(mvector[0], mvector[1]-mvector[0], rep);
+				startoffset = mvector[0] + rep.length();
+				nmatch++;
+			} else
+				break;
+		}while (m_bGlobal && nmatch < maxmatch);
+
+		//result string  utf-8 / ansi -> utf-16
+		int outLen = mbstowcs(NULL, working.c_str(), strlen(working.c_str())+1);
+		LPWSTR wstr = (LPWSTR)malloc((outLen+1) * sizeof(wchar_t));
+		mbstowcs(wstr, working.c_str(), strlen(working.c_str())+1);
+
+		ci->returnValue->SetString(wstr);
 
 		free(search_utf8);
 		free(rep_utf8);
+		free(wstr);
 	}
 	return pbxr;
+}
+
+PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci)
+{
+	PBXRESULT pbxr = PBX_OK;
+
+	if(ci->pArgs->GetCount() != 3)
+		return PBX_E_INVOKE_WRONG_NUM_ARGS;
+	if(ci->pArgs->GetAt(0)->IsNull() || ci->pArgs->GetAt(1)->IsNull() || ci->pArgs->GetAt(2)->IsNull())
+		ci->returnValue->SetToNull();
+	else
+	{
+		using namespace std;
+
+		pbstring source = ci->pArgs->GetAt(0)->GetString();
+		pbstring pattern = ci->pArgs->GetAt(1)->GetString();
+		pbstring replace = ci->pArgs->GetAt(2)->GetString();
+
+		wstring sourcew(m_pSession->GetString(source));
+		wstring patternw(m_pSession->GetString(pattern));
+		wstring replacew(m_pSession->GetString(replace));
+
+		int p = 0, startoffset = 0;
+		while((p = sourcew.find(patternw, startoffset)) != string::npos){
+			sourcew.replace(p, patternw.length(), replacew);
+			startoffset = p + replacew.length() + 1;
+		}
+		ci->returnValue->SetString(sourcew.c_str());
+	}
+
+	return pbxr;
+
 }
