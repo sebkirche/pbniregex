@@ -349,7 +349,7 @@ PBXRESULT PbniRegex::GroupPos(PBCallInfo *ci)
 	if(ci->pArgs->GetCount() != 2)
 		return PBX_E_INVOKE_WRONG_NUM_ARGS;
 
-	long matchindex = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
+	long matchindex = ci->pArgs->GetAt(0)->GetLong(); //0 is the whole match
 
 	if(matchindex >= 0 && matchindex <= m_matchCount)
 	{
@@ -372,7 +372,7 @@ PBXRESULT PbniRegex::GroupLen(PBCallInfo *ci)
 	if(ci->pArgs->GetCount() != 2)
 		return PBX_E_INVOKE_WRONG_NUM_ARGS;
 
-	long matchindex = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
+	long matchindex = ci->pArgs->GetAt(0)->GetLong(); //0 is the whole match
 
 	if(matchindex >= 0 && matchindex <= m_matchCount)
 	{
@@ -422,7 +422,7 @@ PBXRESULT PbniRegex::Match(PBCallInfo *ci)
 		free(match);
 	}
 	else
-		ci->returnValue->SetString(_T(""));
+		ci->returnValue->SetToNull();
 	return pbxr;
 }
 
@@ -438,11 +438,11 @@ PBXRESULT PbniRegex::Group(PBCallInfo *ci)
 
 	if(matchindex >= 0 && matchindex <= m_matchCount)
 	{
-		long groupindex = ci->pArgs->GetAt(1)->GetLong() - 1;
+		long groupindex = ci->pArgs->GetAt(1)->GetLong(); //the group 0 is the whole match
 		if(groupindex >= 0 && groupindex <= m_groupcount[matchindex]){
 			if(-1 == m_matchinfo[matchindex][2*groupindex]){
 				//the group matched nothing
-				ci->returnValue->SetString(_T(""));
+				ci->returnValue->SetToNull();
 			}
 			else {
 				//extract the match from the data
@@ -461,10 +461,10 @@ PBXRESULT PbniRegex::Group(PBCallInfo *ci)
 			}
 		}
 		else
-			ci->returnValue->SetString(_T(""));
+			ci->returnValue->SetToNull();
 	}
 	else
-		ci->returnValue->SetString(_T(""));
+		ci->returnValue->SetToNull();
 	return pbxr;
 }
 
