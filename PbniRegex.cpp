@@ -517,12 +517,12 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 				//m_groupcount[nmatch] = res - 1;
 				basic_string <char> rep(rep_utf8);
 				//expansion des substrings
-				for(int j = 1; j <= res; j++)
+				for(int j = 0; j <= res; j++)
 				{
 					sprintf(toexp, "\\%d", j);
 					int p;
 					while((p = rep.find(toexp)) != string::npos)
-						rep.replace(p,strlen(toexp), working.substr(mvector[(j-1)*2], mvector[(j-1)*2 +1]-mvector[(j-1)*2]));
+						rep.replace(p,strlen(toexp), working.substr(mvector[(j)*2], mvector[(j)*2 +1]-mvector[(j)*2]));
 				}
 				//remplacement du match par la chaine de remplacement
 				working.replace(mvector[0], mvector[1]-mvector[0], rep);
