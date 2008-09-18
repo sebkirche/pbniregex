@@ -60,6 +60,9 @@ PBXEXPORT LPCTSTR PBXCALL PBX_GetDescription()
       _T("   function string replace(string as_searchstring, string as_replacestring)\n") \
       _T("   function long groupposition(long al_matchindex, long al_groupindex)\n") \
       _T("   function long grouplength(long al_matchindex, long al_groupindex)\n") \
+      _T("   subroutine setmultiline(boolean ismulti)\n") \
+      _T("   function boolean ismultiline()\n") \
+      _T("   function boolean isutf8()\n") \
       _T("end class\n") \
       _T("globalfunctions \n") \
       _T("function string fastreplaceall(string as_source, string as_pattern, string as_replace)\n") \

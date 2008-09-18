@@ -22,6 +22,7 @@ PbniRegex::PbniRegex( IPB_Session * pSession )
 	m_bGlobal = false;
 	m_bCaseSensitive = false;
 	m_butf8 = false;
+	m_bmultiLine = false;
 	m_sPattern = NULL;
 	m_sData = NULL;
 	re = NULL;
@@ -98,6 +99,12 @@ PBXRESULT PbniRegex::Invoke
 		case mid_Replace:
 			pbxr = this->Replace(ci);
 			break;
+		case mid_SetMulti:
+			pbxr = this->SetMulti(ci);
+			break;
+		case mid_IsMulti:
+			pbxr = this->IsMulti(ci);
+			break;
 		default:
 			pbxr = PBX_E_INVOKE_METHOD_AMBIGUOUS;
 	}
@@ -173,6 +180,8 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 		m_matchCount = 0;
 		if(!m_bCaseSensitive)
 			opts += PCRE_CASELESS;
+		if(!m_bmultiLine)
+			opts += PCRE_MULTILINE;
 
 		re = pcre_compile(
 				m_sPattern,              /* the pattern */
@@ -261,6 +270,15 @@ PBXRESULT PbniRegex::SetUtf(PBCallInfo *ci)
 	return pbxr;
 }
 
+PBXRESULT PbniRegex::SetMulti(PBCallInfo *ci)
+{
+	PBXRESULT pbxr = PBX_OK;
+
+	m_bmultiLine = ci->pArgs->GetAt(0)->GetBool();
+
+	return pbxr;
+}
+
 PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 {
 	int nmatch = 0;
@@ -315,6 +333,22 @@ PBXRESULT PbniRegex::MatchCount(PBCallInfo *ci)
 	PBXRESULT pbxr = PBX_OK;
 
 	ci->returnValue->SetLong(m_matchCount);
+	return pbxr;
+}
+
+PBXRESULT PbniRegex::IsMulti(PBCallInfo *ci)
+{
+	PBXRESULT pbxr = PBX_OK;
+
+	ci->returnValue->SetBool(m_bmultiLine);
+	return pbxr;
+}
+
+PBXRESULT PbniRegex::IsUtf(PBCallInfo *ci)
+{
+	PBXRESULT pbxr = PBX_OK;
+
+	ci->returnValue->SetBool(m_butf8);
 	return pbxr;
 }
 

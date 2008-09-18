@@ -45,6 +45,9 @@ public:
 		mid_Replace,
 		mid_GroupPos,
 		mid_GroupLen,
+		mid_SetMulti,
+		mid_IsMulti,
+		mid_IsUtf,
 		NO_MORE_METHODS
 	};
 
@@ -68,6 +71,9 @@ protected:
 	PBXRESULT Replace(PBCallInfo * ci);
 	PBXRESULT GroupPos(PBCallInfo * ci);
 	PBXRESULT GroupLen(PBCallInfo * ci);
+	PBXRESULT SetMulti(PBCallInfo * ci);
+	PBXRESULT IsMulti(PBCallInfo * ci);
+	PBXRESULT IsUtf(PBCallInfo * ci);
 
 protected:
     // member variables
@@ -78,6 +84,7 @@ protected:
 	bool m_butf8;				// option : use utf-8 for regexen / data ?
 	bool m_bGlobal;				// option : global search / replace ?
 	bool m_bCaseSensitive;		// option : be case-sensitive ?
+	bool m_bmultiLine;			// option : multiline
 
 	//space to store the matching info
 	int m_matchinfo[MAXMATCHES][OVECCOUNT];	//array of vectors to store matching info
