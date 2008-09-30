@@ -1,4 +1,7 @@
 // My.h : header file for PBNI class
+//
+// @author : Sebastien Kirche - 2008
+
 #ifndef CPBNIREGEX_H
 #define CPBNIREGEX_H
 

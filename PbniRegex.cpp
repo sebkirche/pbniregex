@@ -1,4 +1,7 @@
 // PbniRegex.cpp : PBNI class
+//
+// @author : Sebastien Kirche - 2008
+
 #define _CRT_SECURE_NO_DEPRECATE
 #define PCRE_STATIC 1
 
@@ -10,7 +13,6 @@
 
 char dbgMsg[512];
 
-// default constructor
 PbniRegex::PbniRegex()
 {
 }
@@ -29,7 +31,6 @@ PbniRegex::PbniRegex( IPB_Session * pSession )
 	m_matchCount = 0;
 }
 
-// destructor
 PbniRegex::~PbniRegex()
 {
 	//OutputDebugString(_T("PbniRegex :: Destructor"));
@@ -184,8 +185,8 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 			opts += PCRE_MULTILINE;
 
 		re = pcre_compile(
-				m_sPattern,              /* the pattern */
-				opts,                    /* default options */
+				m_sPattern,           /* pattern */
+				opts,                 /* options (défaut = 0)*/
 				&error,               /* for error message */
 				&erroffset,           /* for error offset */
 				NULL);                /* use default character tables */
@@ -233,8 +234,8 @@ PBXRESULT PbniRegex::Test( PBCallInfo * ci )
 		rc = pcre_exec(
 		  re,                   /* the compiled pattern */
 		  NULL,                 /* no extra data - we didn't study the pattern */
-		  testStr_utf8,              /* the subject string */
-		  testLen-2,       /* the length of the subject */
+		  testStr_utf8,         /* the subject string */
+		  testLen-2,			/* the length of the subject */
 		  0,                    /* start at offset 0 in the subject */
 		  0,                    /* default options */
 		  ovector,              /* output vector for substring information */
@@ -244,7 +245,7 @@ PBXRESULT PbniRegex::Test( PBCallInfo * ci )
 			switch(rc)
 			{
 			case PCRE_ERROR_NOMATCH:
-				//normal no match
+				//normal : no match
 				break;
 			default:
 				//other error case
@@ -256,7 +257,6 @@ PBXRESULT PbniRegex::Test( PBCallInfo * ci )
 			ci->returnValue->SetBool(true);
 
 		free(testStr_utf8);
-
 	}
 	return pbxr;
 }
@@ -266,7 +266,6 @@ PBXRESULT PbniRegex::SetUtf(PBCallInfo *ci)
 	PBXRESULT pbxr = PBX_OK;
 
 	m_butf8 = ci->pArgs->GetAt(0)->GetBool();
-
 	return pbxr;
 }
 
@@ -275,7 +274,6 @@ PBXRESULT PbniRegex::SetMulti(PBCallInfo *ci)
 	PBXRESULT pbxr = PBX_OK;
 
 	m_bmultiLine = ci->pArgs->GetAt(0)->GetBool();
-
 	return pbxr;
 }
 
@@ -314,6 +312,7 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 				nmatch++;
 			} else
 				break;
+		//until there is no match left OR if we did not set the global attribute for a single search
 		}while (m_bGlobal && nmatch < maxmatch);
 		
 		m_matchCount = nmatch;
@@ -355,6 +354,7 @@ PBXRESULT PbniRegex::IsUtf(PBCallInfo *ci)
 PBXRESULT PbniRegex::MatchPos(PBCallInfo *ci)
 {
 	PBXRESULT pbxr = PBX_OK;
+
 	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 	if(index >= 0 && index < m_matchCount)
 		ci->returnValue->SetLong(m_matchinfo[index][0] + 1);
@@ -366,8 +366,8 @@ PBXRESULT PbniRegex::MatchPos(PBCallInfo *ci)
 PBXRESULT PbniRegex::MatchLen(PBCallInfo *ci)
 {
 	PBXRESULT pbxr = PBX_OK;
-	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 
+	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 	if(index >= 0 && index <= m_matchCount)
 		ci->returnValue->SetLong(m_matchinfo[index][1] - m_matchinfo[index][0]);
 	else
@@ -378,8 +378,8 @@ PBXRESULT PbniRegex::MatchLen(PBCallInfo *ci)
 PBXRESULT PbniRegex::GroupPos(PBCallInfo *ci)
 {
 	PBXRESULT pbxr = PBX_OK;
-	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 
+	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 	if(ci->pArgs->GetCount() != 2)
 		return PBX_E_INVOKE_WRONG_NUM_ARGS;
 
@@ -401,8 +401,8 @@ PBXRESULT PbniRegex::GroupPos(PBCallInfo *ci)
 PBXRESULT PbniRegex::GroupLen(PBCallInfo *ci)
 {
 	PBXRESULT pbxr = PBX_OK;
-	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 
+	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 	if(ci->pArgs->GetCount() != 2)
 		return PBX_E_INVOKE_WRONG_NUM_ARGS;
 
@@ -424,6 +424,7 @@ PBXRESULT PbniRegex::GroupLen(PBCallInfo *ci)
 PBXRESULT PbniRegex::GroupCount(PBCallInfo *ci)
 {
 	PBXRESULT pbxr = PBX_OK;
+
 	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 
 	if(index >= 0 && index <= m_matchCount)
@@ -436,6 +437,7 @@ PBXRESULT PbniRegex::GroupCount(PBCallInfo *ci)
 PBXRESULT PbniRegex::Match(PBCallInfo *ci)
 {
 	PBXRESULT pbxr = PBX_OK;
+
 	int matchLen, matchLenW;
 	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 
@@ -564,6 +566,7 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 				nmatch++;
 			} else
 				break;
+		//until there is no match left OR if we did not set the global attribute for a single replacement
 		}while (m_bGlobal && nmatch < maxmatch);
 
 		//result string  utf-8 / ansi -> utf-16
@@ -585,12 +588,14 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci)
 	PBXRESULT pbxr = PBX_OK;
 
 	if(ci->pArgs->GetCount() != 3)
+		//if parameter count  <> 3 -> error to PB
 		return PBX_E_INVOKE_WRONG_NUM_ARGS;
 	if(ci->pArgs->GetAt(0)->IsNull() || ci->pArgs->GetAt(1)->IsNull() || ci->pArgs->GetAt(2)->IsNull())
+		//if at less 1 param is null, return null
 		ci->returnValue->SetToNull();
 	else
 	{
-		using namespace std;
+		using namespace std; //for std::wstring
 
 		pbstring source = ci->pArgs->GetAt(0)->GetString();
 		pbstring pattern = ci->pArgs->GetAt(1)->GetString();
@@ -598,22 +603,25 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci)
 		LPCTSTR s = m_pSession->GetString(source);
 		LPCTSTR p = m_pSession->GetString(pattern);
 		
+		//test for one occurence
 		if(wcsstr(s, p)){
 			wstring sourcew(s);
 			wstring patternw(p);
 			pbstring replace = ci->pArgs->GetAt(2)->GetString();
 			wstring replacew(m_pSession->GetString(replace));
 
+			//here is the 'all' of 'replaceall' : replace each occurence
 			int p = 0, startoffset = 0;
-			while((p = sourcew.find(patternw, startoffset)) != string::npos){
+			while((p = sourcew.find(patternw, startoffset)) != string::npos){	
 				sourcew.replace(p, patternw.length(), replacew);
 				startoffset = p + replacew.length();
 			}
+			//return the resulting string
 			ci->returnValue->SetString(sourcew.c_str());
 		}
 		else
+			//if no occurrence, return the given string
 			ci->returnValue->SetPBString(source);
 	}
-
 	return pbxr;
 }

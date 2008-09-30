@@ -1,9 +1,9 @@
-// PbniHash.cpp : defines the entry point for the PBNI DLL.
-//Global: 0
-//Unicode: -1
+// Main module for PbniRegexp
+//
+// @author : Sebastien Kirche - 2008
+
 #include "PbniRegex.h"
 #include "Main.h"
-
 
 BOOL APIENTRY DllMain
 (
