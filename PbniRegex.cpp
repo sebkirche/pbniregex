@@ -607,7 +607,7 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci)
 			int p = 0, startoffset = 0;
 			while((p = sourcew.find(patternw, startoffset)) != string::npos){
 				sourcew.replace(p, patternw.length(), replacew);
-				startoffset = p + replacew.length() + 1;
+				startoffset = p + replacew.length();
 			}
 			ci->returnValue->SetString(sourcew.c_str());
 		}
