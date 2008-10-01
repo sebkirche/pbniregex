@@ -379,17 +379,16 @@ PBXRESULT PbniRegex::GroupPos(PBCallInfo *ci)
 {
 	PBXRESULT pbxr = PBX_OK;
 
-	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 	if(ci->pArgs->GetCount() != 2)
 		return PBX_E_INVOKE_WRONG_NUM_ARGS;
 
-	long matchindex = ci->pArgs->GetAt(0)->GetLong(); //0 is the whole match
+	long matchindex = ci->pArgs->GetAt(0)->GetLong() - 1; // for PB, first match is 1
 
 	if(matchindex >= 0 && matchindex <= m_matchCount)
 	{
-		long groupindex = ci->pArgs->GetAt(1)->GetLong() - 1;
+		long groupindex = ci->pArgs->GetAt(1)->GetLong();//group 0 is the whole match
 		if(groupindex >= 0 && groupindex <= m_groupcount[matchindex])
-			ci->returnValue->SetLong(m_matchinfo[index][2 * groupindex] + 1);
+			ci->returnValue->SetLong(m_matchinfo[matchindex][2 * groupindex] + 1);
 		else
 			ci->returnValue->SetLong(-1);
 	}
@@ -402,17 +401,16 @@ PBXRESULT PbniRegex::GroupLen(PBCallInfo *ci)
 {
 	PBXRESULT pbxr = PBX_OK;
 
-	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 	if(ci->pArgs->GetCount() != 2)
 		return PBX_E_INVOKE_WRONG_NUM_ARGS;
 
-	long matchindex = ci->pArgs->GetAt(0)->GetLong(); //0 is the whole match
+	long matchindex = ci->pArgs->GetAt(0)->GetLong() - 1; // for PB, first match is 1
 
 	if(matchindex >= 0 && matchindex <= m_matchCount)
 	{
-		long groupindex = ci->pArgs->GetAt(1)->GetLong() - 1;
+		long groupindex = ci->pArgs->GetAt(1)->GetLong();//group 0 is the whole match
 		if(groupindex >= 0 && groupindex <= m_groupcount[matchindex])
-			ci->returnValue->SetLong(m_matchinfo[index][2 * groupindex + 1] - m_matchinfo[index][2 * groupindex]);
+			ci->returnValue->SetLong(m_matchinfo[matchindex][2 * groupindex + 1] - m_matchinfo[matchindex][2 * groupindex]);
 		else
 			ci->returnValue->SetLong(-1);
 	}
@@ -551,9 +549,9 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 			res = pcre_exec(re, NULL, working.c_str(), strlen(working.c_str()), startoffset, 0, mvector, OVECCOUNT);
 			if (res > 0) {
 				//m_groupcount[nmatch] = res - 1;
-				basic_string <char> rep(rep_utf8);
+				basic_string<char> rep(rep_utf8);
 				//expansion des substrings
-				for(int j = 0; j <= res; j++)
+				for(int j = 0; j < res; j++) // res = nb groups + 1
 				{
 					sprintf(toexp, "\\%d", j);
 					int p;
