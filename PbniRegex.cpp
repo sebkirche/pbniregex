@@ -20,7 +20,10 @@ PbniRegex::PbniRegex()
 PbniRegex::PbniRegex( IPB_Session * pSession )
 :m_pSession( pSession )
 {
-	//OutputDebugString(_T("PbniRegex :: Constructor"));
+
+#ifdef _DEBUG
+	OutputDebugString(_T("PbniRegex :: Constructor"));
+#endif
 	m_bGlobal = false;
 	m_bCaseSensitive = false;
 	m_butf8 = false;
@@ -33,7 +36,9 @@ PbniRegex::PbniRegex( IPB_Session * pSession )
 
 PbniRegex::~PbniRegex()
 {
-	//OutputDebugString(_T("PbniRegex :: Destructor"));
+#ifdef _DEBUG
+	OutputDebugString(_T("PbniRegex :: Destructor"));
+#endif
 	if(m_sPattern)
 		free(m_sPattern);
 	if(m_sData)
@@ -142,7 +147,9 @@ PBXRESULT PbniRegex::Hello( PBCallInfo * ci )
 
 	// return value
 	ci->returnValue->SetString( _T("Hello from PbniRegex") );
+#ifdef _DEBUG
 	OutputDebugStringA(pcre_version());
+#endif
 	return pbxr;
 }
 
@@ -192,7 +199,9 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 				NULL);                /* use default character tables */
 		if (re == NULL){
 		  sprintf(dbgMsg, "PCRE compilation failed at offset %d: %s\n", erroffset, error);
+#ifdef _DEBUG
 		  OutputDebugStringA(dbgMsg);
+#endif
 		  ci->returnValue->SetBool(false);
 		}
 		else{
@@ -585,8 +594,8 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci)
 {
 	PBXRESULT pbxr = PBX_OK;
 
-	if(ci->pArgs->GetCount() != 3)
-		//if parameter count  <> 3 -> error to PB
+	if(ci->pArgs->GetCount() != 3 || ci->pArgs->GetCount() != 4)
+		//if parameter count  <> 3 or 4 -> error to PB
 		return PBX_E_INVOKE_WRONG_NUM_ARGS;
 	if(ci->pArgs->GetAt(0)->IsNull() || ci->pArgs->GetAt(1)->IsNull() || ci->pArgs->GetAt(2)->IsNull())
 		//if at less 1 param is null, return null
@@ -594,12 +603,15 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci)
 	else
 	{
 		using namespace std; //for std::wstring
-
+		bool casesensitive = FALSE;
 		pbstring source = ci->pArgs->GetAt(0)->GetString();
 		pbstring pattern = ci->pArgs->GetAt(1)->GetString();
 
 		LPCTSTR s = m_pSession->GetString(source);
 		LPCTSTR p = m_pSession->GetString(pattern);
+
+		if(ci->pArgs->GetCount() == 4)
+			casesensitive = ci->pArgs->GetAt(3)->GetBool();
 		
 		//test for one occurence
 		if(wcsstr(s, p)){

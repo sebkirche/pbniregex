@@ -15,16 +15,24 @@ BOOL APIENTRY DllMain
 	switch(ul_reason_for_all)
 	{	
 	case DLL_PROCESS_ATTACH:
+#ifdef _DEBUG
 		OutputDebugString(_T("PbniRegex Dll :: DllMain(DLL_PROCESS_ATTACH)"));
+#endif
 		break;
 	case DLL_THREAD_ATTACH:
+#ifdef _DEBUG
 		OutputDebugString(_T("PbniRegex Dll :: DllMain(DLL_THREAD_ATTACH)"));
+#endif
 		break;
 	case DLL_THREAD_DETACH:		
+#ifdef _DEBUG
 		OutputDebugString(_T("PbniRegex Dll :: DllMain(DLL_THREAD_DETACH)"));
+#endif
 		break;
 	case DLL_PROCESS_DETACH:
+#ifdef _DEBUG
 		OutputDebugString(_T("PbniRegex Dll :: DllMain(DLL_PROCESS_DETACH)"));
+#endif
 		break;
 	}
 	return TRUE;
@@ -66,6 +74,7 @@ PBXEXPORT LPCTSTR PBXCALL PBX_GetDescription()
       _T("end class\n") \
       _T("globalfunctions \n") \
       _T("function string fastreplaceall(string as_source, string as_pattern, string as_replace)\n") \
+      _T("function string fastreplaceall(string as_source, string as_pattern, string as_replace, boolean ab_casesensitive)\n") \
       _T("end globalfunctions \n")
 	};
    return (LPCTSTR)classDesc;
