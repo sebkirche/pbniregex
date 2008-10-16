@@ -57,6 +57,9 @@ public:
 
 public:
 	PBXRESULT FastReplace(PBCallInfo * ci);
+	PBXRESULT FastReplaceChooseCase(PBCallInfo * ci);
+	PBXRESULT FastReplaceCase(PBCallInfo * ci);
+	PBXRESULT FastReplaceNoCase(PBCallInfo * ci);
 
 protected:
  	// methods callable from PowerBuilder

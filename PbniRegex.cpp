@@ -594,8 +594,8 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci)
 {
 	PBXRESULT pbxr = PBX_OK;
 
-	if(ci->pArgs->GetCount() != 3 || ci->pArgs->GetCount() != 4)
-		//if parameter count  <> 3 or 4 -> error to PB
+	if(ci->pArgs->GetCount() != 3)
+		//if parameter count  <> 3 -> error to PB
 		return PBX_E_INVOKE_WRONG_NUM_ARGS;
 	if(ci->pArgs->GetAt(0)->IsNull() || ci->pArgs->GetAt(1)->IsNull() || ci->pArgs->GetAt(2)->IsNull())
 		//if at less 1 param is null, return null
@@ -609,14 +609,11 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci)
 
 		LPCTSTR s = m_pSession->GetString(source);
 		LPCTSTR p = m_pSession->GetString(pattern);
-
-		if(ci->pArgs->GetCount() == 4)
-			casesensitive = ci->pArgs->GetAt(3)->GetBool();
-		
+		wstring sourcew(s);
+		wstring patternw(p);
 		//test for one occurence
 		if(wcsstr(s, p)){
-			wstring sourcew(s);
-			wstring patternw(p);
+			
 			pbstring replace = ci->pArgs->GetAt(2)->GetString();
 			wstring replacew(m_pSession->GetString(replace));
 
@@ -635,3 +632,179 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci)
 	}
 	return pbxr;
 }
+
+PBXRESULT PbniRegex::FastReplaceCase(PBCallInfo *ci)
+{
+	using namespace std; //for std::wstring
+	pbstring source = ci->pArgs->GetAt(0)->GetString();
+	pbstring pattern = ci->pArgs->GetAt(1)->GetString();
+	pbstring replace = ci->pArgs->GetAt(2)->GetString();
+
+	wstring sourcew(m_pSession->GetString(source));
+	wstring patternw(m_pSession->GetString(pattern));
+	wstring replacew(m_pSession->GetString(replace));
+
+	int p = 0, startoffset = 0;
+	//test for one occurence
+	if((p = sourcew.find(patternw, startoffset)) != string::npos){
+		//here is the 'all' of 'replaceall' : replace each occurence
+		do{	
+			sourcew.replace(p, patternw.length(), replacew);
+			startoffset = p + replacew.length();
+		}while((p = sourcew.find(patternw, startoffset)) != string::npos);
+		//return the resulting string
+		ci->returnValue->SetString(sourcew.c_str());
+	}
+	else
+		//if no occurrence, return the given string
+		ci->returnValue->SetPBString(source);
+
+	return PBX_OK;
+}
+
+// case insensitive character traits
+// inherited copy (preserves case),
+// case insensitive comparison, search
+struct traits_nocase : std::char_traits<char>
+{
+	static bool eq( const char& c1, const char& c2 ) { return toupper(c1) == toupper(c2) ; }
+	static bool lt( const char& c1, const char& c2 ) { return toupper(c1) < toupper(c2) ; }
+	static int compare( const char* s1, const char* s2, size_t N )
+	{
+	  //return strncasecmp( s1, s2, N ) ; // posix
+	  return _strnicmp( s1, s2, N ) ; //microsoft
+	}
+	static const char* find( const char* s, size_t N, const char& a )
+	{
+	  for( size_t i=0 ; i<N ; ++i )
+		if( toupper(s[i]) == toupper(a) ) return s+i ;
+	  return 0 ;
+	}
+	static bool eq_int_type ( const int_type& c1, const int_type& c2 ) { return toupper(c1) == toupper(c2) ; }
+};
+// string preserves case; comparisons are case insensitive
+typedef std::basic_string< char, traits_nocase > string_nocase ;
+
+// make string_nocase work like a std::string
+//           with streams using std::char_traits
+// std::basic_istream< char, std::char_traits<char> > (std::istream) and
+// std::basic_ostream< char, std::char_traits<char> > (std::ostream)
+inline std::ostream& operator<< ( std::ostream& stm, const string_nocase& str )
+{
+	return stm << reinterpret_cast<const std::string&>(str); 
+}
+
+inline std::istream& operator>> ( std::istream& stm, string_nocase& str )
+{
+	std::string s ; stm >> s ;
+	if(stm) str.assign(s.begin(),s.end()) ;
+	return stm ;
+}
+
+inline std::istream& getline( std::istream& stm, string_nocase& str )
+{
+	std::string s ; std::getline(stm,s) ;
+	if(stm) str.assign(s.begin(),s.end()) ;
+	return stm ;
+}
+
+// case insensitive character traits
+// inherited copy (preserves case),
+// case insensitive comparison, search
+struct traitws_nocase : std::char_traits<wchar_t>
+{
+	static bool eq( const wchar_t& c1, const wchar_t& c2 ) { return toupper(c1) == toupper(c2) ; }
+	static bool lt( const wchar_t& c1, const wchar_t& c2 ) { return toupper(c1) < toupper(c2) ; }
+	static int compare( const wchar_t* s1, const wchar_t* s2, size_t N )
+	{
+	  //return strncasecmp( s1, s2, N ) ; // posix
+	  return _wcsnicmp( s1, s2, N ) ; //microsoft
+	}
+	static const wchar_t* find( const wchar_t* s, size_t N, const wchar_t& a )
+	{
+	  for( size_t i=0 ; i<N ; ++i )
+		if( toupper(s[i]) == toupper(a) ) return s+i ;
+	  return 0 ;
+	}
+	static bool eq_int_type ( const int_type& c1, const int_type& c2 ) { return toupper(c1) == toupper(c2) ; }
+};
+// string preserves case; comparisons are case insensitive
+typedef std::basic_string< wchar_t, traitws_nocase > wstring_nocase ;
+
+// make wstring_nocase work like a std::wstring
+//           with streams using std::char_traits
+// std::basic_istream< char, std::char_traits<char> > (std::istream) and
+// std::basic_ostream< char, std::char_traits<char> > (std::ostream)
+inline std::wostream& operator<< ( std::wostream& stm, const wstring_nocase& str )
+{
+	return stm << reinterpret_cast<const std::wstring&>(str); 
+}
+
+inline std::wistream& operator>> ( std::wistream& stm, wstring_nocase& str )
+{
+	std::wstring s ; stm >> s ;
+	if(stm) str.assign(s.begin(),s.end()) ;
+	return stm ;
+}
+
+inline std::wistream& getline( std::wistream& stm, wstring_nocase& str )
+{
+	std::wstring s ; std::getline(stm,s) ;
+	if(stm) str.assign(s.begin(),s.end()) ;
+	return stm ;
+}
+
+
+PBXRESULT PbniRegex::FastReplaceNoCase(PBCallInfo *ci)
+{
+	using namespace std; //for std::wstring
+	pbstring source = ci->pArgs->GetAt(0)->GetString();
+	pbstring pattern = ci->pArgs->GetAt(1)->GetString();
+	pbstring replace = ci->pArgs->GetAt(2)->GetString();
+
+	wstring_nocase sourcew(m_pSession->GetString(source));
+	wstring_nocase patternw(m_pSession->GetString(pattern));
+	wstring_nocase replacew(m_pSession->GetString(replace));
+
+	int p = 0, startoffset = 0;
+	//test for one occurence
+	if((p = sourcew.find(patternw, startoffset)) != string_nocase::npos){
+		//here is the 'all' of 'replaceall' : replace each occurence
+		do{	
+			sourcew.replace(p, patternw.length(), replacew);
+			startoffset = p + replacew.length();
+		}while((p = sourcew.find(patternw, startoffset)) != string_nocase::npos);
+		//return the resulting string
+		ci->returnValue->SetString(sourcew.c_str());
+	}
+	else
+		//if no occurrence, return the given string
+		ci->returnValue->SetPBString(source);
+
+	return PBX_OK;
+}
+
+PBXRESULT PbniRegex::FastReplaceChooseCase(PBCallInfo *ci)
+{
+	PBXRESULT pbxr = PBX_OK;
+
+	if(ci->pArgs->GetCount() != 4)
+		//if parameter count  <> 4 -> error to PB
+		return PBX_E_INVOKE_WRONG_NUM_ARGS;
+	if(ci->pArgs->GetAt(0)->IsNull() || ci->pArgs->GetAt(1)->IsNull() || ci->pArgs->GetAt(2)->IsNull())
+		//if at less 1 param is null, return null
+		ci->returnValue->SetToNull();
+	else
+	{
+		using namespace std; //for std::wstring
+		bool casesensitive = FALSE;
+
+		casesensitive = ci->pArgs->GetAt(3)->GetBool();
+		if(casesensitive)
+			pbxr = FastReplaceCase(ci);
+		else
+			pbxr = FastReplaceNoCase(ci);
+	}
+	return pbxr;
+}
+

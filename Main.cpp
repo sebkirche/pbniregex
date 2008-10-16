@@ -73,8 +73,8 @@ PBXEXPORT LPCTSTR PBXCALL PBX_GetDescription()
       _T("   function boolean isutf8()\n") \
       _T("end class\n") \
       _T("globalfunctions \n") \
-      _T("function string fastreplaceall(string as_source, string as_pattern, string as_replace)\n") \
-      _T("function string fastreplaceall(string as_source, string as_pattern, string as_replace, boolean ab_casesensitive)\n") \
+      _T("   function string fastreplaceall(string as_source, string as_pattern, string as_replace)\n") \
+      _T("   function string fastreplaceall2(string as_source, string as_pattern, string as_replace, boolean ab_casesensitive)\n") \
       _T("end globalfunctions \n")
 	};
    return (LPCTSTR)classDesc;
@@ -112,7 +112,14 @@ PBXEXPORT PBXRESULT PBXCALL PBX_InvokeGlobalFunction
 		pbxr = regex->FastReplace( ci ) ;
  		if ( regex != NULL ) delete regex ;
 		return PBX_OK ;
-	} ;
+	}
+	else if( wcscmp( functionName, _T("fastreplaceall2") ) == 0 ){
+
+		PbniRegex  *regex = new PbniRegex( pbsession ) ;
+		pbxr = regex->FastReplaceChooseCase( ci ) ;
+ 		if ( regex != NULL ) delete regex ;
+		return PBX_OK ;
+	}
 
 	return pbxr ;
 }
