@@ -1,0 +1,151 @@
+
+DOCUMENTATION
+=============
+
+This is the documentation for uo_regex (pbni C++ extension) and unvo_regexp
+(plain pbscript version).
+
+Preamble
+========
+
+The unvo_regexp userobject was first written to map the vbscript.regex OLE
+object into a object useable in PB10. The possibilities (and limitations ;)
+are those offered by the vbscript object. No less, no more.
+
+The uo_regex (C++ PBNI extension) was later written as an attempt to get the
+same functionnalities in a compiled extension without the bottleneck of
+repetitive OLE objects instanciations. As the unvo_regexp was already
+heavily used in a project and the uo_regex was planned as a replacement for
+it, the uo_regex mimics by design the unvo_regexp.
+
+
+Quick start
+===========
+
+unvo_regexp regex
+regex = create unvo_regexp
+regex.initialize('[0-9]+', true, true)
+if regex.test('foobar 42') then messagebox('test','match!')
+or 
+if regex.search('foobar 42') then messagebox('search','match : ' + regex.match(1))
+destroy unvo_regexp
+
+
+List of the available methods & properties for unvo_regexp (powerscript + vbscrip.regex)
+==========================================================
+
+Properties
+----------
+
+boolean globalScope : tells if the regex search and/or replaces in global mode or not 
+		      (default = true)
+
+boolean ignoreCase : tells if the matching is case sensitive or not 
+		     (default = true = case INsensitive)
+
+string searchPattern : stores the regexp pattern
+
+Methods
+-------
+
+initialize (string as_pattern, boolean ab_globalscope, boolean ab_casesensitive) 
+
+   Sets the global, ignoreCase & pattern attributes of the ole regex. 
+   You MUST call initialize() to compile the search pattern before actual search.
+
+initialize()
+   Same as the previous initialize, reuses the instance variables as arguments
+
+test ( string as_teststring ) 
+   Tells only if the given string matches the regexp.
+
+search ( string as_searchstring )
+   Look for the previously compiled regexp into the given search string. The
+   right name for this method should be 'execute' but it is a reserved name
+   in powerscripts ;)
+   Returns : the number of matches, or -1
+   Remark : if you don't search in global mode, there can be only 0 or 1 match.
+
+matchCount ( )  
+   Returns the number of matches in the previous search()
+
+match ( long al_index )  
+   Returns the content of the given match. The first match has index 1.
+
+matchPosition ( long al_index )
+   Returns the offset of the given match or -1 if al_index is wrong.
+
+matchLength ( long al_index )
+   Returns the length of the given match or -1 if al_index is wrong.
+
+replace ( string as_searchstring, string as_replacestring )
+   Returns the result of the replacement of the pattern by the
+   as_replacestring into the as_searchstring.
+
+groupcount ( long al_matchindex )  
+   When using the pattern grouping, returns the number of groups in the
+   given match.
+
+group ( long al_matchindex, long al_groupindex )
+  When using the pattern grouping, returns the content of the given group of
+  the given match.
+
+
+List of the available methods for uo_regex (C++ wrapper for PCRE)
+==========================================
+
+pcreversion()
+   Returns the version of PCRE wrapped in the pbx
+
+The following methods and functions give the same results than with the unvo_regexp :
+initialize()
+test ( string as_teststring ) 
+search ( string as_searchstring )
+matchCount ( )  
+match ( long al_index )  
+matchPosition ( long al_index )
+matchLength ( long al_index )
+replace ( string as_searchstring, string as_replacestring )
+groupcount ( long al_matchindex )  
+group ( long al_matchindex, long al_groupindex )
+
+The following functions are in addition to the unvo_regexp ones :
+
+groupposition(long al_matchindex, long al_groupindex)
+   Returns the offset of the given group of the given match.
+
+grouplength(long al_matchindex, long al_groupindex)
+   Returns the length of the given group of the given match.
+
+setmultiline(boolean ismulti)
+   Sets the possibilty to match the EOL character with '.'
+
+ismultiline()
+   Returns the state of the multiline setting.
+
+setutf8(boolean isutf)
+   Sets the possibilty to use utf-8 strings for pattern & search strings
+
+boolean isutf8()
+   Returns the state of the utf-8 processing.
+
+Global functions
+----------------
+
+In order to replace some powerscript written functions by native code, the
+PbniRegex.pbx also provides the followin global functions :
+
+fastreplaceall(string as_source, string as_pattern, string as_replace)
+   Returns the resulting string of the replacement of as_pattern by
+   as_replace into as_source. If the as_pattern is not found, returns the
+   as_source input string.
+   Remark : the serach is ALWAYS case sensitive.
+
+fastreplaceall2(string as_source, string as_pattern, string as_replace, boolean ab_casesensitive)
+   Same as fastreplaceall but with the possibility to specify if the search is case-sensitive or not.
+
+
+;; Local Variables: ;
+;; mode:text ;
+;; fill-column:76 ;
+;; End: ;
