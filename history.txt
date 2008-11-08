@@ -1,0 +1,9 @@
+HISTORY
+=======
+
+2008-11-05 - first public release
+
+2008-09-08 - creation of PbRegexCoach as a test tool for PbniRegex
+
+2008-09-01 - start of the project
+

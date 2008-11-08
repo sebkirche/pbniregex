@@ -67,7 +67,8 @@ search ( string as_searchstring )
    Remark : if you don't search in global mode, there can be only 0 or 1 match.
 
 matchCount ( )  
-   Returns the number of matches in the previous search()
+   Returns the number of matches in the previous search() 
+   PbniRegex has for the moment a hardcoded limitation of 300 matches.
 
 match ( long al_index )  
    Returns the content of the given match. The first match has index 1.
@@ -80,11 +81,13 @@ matchLength ( long al_index )
 
 replace ( string as_searchstring, string as_replacestring )
    Returns the result of the replacement of the pattern by the
-   as_replacestring into the as_searchstring.
+   as_replacestring into the as_searchstring. If no match occurs, the
+   original string is returned.
 
 groupcount ( long al_matchindex )  
    When using the pattern grouping, returns the number of groups in the
    given match.
+   PbniRegex for the moment has a hardcoded limitation to 20 groups per match.
 
 group ( long al_matchindex, long al_groupindex )
   When using the pattern grouping, returns the content of the given group of
@@ -105,9 +108,24 @@ matchCount ( )
 match ( long al_index )  
 matchPosition ( long al_index )
 matchLength ( long al_index )
-replace ( string as_searchstring, string as_replacestring )
 groupcount ( long al_matchindex )  
 group ( long al_matchindex, long al_groupindex )
+  remark: the whole match will be in group #0 to mimick the vbscript behavior
+
+Replace
+-------
+replace ( string as_searchstring, string as_replacestring )
+
+The PCRE engine can only search and does not provides replacing
+functionality, therefore I have implemented my own replace method. 
+While the replace func has the same prototype than the vbscript one, it has
+been extended and has the possiblity to uses the perl-like backslash-number
+notation (\1, \2 .. \n) to reuse for replacement the matched groups.
+
+Note : for the moment the expansion of the groups is limited to the first 9
+ones. It must be extended to be a little more perlish.
+
+
 
 The following functions are in addition to the unvo_regexp ones :
 
