@@ -8,8 +8,8 @@
 #include <pbext.h>
 #include "pcre.h"
 
-#define MAXMATCHES 300
-#define MAXGROUPS 20
+#define MAXMATCHES 500
+#define MAXGROUPS 200
 #define OVECCOUNT (MAXGROUPS * 3)    /* should be a multiple of 3 */
 
 class PbniRegex : public IPBX_NonVisualObject
