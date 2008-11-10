@@ -101,7 +101,7 @@ pcreversion()
    Returns the version of PCRE wrapped in the pbx
 
 The following methods and functions give the same results than with the unvo_regexp :
-initialize()
+initialize() - see th eremark below about error codes
 test ( string as_teststring ) 
 search ( string as_searchstring )
 matchCount ( )  
@@ -111,6 +111,12 @@ matchLength ( long al_index )
 groupcount ( long al_matchindex )  
 group ( long al_matchindex, long al_groupindex )
   remark: the whole match will be in group #0 to mimick the vbscript behavior
+
+Initialize() errors
+-------------------
+If the compiling of the regexp fails, an error message is outputted via the
+OutputDebugString API and can be seen e.g. with SysInternal DebugView tool
+or MS Visual Studio.
 
 Replace
 -------
@@ -144,8 +150,17 @@ ismultiline()
 setutf8(boolean isutf)
    Sets the possibilty to use utf-8 strings for pattern & search strings
 
-boolean isutf8()
+isutf8()
    Returns the state of the utf-8 processing.
+
+study()
+   Proceed to a study of the regexp in ordrer to speed up (if possible)
+   repetitive use of it.
+
+   From the PCRE documentation :
+   « At present, studying a pattern is useful only for non-anchored patterns
+   that do not have a single fixed starting character. A bitmap of possible
+   starting bytes is created. »
 
 Global functions
 ----------------

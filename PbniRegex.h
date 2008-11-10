@@ -52,6 +52,7 @@ public:
 		mid_SetMulti,
 		mid_IsMulti,
 		mid_IsUtf,
+		mid_Study,
 		NO_MORE_METHODS
 	};
 
@@ -81,6 +82,7 @@ protected:
 	PBXRESULT SetMulti(PBCallInfo * ci);
 	PBXRESULT IsMulti(PBCallInfo * ci);
 	PBXRESULT IsUtf(PBCallInfo * ci);
+	PBXRESULT Study(PBCallInfo * ci);
 
 protected:
     // member variables
@@ -88,6 +90,7 @@ protected:
 	LPSTR m_sPattern;			// regexp pattern
 	LPSTR m_sData;				// data searched by the regex
 	pcre *re;					// compiled regexp
+	pcre_extra *studinfo;		// infos resulting of the pcre_study() call
 	bool m_butf8;				// option : use utf-8 for regexen / data ?
 	bool m_bGlobal;				// option : global search / replace ?
 	bool m_bCaseSensitive;		// option : be case-sensitive ?

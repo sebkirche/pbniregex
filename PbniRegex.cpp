@@ -199,14 +199,37 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 				NULL);                /* use default character tables */
 		if (re == NULL){
 		  sprintf(dbgMsg, "PCRE compilation failed at offset %d: %s\n", erroffset, error);
-#ifdef _DEBUG
 		  OutputDebugStringA(dbgMsg);
-#endif
 		  ci->returnValue->SetBool(false);
 		}
 		else{
 			ci->returnValue->SetBool(true);
 		}
+	}
+	return pbxr;
+}
+
+/* Analyze the regexp and find out if extra info can be extracted to speed up repetitive calls to it 
+   from PCRE documentation (7.3) :
+   At present, studying a pattern is useful only for non-anchored patterns that do not have a single fixed starting character.
+   A bitmap of possible starting bytes is created. 
+*/
+PBXRESULT PbniRegex::Study(PBCallInfo *ci)
+{
+	const char *error;
+	PBXRESULT pbxr = PBX_OK;
+	
+	studinfo = pcre_study(re, 0, &error);
+	if (error){
+	  sprintf(dbgMsg, "PCRE study failed with message '%s'\n", error);
+	  OutputDebugStringA(dbgMsg);
+	}
+	if (studinfo == NULL){
+		//if the study did not found useful data
+		ci->returnValue->SetBool(false);
+	}else{
+		//if the study was successful
+		ci->returnValue->SetBool(true);
 	}
 	return pbxr;
 }
