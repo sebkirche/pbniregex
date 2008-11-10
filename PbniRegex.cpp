@@ -31,6 +31,7 @@ PbniRegex::PbniRegex( IPB_Session * pSession )
 	m_sPattern = NULL;
 	m_sData = NULL;
 	re = NULL;
+	studinfo = NULL;
 	m_matchCount = 0;
 }
 
@@ -265,7 +266,7 @@ PBXRESULT PbniRegex::Test( PBCallInfo * ci )
 			WideCharToMultiByte(CP_ACP,0,testString,-1,testStr_utf8,testLen,NULL,NULL);	
 		rc = pcre_exec(
 		  re,                   /* the compiled pattern */
-		  NULL,                 /* no extra data - we didn't study the pattern */
+		  studinfo,             /* extra data if we studied the pattern */
 		  testStr_utf8,         /* the subject string */
 		  testLen-2,			/* the length of the subject */
 		  0,                    /* start at offset 0 in the subject */
@@ -337,7 +338,7 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 			WideCharToMultiByte(CP_ACP,0,searchString,-1,m_sData,searchLen,NULL,NULL);	
 
 		do {
-			res = pcre_exec(re, NULL, m_sData, (int)searchLen-2, startoffset, 0, m_matchinfo[nmatch], OVECCOUNT);
+			res = pcre_exec(re, studinfo, m_sData, (int)searchLen-2, startoffset, 0, m_matchinfo[nmatch], OVECCOUNT);
 			if (res > 0) {
 				m_groupcount[nmatch] = res - 1;
 				startoffset = m_matchinfo[nmatch][1];
