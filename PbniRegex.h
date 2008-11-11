@@ -8,8 +8,8 @@
 #include <pbext.h>
 #include "pcre.h"
 
-#define MAXMATCHES 500
-#define MAXGROUPS 200
+#define MAXMATCHES 30
+#define MAXGROUPS 20
 #define OVECCOUNT (MAXGROUPS * 3)    /* should be a multiple of 3 */
 
 class PbniRegex : public IPBX_NonVisualObject
@@ -91,15 +91,19 @@ protected:
 	LPSTR m_sData;				// data searched by the regex
 	pcre *re;					// compiled regexp
 	pcre_extra *studinfo;		// infos resulting of the pcre_study() call
+	long m_maxmatches;			// max match number, can be automagicaly increased during processing
+	long m_maxgroups;			// max group number for a match, can be automagicaly increased during processing
+	long m_ovecsize;			// size of the vector in number of ints
 	bool m_butf8;				// option : use utf-8 for regexen / data ?
 	bool m_bGlobal;				// option : global search / replace ?
 	bool m_bCaseSensitive;		// option : be case-sensitive ?
 	bool m_bmultiLine;			// option : multiline
 
 	//space to store the matching info
-	int m_matchinfo[MAXMATCHES][OVECCOUNT];	//array of vectors to store matching info
+	int *m_matchinfo;						//memory block that is an array of vectors to store matching info
 	int m_matchCount;						//number of matches for the current search()
-	int m_groupcount[MAXMATCHES];			//number of captured substrings for each match
+	int *m_groupcount;						//number of captured substrings for each match
+	HANDLE hHeap;
  };
 
 #endif	// !defined(CPBNIREGEX_H)
