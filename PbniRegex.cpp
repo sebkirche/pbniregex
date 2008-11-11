@@ -383,7 +383,6 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 				m_maxmatches++;
 				sprintf(dbgMsg, "PbniRegex : new max matches will be %d\n", m_maxmatches);
 				OutputDebugStringA(dbgMsg);
-				//m_ovecsize = (m_maxgroups + 1) * 3;
 				m_matchinfo = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_matchinfo, sizeof(int) * (m_maxmatches * m_ovecsize));
 				if(!m_matchinfo){
 					long err = GetLastError();
@@ -397,10 +396,10 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 					ci->returnValue->SetLong(-1);
 				}
 			}
-			res = pcre_exec(re, studinfo, m_sData, (int)searchLen-2, startoffset, 0, m_matchinfo + sizeof(int) * (nmatch * m_maxgroups), m_ovecsize);
+			res = pcre_exec(re, studinfo, m_sData, (int)searchLen-2, startoffset, 0, &(m_matchinfo[nmatch * m_ovecsize]), m_ovecsize);
 			if (res > 0) {
 				m_groupcount[nmatch] = res - 1;
-				startoffset = m_matchinfo[(nmatch * m_maxgroups) + 1];
+				startoffset = m_matchinfo[(nmatch * m_ovecsize) + 1];
 				nmatch++;
 				// do not perform another search if we are at the end of the string
 				if (startoffset >= (searchLen - 2))
@@ -454,7 +453,7 @@ PBXRESULT PbniRegex::MatchPos(PBCallInfo *ci)
 
 	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 	if(index >= 0 && index < m_matchCount)
-		ci->returnValue->SetLong(m_matchinfo[index * m_maxgroups + 0] + 1);
+		ci->returnValue->SetLong(m_matchinfo[index * m_ovecsize + 0] + 1);
 	else
 		ci->returnValue->SetLong(-1);
 	return pbxr;
@@ -466,7 +465,7 @@ PBXRESULT PbniRegex::MatchLen(PBCallInfo *ci)
 
 	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 	if(index >= 0 && index <= m_matchCount)
-		ci->returnValue->SetLong(m_matchinfo[index * m_maxgroups + 1] - m_matchinfo[index * m_maxgroups + 0]);
+		ci->returnValue->SetLong(m_matchinfo[index * m_ovecsize + 1] - m_matchinfo[index * m_ovecsize + 0]);
 	else
 		ci->returnValue->SetLong(-1);
 	return pbxr;
@@ -485,7 +484,7 @@ PBXRESULT PbniRegex::GroupPos(PBCallInfo *ci)
 	{
 		long groupindex = ci->pArgs->GetAt(1)->GetLong();//group 0 is the whole match
 		if(groupindex >= 0 && groupindex <= m_groupcount[matchindex])
-			ci->returnValue->SetLong(m_matchinfo[matchindex * m_maxgroups + 2 * groupindex] + 1);
+			ci->returnValue->SetLong(m_matchinfo[matchindex * m_ovecsize + 2 * groupindex] + 1);
 		else
 			ci->returnValue->SetLong(-1);
 	}
@@ -507,7 +506,7 @@ PBXRESULT PbniRegex::GroupLen(PBCallInfo *ci)
 	{
 		long groupindex = ci->pArgs->GetAt(1)->GetLong();//group 0 is the whole match
 		if(groupindex >= 0 && groupindex <= m_groupcount[matchindex])
-			ci->returnValue->SetLong(m_matchinfo[matchindex * m_maxgroups + 2 * groupindex + 1] - m_matchinfo[matchindex * m_maxgroups + 2 * groupindex]);
+			ci->returnValue->SetLong(m_matchinfo[matchindex * m_ovecsize + 2 * groupindex + 1] - m_matchinfo[matchindex * m_ovecsize + 2 * groupindex]);
 		else
 			ci->returnValue->SetLong(-1);
 	}
@@ -539,9 +538,9 @@ PBXRESULT PbniRegex::Match(PBCallInfo *ci)
 	if(index >= 0 && index <= m_matchCount)
 	{
 		//extract the match from the data
-		matchLen = m_matchinfo[index * m_maxgroups + 1] - m_matchinfo[index * m_maxgroups + 0] + 1;
+		matchLen = m_matchinfo[index * m_ovecsize + 1] - m_matchinfo[index * m_ovecsize + 0] + 1;
 		LPSTR match = (LPSTR)malloc(matchLen + 1);
-		lstrcpynA(match, (LPCSTR)(m_sData + m_matchinfo[index * m_maxgroups + 0]), matchLen);
+		lstrcpynA(match, (LPCSTR)(m_sData + m_matchinfo[index * m_ovecsize + 0]), matchLen);
 		//convert in WC
 		matchLenW = mbstowcs(NULL, match, strlen(match)+1);
 		LPWSTR wstr = (LPWSTR)malloc((matchLenW+1) * sizeof(wchar_t));
@@ -574,15 +573,15 @@ PBXRESULT PbniRegex::Group(PBCallInfo *ci)
 		//TODO: replace with pcre_copy_substring() or pcre_get_substring()
 		
 		if(groupindex >= 0 && groupindex <= m_groupcount[matchindex]){
-			if(-1 == m_matchinfo[matchindex * m_maxgroups + 2*groupindex]){
+			if(-1 == m_matchinfo[matchindex * m_ovecsize + 2*groupindex]){
 				//the group matched nothing
 				ci->returnValue->SetToNull();
 			}
 			else {
 				//extract the match from the data
-				groupLen = m_matchinfo[matchindex * m_maxgroups + 2*groupindex + 1] - m_matchinfo[matchindex * m_maxgroups + 2*groupindex] + 1;
+				groupLen = m_matchinfo[matchindex * m_ovecsize + 2*groupindex + 1] - m_matchinfo[matchindex * m_ovecsize + 2*groupindex] + 1;
 				LPSTR group = (LPSTR)malloc(groupLen + 1);
-				lstrcpynA(group, (LPCSTR)(m_sData + m_matchinfo[matchindex * m_maxgroups + 2*groupindex]), groupLen);
+				lstrcpynA(group, (LPCSTR)(m_sData + m_matchinfo[matchindex * m_ovecsize + 2*groupindex]), groupLen);
 				//convert in WC
 				groupLenW = mbstowcs(NULL, group, strlen(group)+1);
 				LPWSTR wstr = (LPWSTR)malloc((groupLenW+1) * sizeof(wchar_t));

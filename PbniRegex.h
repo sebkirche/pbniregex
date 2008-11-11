@@ -10,7 +10,6 @@
 
 #define MAXMATCHES 30
 #define MAXGROUPS 20
-#define OVECCOUNT (MAXGROUPS * 3)    /* should be a multiple of 3 */
 
 class PbniRegex : public IPBX_NonVisualObject
 {

@@ -68,7 +68,6 @@ search ( string as_searchstring )
 
 matchCount ( )  
    Returns the number of matches in the previous search() 
-   PbniRegex has for the moment a hardcoded limitation of 300 matches.
 
 match ( long al_index )  
    Returns the content of the given match. The first match has index 1.
@@ -87,7 +86,6 @@ replace ( string as_searchstring, string as_replacestring )
 groupcount ( long al_matchindex )  
    When using the pattern grouping, returns the number of groups in the
    given match.
-   PbniRegex for the moment has a hardcoded limitation to 20 groups per match.
 
 group ( long al_matchindex, long al_groupindex )
   When using the pattern grouping, returns the content of the given group of

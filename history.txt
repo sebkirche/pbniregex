@@ -1,6 +1,9 @@
 HISTORY
 =======
 
+2008-11-11 - rewrote the vector allocation for matches & groups with dynamic allocation
+             added the study method
+
 2008-11-05 - first public release
 
 2008-09-08 - creation of PbRegexCoach as a test tool for PbniRegex
