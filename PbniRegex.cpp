@@ -397,10 +397,10 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 					ci->returnValue->SetLong(-1);
 				}
 			}
-			res = pcre_exec(re, studinfo, m_sData, (int)searchLen-2, startoffset, 0, &m_matchinfo[sizeof(int) * (nmatch * m_maxgroups)], m_ovecsize);
+			res = pcre_exec(re, studinfo, m_sData, (int)searchLen-2, startoffset, 0, m_matchinfo + sizeof(int) * (nmatch * m_maxgroups), m_ovecsize);
 			if (res > 0) {
 				m_groupcount[nmatch] = res - 1;
-				startoffset = m_matchinfo[sizeof(int) * (nmatch * m_maxgroups) + 1];
+				startoffset = m_matchinfo[(nmatch * m_maxgroups) + 1];
 				nmatch++;
 				// do not perform another search if we are at the end of the string
 				if (startoffset >= (searchLen - 2))
@@ -605,10 +605,10 @@ PBXRESULT PbniRegex::Group(PBCallInfo *ci)
 PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 {
 	int nmatch = 0;
-	int maxmatch = MAXMATCHES;
+	//int maxmatch = MAXMATCHES;
 	int startoffset = 0;
 	int res;
-	int mvector[OVECCOUNT];
+	int *mvector;//[OVECCOUNT];
 	char toexp[10];
 	PBXRESULT pbxr = PBX_OK;
 
@@ -644,14 +644,20 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 
 		using namespace std;
 		string working (search_utf8);
+
+		mvector = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * (m_maxmatches * m_ovecsize));
+		if (!mvector){
+			ci->returnValue->SetToNull();
+			return PBX_E_OUTOF_MEMORY;
+		}
 		do {
 			//parcours les matches
-			res = pcre_exec(re, NULL, working.c_str(), strlen(working.c_str()), startoffset, 0, mvector, OVECCOUNT);
+			res = pcre_exec(re, studinfo, working.c_str(), strlen(working.c_str()), startoffset, 0, mvector, m_ovecsize);
 			if (res > 0) {
 				//m_groupcount[nmatch] = res - 1;
 				basic_string<char> rep(rep_utf8);
 				//expansion des substrings
-				for(int j = 0; j < res; j++) // res = nb groups + 1
+				for(int j = res - 1; j > 0; j--) // res = nb groups + 1
 				{
 					sprintf(toexp, "\\%d", j);
 					int p;
@@ -665,7 +671,7 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 			} else
 				break;
 		//until there is no match left OR if we did not set the global attribute for a single replacement
-		}while (m_bGlobal && nmatch < maxmatch);
+		}while (m_bGlobal && nmatch < m_maxmatches);
 
 		//result string  utf-8 / ansi -> utf-16
 		int outLen = mbstowcs(NULL, working.c_str(), strlen(working.c_str())+1);
@@ -674,6 +680,7 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 
 		ci->returnValue->SetString(wstr);
 
+		HeapFree(hHeap, 0, mvector);
 		free(search_utf8);
 		free(rep_utf8);
 		free(wstr);
