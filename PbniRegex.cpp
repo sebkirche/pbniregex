@@ -670,7 +670,10 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 					sprintf(toexp, "\\%d", j);
 					int p;
 					while((p = rep.find(toexp)) != string::npos)
-						rep.replace(p,strlen(toexp), working.substr(m_replacebuf[(j)*2], m_replacebuf[(j)*2 +1] - m_replacebuf[(j)*2]));
+						if(m_replacebuf[(j)*2] > -1) //when a group matches nothing its offset equals -1
+							rep.replace(p, strlen(toexp), working.substr(m_replacebuf[(j)*2], m_replacebuf[(j)*2 +1] - m_replacebuf[(j)*2]));
+						else
+							rep.erase(p, strlen(toexp));
 				}
 				//replace the match by the replace string
 				working.replace(m_replacebuf[0], m_replacebuf[1] - m_replacebuf[0], rep);

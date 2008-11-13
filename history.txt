@@ -1,6 +1,8 @@
 HISTORY
 =======
 
+2008-11-13 - bugfix : crashing during replace() when a group matches nothing is bad :o)
+
 2008-11-11 - rewrote the vector allocation for matches & groups with dynamic allocation
              added the study method
 
