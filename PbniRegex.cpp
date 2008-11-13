@@ -231,7 +231,8 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 			int newmaxgroups;
 			if (pcre_fullinfo(re, NULL, PCRE_INFO_CAPTURECOUNT, &newmaxgroups) == 0){
 				if (newmaxgroups > m_maxgroups){
-					OutputDebugStringA("PbniRegex :: need to reallocate bigger block for group matches\n");
+					sprintf(dbgMsg, "PbniRegex :: needs to reallocate bigger block for group matches (maxgroup was %d, increase to %d)\n", m_maxgroups, newmaxgroups);
+					OutputDebugStringA(dbgMsg);
 					m_maxgroups = newmaxgroups;
 					m_ovecsize = (m_maxgroups + 1) * 3;
 					m_matchinfo = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_matchinfo, sizeof(int) * (m_maxmatches * m_ovecsize));
@@ -390,11 +391,12 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 		do {
 			if (nmatch >= m_maxmatches){
 				//if we have already filled the vector to the maximum number of matches, reallocate some more space
-				sprintf(dbgMsg, "PbniRegex : needs more memory to store matches (max matches was %d)\n", m_maxmatches);
+				sprintf(dbgMsg, "PbniRegex :: needs more memory to store matches (max matches was %d)\n", m_maxmatches);
 				OutputDebugStringA(dbgMsg);
-				m_maxmatches += m_maxmatches * .1;
+				//lets say that we grow the buffer by 25%
+				m_maxmatches *= 1.5;
 				m_maxmatches++;
-				sprintf(dbgMsg, "PbniRegex : new max matches will be %d\n", m_maxmatches);
+				sprintf(dbgMsg, "PbniRegex :: new max matches will be %d\n", m_maxmatches);
 				OutputDebugStringA(dbgMsg);
 				m_matchinfo = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_matchinfo, sizeof(int) * (m_maxmatches * m_ovecsize));
 				if(!m_matchinfo){
