@@ -99,7 +99,8 @@ protected:
 	bool m_bmultiLine;			// option : multiline
 
 	//space to store the matching info
-	int *m_matchinfo;						//memory block that is an array of vectors to store matching info
+	int *m_matchinfo;						//buffer for the array of vectors to store matching info
+	int *m_replacebuf;						//working buffer for the replace method
 	int m_matchCount;						//number of matches for the current search()
 	int *m_groupcount;						//number of captured substrings for each match
 	HANDLE hHeap;

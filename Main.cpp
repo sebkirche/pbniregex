@@ -16,22 +16,22 @@ BOOL APIENTRY DllMain
 	{	
 	case DLL_PROCESS_ATTACH:
 #ifdef _DEBUG
-		OutputDebugString(_T("PbniRegex Dll :: DllMain(DLL_PROCESS_ATTACH)"));
+		OutputDebugString(_T("PbniRegex Dll :: DllMain(DLL_PROCESS_ATTACH)\n"));
 #endif
 		break;
 	case DLL_THREAD_ATTACH:
 #ifdef _DEBUG
-		OutputDebugString(_T("PbniRegex Dll :: DllMain(DLL_THREAD_ATTACH)"));
+		OutputDebugString(_T("PbniRegex Dll :: DllMain(DLL_THREAD_ATTACH)\n"));
 #endif
 		break;
 	case DLL_THREAD_DETACH:		
 #ifdef _DEBUG
-		OutputDebugString(_T("PbniRegex Dll :: DllMain(DLL_THREAD_DETACH)"));
+		OutputDebugString(_T("PbniRegex Dll :: DllMain(DLL_THREAD_DETACH)\n"));
 #endif
 		break;
 	case DLL_PROCESS_DETACH:
 #ifdef _DEBUG
-		OutputDebugString(_T("PbniRegex Dll :: DllMain(DLL_PROCESS_DETACH)"));
+		OutputDebugString(_T("PbniRegex Dll :: DllMain(DLL_PROCESS_DETACH)\n"));
 #endif
 		break;
 	}

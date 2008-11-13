@@ -22,7 +22,7 @@ PbniRegex::PbniRegex( IPB_Session * pSession )
 {
 
 #ifdef _DEBUG
-	OutputDebugString(_T("PbniRegex :: Constructor"));
+	OutputDebugString(_T("PbniRegex :: Constructor\n"));
 #endif
 	m_bGlobal = false;
 	m_bCaseSensitive = false;
@@ -38,13 +38,14 @@ PbniRegex::PbniRegex( IPB_Session * pSession )
 	m_ovecsize = (m_maxgroups + 1) * 3;
 	hHeap = HeapCreate(0, 1024 * 64, 0);
 	m_matchinfo = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * (m_maxmatches * m_ovecsize));
+	m_replacebuf = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * m_ovecsize);
 	m_groupcount = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * m_maxmatches);
 }
 
 PbniRegex::~PbniRegex()
 {
 #ifdef _DEBUG
-	OutputDebugString(_T("PbniRegex :: Destructor"));
+	OutputDebugString(_T("PbniRegex :: Destructor\n"));
 #endif
 	if(m_sPattern)
 		free(m_sPattern);
@@ -54,6 +55,8 @@ PbniRegex::~PbniRegex()
 		pcre_free(re);
 	if(m_matchinfo)
 		HeapFree(hHeap, 0, m_matchinfo);
+	if(m_replacebuf)
+		HeapFree(hHeap, 0, m_replacebuf);
 	if(m_groupcount)
 		HeapFree(hHeap, 0, m_groupcount);
 	if(hHeap)
@@ -228,6 +231,7 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 			int newmaxgroups;
 			if (pcre_fullinfo(re, NULL, PCRE_INFO_CAPTURECOUNT, &newmaxgroups) == 0){
 				if (newmaxgroups > m_maxgroups){
+					OutputDebugStringA("PbniRegex :: need to reallocate bigger block for group matches\n");
 					m_maxgroups = newmaxgroups;
 					m_ovecsize = (m_maxgroups + 1) * 3;
 					m_matchinfo = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_matchinfo, sizeof(int) * (m_maxmatches * m_ovecsize));
@@ -235,12 +239,21 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 						long err = GetLastError();
 						OutputDebugStringA("PbniRegex :: initialize failed on memory reallocation for matches\n");
 						ci->returnValue->SetBool(false);
+						pbxr = PBX_E_OUTOF_MEMORY;
+					}
+					m_replacebuf = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_replacebuf, sizeof(int) * m_ovecsize);
+					if(!m_replacebuf){
+						long err = GetLastError();
+						OutputDebugStringA("PbniRegex :: initialize failed on memory reallocation for replace\n");
+						ci->returnValue->SetBool(false);
+						pbxr = PBX_E_OUTOF_MEMORY;
 					}
 					m_groupcount = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_groupcount, sizeof(int) * m_maxmatches);
 					if(!m_groupcount){
 						long err = GetLastError();
 						OutputDebugStringA("PbniRegex :: initialize failed on memory reallocation for groups count\n");
 						ci->returnValue->SetBool(false);
+						pbxr = PBX_E_OUTOF_MEMORY;
 					}
 				}//mem reallocation needed
 			}//pcre-fullinfo was successful
@@ -388,12 +401,14 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 					long err = GetLastError();
 					OutputDebugStringA("PbniRegex :: search failed on memory reallocation for matches\n");
 					ci->returnValue->SetLong(-1);
+					pbxr = PBX_E_OUTOF_MEMORY;
 				}
 				m_groupcount = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_groupcount, sizeof(int) * m_maxmatches);
 				if(!m_groupcount){
 					long err = GetLastError();
 					OutputDebugStringA("PbniRegex :: initialize failed on memory reallocation for groups count\n");
 					ci->returnValue->SetLong(-1);
+					pbxr = PBX_E_OUTOF_MEMORY;
 				}
 			}
 			res = pcre_exec(re, studinfo, m_sData, (int)searchLen-2, startoffset, 0, &(m_matchinfo[nmatch * m_ovecsize]), m_ovecsize);
@@ -604,10 +619,8 @@ PBXRESULT PbniRegex::Group(PBCallInfo *ci)
 PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 {
 	int nmatch = 0;
-	//int maxmatch = MAXMATCHES;
 	int startoffset = 0;
 	int res;
-	int *mvector;//[OVECCOUNT];
 	char toexp[10];
 	PBXRESULT pbxr = PBX_OK;
 
@@ -644,33 +657,26 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 		using namespace std;
 		string working (search_utf8);
 
-		mvector = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * (m_maxmatches * m_ovecsize));
-		if (!mvector){
-			ci->returnValue->SetToNull();
-			return PBX_E_OUTOF_MEMORY;
-		}
 		do {
-			//parcours les matches
-			res = pcre_exec(re, studinfo, working.c_str(), strlen(working.c_str()), startoffset, 0, mvector, m_ovecsize);
+			//crawl the matches
+			res = pcre_exec(re, studinfo, working.c_str(), strlen(working.c_str()), startoffset, 0, m_replacebuf, m_ovecsize);
 			if (res > 0) {
-				//m_groupcount[nmatch] = res - 1;
 				basic_string<char> rep(rep_utf8);
-				//expansion des substrings
+				//expansion of substrings
 				for(int j = res - 1; j > 0; j--) // res = nb groups + 1
 				{
 					sprintf(toexp, "\\%d", j);
 					int p;
 					while((p = rep.find(toexp)) != string::npos)
-						rep.replace(p,strlen(toexp), working.substr(mvector[(j)*2], mvector[(j)*2 +1]-mvector[(j)*2]));
+						rep.replace(p,strlen(toexp), working.substr(m_replacebuf[(j)*2], m_replacebuf[(j)*2 +1] - m_replacebuf[(j)*2]));
 				}
-				//remplacement du match par la chaine de remplacement
-				working.replace(mvector[0], mvector[1]-mvector[0], rep);
-				startoffset = mvector[0] + rep.length();
+				//replace the match by the replace string
+				working.replace(m_replacebuf[0], m_replacebuf[1] - m_replacebuf[0], rep);
+				startoffset = m_replacebuf[0] + rep.length();
 				nmatch++;
-			} else
-				break;
+			}
 		//until there is no match left OR if we did not set the global attribute for a single replacement
-		}while (m_bGlobal && nmatch < m_maxmatches);
+		}while (m_bGlobal && (res > 0));
 
 		//result string  utf-8 / ansi -> utf-16
 		int outLen = mbstowcs(NULL, working.c_str(), strlen(working.c_str())+1);
@@ -679,7 +685,6 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 
 		ci->returnValue->SetString(wstr);
 
-		HeapFree(hHeap, 0, mvector);
 		free(search_utf8);
 		free(rep_utf8);
 		free(wstr);
