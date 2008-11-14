@@ -26,8 +26,11 @@ PbniRegex::PbniRegex( IPB_Session * pSession )
 #endif
 	m_bGlobal = false;
 	m_bCaseSensitive = false;
-	m_butf8 = false;
 	m_bmultiLine = false;
+	m_bDotNL = false;
+	m_bExtended = false;
+	m_bUnGreedy = false;
+	m_butf8 = false;
 	m_sPattern = NULL;
 	m_sData = NULL;
 	re = NULL;
@@ -131,7 +134,25 @@ PBXRESULT PbniRegex::Invoke
 			pbxr = this->SetUtf(ci);
 			break;
 		case mid_Study:
-			pbxr= this->Study(ci);
+			pbxr = this->Study(ci);
+			break;
+		case mid_getDot:
+			pbxr = this->GetDotNL(ci);
+			break;
+		case mid_setDot:
+			pbxr = this->SetDotNL(ci);
+			break;
+		case mid_getExtended:
+			pbxr = this->GetExtended(ci);
+			break;
+		case mid_setExtended:
+			pbxr = this->SetExtended(ci);
+			break;
+		case mid_getUnGreedy:
+			pbxr = this->GetUnGreedy(ci);
+			break;
+		case mid_setUnGreedy:
+			pbxr = this->SetUnGreedy(ci);
 			break;
 		default:
 			pbxr = PBX_E_INVOKE_METHOD_AMBIGUOUS;
@@ -210,8 +231,14 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 		m_matchCount = 0;
 		if(!m_bCaseSensitive)
 			opts += PCRE_CASELESS;
-		if(!m_bmultiLine)
+		if(m_bmultiLine)
 			opts += PCRE_MULTILINE;
+		if(m_bDotNL)
+			opts += PCRE_DOTALL;
+		if(m_bExtended)
+			opts += PCRE_EXTENDED;
+		if(m_bUnGreedy)
+			opts += PCRE_UNGREEDY;
 
 		re = pcre_compile(
 				m_sPattern,           /* pattern */
@@ -355,11 +382,35 @@ PBXRESULT PbniRegex::SetUtf(PBCallInfo *ci)
 	return pbxr;
 }
 
+PBXRESULT PbniRegex::SetDotNL(PBCallInfo *ci)
+{
+	PBXRESULT pbxr = PBX_OK;
+
+	m_bDotNL = ci->pArgs->GetAt(0)->GetBool();
+	return pbxr;
+}
+
+PBXRESULT PbniRegex::SetExtended(PBCallInfo *ci)
+{
+	PBXRESULT pbxr = PBX_OK;
+
+	m_bExtended = ci->pArgs->GetAt(0)->GetBool();
+	return pbxr;
+}
+
 PBXRESULT PbniRegex::SetMulti(PBCallInfo *ci)
 {
 	PBXRESULT pbxr = PBX_OK;
 
 	m_bmultiLine = ci->pArgs->GetAt(0)->GetBool();
+	return pbxr;
+}
+
+PBXRESULT PbniRegex::SetUnGreedy(PBCallInfo *ci)
+{
+	PBXRESULT pbxr = PBX_OK;
+
+	m_bUnGreedy = ci->pArgs->GetAt(0)->GetBool();
 	return pbxr;
 }
 
@@ -461,6 +512,30 @@ PBXRESULT PbniRegex::IsUtf(PBCallInfo *ci)
 	PBXRESULT pbxr = PBX_OK;
 
 	ci->returnValue->SetBool(m_butf8);
+	return pbxr;
+}
+
+PBXRESULT PbniRegex::GetDotNL(PBCallInfo *ci)
+{
+	PBXRESULT pbxr = PBX_OK;
+
+	ci->returnValue->SetBool(m_bDotNL);
+	return pbxr;
+}
+
+PBXRESULT PbniRegex::GetExtended(PBCallInfo *ci)
+{
+	PBXRESULT pbxr = PBX_OK;
+
+	ci->returnValue->SetBool(m_bExtended);
+	return pbxr;
+}
+
+PBXRESULT PbniRegex::GetUnGreedy(PBCallInfo *ci)
+{
+	PBXRESULT pbxr = PBX_OK;
+
+	ci->returnValue->SetBool(m_bUnGreedy);
 	return pbxr;
 }
 

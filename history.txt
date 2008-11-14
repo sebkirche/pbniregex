@@ -1,6 +1,10 @@
 HISTORY
 =======
 
+2008-11-14 - fixed the correct handling of the option multiline
+             added the options and methods to handle dot-match-newlines, ungreedy and extended syntax
+             minor layout changes in regex coach
+
 2008-11-13 - bugfix : crashing during replace() when a group matches nothing is bad :o)
 
 2008-11-11 - rewrote the vector allocation for matches & groups with dynamic allocation

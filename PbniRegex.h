@@ -52,6 +52,12 @@ public:
 		mid_IsMulti,
 		mid_IsUtf,
 		mid_Study,
+		mid_getDot,
+		mid_setDot,
+		mid_getExtended,
+		mid_setExtended,
+		mid_getUnGreedy,
+		mid_setUnGreedy,
 		NO_MORE_METHODS
 	};
 
@@ -82,6 +88,12 @@ protected:
 	PBXRESULT IsMulti(PBCallInfo * ci);
 	PBXRESULT IsUtf(PBCallInfo * ci);
 	PBXRESULT Study(PBCallInfo * ci);
+	PBXRESULT GetDotNL(PBCallInfo * ci);
+	PBXRESULT SetDotNL(PBCallInfo * ci);
+	PBXRESULT GetExtended(PBCallInfo * ci);
+	PBXRESULT SetExtended(PBCallInfo * ci);
+	PBXRESULT GetUnGreedy(PBCallInfo * ci);
+	PBXRESULT SetUnGreedy(PBCallInfo * ci);
 
 protected:
     // member variables
@@ -95,8 +107,11 @@ protected:
 	long m_ovecsize;			// size of the vector in number of ints
 	bool m_butf8;				// option : use utf-8 for regexen / data ?
 	bool m_bGlobal;				// option : global search / replace ?
-	bool m_bCaseSensitive;		// option : be case-sensitive ?
-	bool m_bmultiLine;			// option : multiline
+	bool m_bCaseSensitive;		// option : be case-sensitive ? - maps PCRE_CASELESS == /i option in perl
+	bool m_bmultiLine;			// option : multiline			- maps PCRE_MULTILINE == /m option in perl
+	bool m_bDotNL;				// option : dot matches Newlines - maps PCRE_DOTALL == /s option in perl
+	bool m_bExtended;			// option : use extended regexps - maps PCRE_EXTENDED == /x option in perl
+	bool m_bUnGreedy;			// option : ungreedy ?			 - maps PCRE_UNGREEDY
 
 	//space to store the matching info
 	int *m_matchinfo;						//buffer for the array of vectors to store matching info
