@@ -78,6 +78,7 @@ PBXEXPORT LPCTSTR PBXCALL PBX_GetDescription()
       _T("   subroutine setextendedsyntax(boolean extended)\n") \
 	  _T("   function boolean getungreedy()\n") \
       _T("   subroutine setungreedy(boolean greedy)\n") \
+      _T("   function string getpattern()\n") \
       _T("end class\n") \
       _T("globalfunctions \n") \
       _T("   function string fastreplaceall(string as_source, string as_pattern, string as_replace)\n") \

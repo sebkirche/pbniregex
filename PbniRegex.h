@@ -58,6 +58,7 @@ public:
 		mid_setExtended,
 		mid_getUnGreedy,
 		mid_setUnGreedy,
+		mid_getPattern,
 		NO_MORE_METHODS
 	};
 
@@ -94,6 +95,7 @@ protected:
 	PBXRESULT SetExtended(PBCallInfo * ci);
 	PBXRESULT GetUnGreedy(PBCallInfo * ci);
 	PBXRESULT SetUnGreedy(PBCallInfo * ci);
+	PBXRESULT GetPattern(PBCallInfo * ci);
 
 protected:
     // member variables

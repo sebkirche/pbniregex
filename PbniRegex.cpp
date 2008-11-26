@@ -154,6 +154,9 @@ PBXRESULT PbniRegex::Invoke
 		case mid_setUnGreedy:
 			pbxr = this->SetUnGreedy(ci);
 			break;
+		case mid_getPattern:
+			pbxr = this->GetPattern(ci);
+			break;
 		default:
 			pbxr = PBX_E_INVOKE_METHOD_AMBIGUOUS;
 	}
@@ -645,6 +648,21 @@ PBXRESULT PbniRegex::Match(PBCallInfo *ci)
 	}
 	else
 		ci->returnValue->SetToNull();
+	return pbxr;
+}
+
+PBXRESULT PbniRegex::GetPattern(PBCallInfo *ci)
+{
+	PBXRESULT pbxr = PBX_OK;
+	int lenW;
+	
+	lenW = mbstowcs(NULL, m_sPattern, strlen(m_sPattern)+1);
+	LPWSTR wstr = (LPWSTR)malloc((lenW+1) * sizeof(wchar_t));
+	mbstowcs(wstr, m_sPattern, strlen(m_sPattern)+1);
+
+	ci->returnValue->SetString(wstr);
+	free(wstr);
+
 	return pbxr;
 }
 
