@@ -656,12 +656,15 @@ PBXRESULT PbniRegex::GetPattern(PBCallInfo *ci)
 	PBXRESULT pbxr = PBX_OK;
 	int lenW;
 	
-	lenW = mbstowcs(NULL, m_sPattern, strlen(m_sPattern)+1);
-	LPWSTR wstr = (LPWSTR)malloc((lenW+1) * sizeof(wchar_t));
-	mbstowcs(wstr, m_sPattern, strlen(m_sPattern)+1);
-
-	ci->returnValue->SetString(wstr);
-	free(wstr);
+	if (m_sPattern) {
+		lenW = mbstowcs(NULL, m_sPattern, strlen(m_sPattern)+1);
+		LPWSTR wstr = (LPWSTR)malloc((lenW+1) * sizeof(wchar_t));
+		mbstowcs(wstr, m_sPattern, strlen(m_sPattern)+1);
+		ci->returnValue->SetString(wstr);
+		free(wstr);
+	} 
+	else
+		ci->returnValue->SetToNull();
 
 	return pbxr;
 }
