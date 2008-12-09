@@ -55,6 +55,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_UNICODE;UNICODE;_DEBUG"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -137,6 +138,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_UNICODE;UNICODE;NDEBUG"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -223,6 +225,18 @@
 			</File>
 			<File
 				RelativePath=".\libpcre\pcrecpparg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\resource.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Resources"
+			>
+			<File
+				RelativePath=".\PbniRegex.rc"
 				>
 			</File>
 		</Filter>
