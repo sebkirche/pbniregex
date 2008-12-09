@@ -88,7 +88,7 @@ BEGIN
 			""
 #endif
             VALUE "FileVersion", "1, 0, 0, 0"
-            VALUE "InternalName", "PbniRege"
+            VALUE "InternalName", "PbniRegex"
             VALUE "LegalCopyright", "Copyright © 2008 Sébastien Kirche"
             VALUE "OriginalFilename", "PbniRegex.pbx"
             VALUE "ProductName", "PbniRegex Powerbuilder extension"
