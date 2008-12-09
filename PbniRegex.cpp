@@ -11,6 +11,12 @@
 #include "pcre.h"
 #include "pcrecpp.h"
 
+#ifdef _DEBUG
+#define	VERSION_STR	_T(" (Debug version)")
+#else
+#define	VERSION_STR	_T(" (Release version)")
+#endif
+
 char dbgMsg[512];
 
 PbniRegex::PbniRegex()
@@ -192,7 +198,7 @@ PBXRESULT PbniRegex::Hello( PBCallInfo * ci )
 	PBXRESULT	pbxr = PBX_OK;
 
 	// return value
-	ci->returnValue->SetString( _T("Hello from PbniRegex") );
+	ci->returnValue->SetString( _T("Hello from PbniRegex" VERSION_STR) );
 #ifdef _DEBUG
 	OutputDebugStringA(pcre_version());
 #endif
