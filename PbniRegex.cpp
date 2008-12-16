@@ -713,10 +713,10 @@ PBXRESULT PbniRegex::Group(PBCallInfo *ci)
 			}
 		}
 		else
-			ci->returnValue->SetToNull();
+			ci->returnValue->SetToNull();	//groupindex < 0 or groupindex > groupcount
 	}
 	else
-		ci->returnValue->SetToNull();
+		ci->returnValue->SetToNull(); //matchindex < 0 or matchindex > matchcount
 	return pbxr;
 }
 
