@@ -1,6 +1,9 @@
 HISTORY
 =======
 
+2009-02-09 - fixaround with search() when a match has null length
+             I noticed that the HeapAlloc calls *should* be surrounded by try/catch ;)
+
 2008-11-26 - added the getpattern() method
 
 2008-11-14 - fixed the correct handling of the option multiline

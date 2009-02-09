@@ -458,6 +458,7 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 				m_maxmatches++;
 				sprintf(dbgMsg, "PbniRegex :: new max matches will be %d\n", m_maxmatches);
 				OutputDebugStringA(dbgMsg);
+				//TODO: should handle a try/catch if the mem alloc fails ?
 				m_matchinfo = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_matchinfo, sizeof(int) * (m_maxmatches * m_ovecsize));
 				if(!m_matchinfo){
 					long err = GetLastError();
@@ -478,6 +479,9 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 				m_groupcount[nmatch] = res - 1;
 				startoffset = m_matchinfo[(nmatch * m_ovecsize) + 1];
 				nmatch++;
+				// the match might have a null length : the start offset = the next offset, so we stop there
+				if(startoffset == m_matchinfo[((nmatch - 1) * m_ovecsize)])
+					break;
 				// do not perform another search if we are at the end of the string
 				if (startoffset >= (searchLen - 2))
 					break;
