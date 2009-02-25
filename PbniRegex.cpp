@@ -727,6 +727,7 @@ PBXRESULT PbniRegex::Group(PBCallInfo *ci)
 PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 {
 	int nmatch = 0;
+	int nbgroups;
 	int startoffset = 0;
 	int res;
 	char toexp[10];
@@ -770,8 +771,11 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 			res = pcre_exec(re, studinfo, working.c_str(), strlen(working.c_str()), startoffset, 0, m_replacebuf, m_ovecsize);
 			if (res > 0) {
 				basic_string<char> rep(rep_utf8);
+				//get the number of capturing patterns
+				res = pcre_fullinfo(re, studinfo, PCRE_INFO_CAPTURECOUNT, &nbgroups); //need to check res ?
+				
 				//expansion of substrings
-				for(int j = res - 1; j > 0; j--) // res = nb groups + 1
+				for(int j = nbgroups; j > 0; j--)
 				{
 					sprintf(toexp, "\\%d", j);
 					int p;
