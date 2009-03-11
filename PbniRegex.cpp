@@ -735,7 +735,7 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 	int nmatch = 0;
 	int nbgroups;
 	int startoffset = 0;
-	int res, res2;
+	int res, res2, matchLen, repLen;
 	char toexp[10];
 	PBXRESULT pbxr = PBX_OK;
 
@@ -792,12 +792,15 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 							rep.erase(p, strlen(toexp));
 				}
 				//replace the match by the replace string
-				working.replace(m_replacebuf[0], m_replacebuf[1] - m_replacebuf[0], rep);
-				startoffset = m_replacebuf[0] + rep.length();
+				matchLen = m_replacebuf[1] - m_replacebuf[0];
+				repLen = rep.length();
+				working.replace(m_replacebuf[0], matchLen, rep);
+				startoffset = m_replacebuf[0] + repLen;
 				nmatch++;
 			}
 		//until there is no match left OR if we did not set the global attribute for a single replacement
-		}while (m_bGlobal && (res > 0));
+		//also, if we replaced nothing by nothing, we can stop too
+		}while (m_bGlobal && (res > 0) && (matchLen || repLen));
 
 		//result string  utf-8 / ansi -> utf-16
 		int outLen = mbstowcs(NULL, working.c_str(), strlen(working.c_str())+1);
