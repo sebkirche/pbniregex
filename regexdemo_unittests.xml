@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<UnitTests>
+	<UnitTest>
+		<state>1</state>
+		<index>1</index>
+		<pattern>^A</pattern>
+		<Global>1</Global>
+		<Insensitive/>
+		<Xtended/>
+		<MultiLine/>
+		<stripSpace/>
+		<nonGreedy/>
+		<dataValue>Action</dataValue>
+		<action>T</action>
+		<replaceby/>
+		<result>true</result>
+		<description>Nothing</description>
+	</UnitTest>
+	<UnitTest>
+		<state>1</state>
+		<index>2</index>
+		<pattern>[abcd]</pattern>
+		<Global>1</Global>
+		<Insensitive/>
+		<Xtended/>
+		<MultiLine/>
+		<stripSpace/>
+		<nonGreedy/>
+		<dataValue>abcd</dataValue>
+		<action>S</action>
+		<replaceby/>
+		<result>4 m(@1:1 0 g() @2:1 0 g() @3:1 0 g() @4:1 0 g() )</result>
+		<description>Simple 1</description>
+	</UnitTest>
+	<UnitTest>
+		<state>1</state>
+		<index>3</index>
+		<pattern>[abcd]</pattern>
+		<Global>1</Global>
+		<Insensitive/>
+		<Xtended/>
+		<MultiLine/>
+		<stripSpace/>
+		<nonGreedy/>
+		<dataValue>abcd</dataValue>
+		<action>R</action>
+		<replaceby>a</replaceby>
+		<result>aaaa</result>
+		<description>Simple 2</description>
+	</UnitTest>
+</UnitTests>
