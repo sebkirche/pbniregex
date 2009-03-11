@@ -267,8 +267,10 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 			int newmaxgroups;
 			if (pcre_fullinfo(re, NULL, PCRE_INFO_CAPTURECOUNT, &newmaxgroups) == 0){
 				if (newmaxgroups > m_maxgroups){
+#ifdef _DEBUG
 					sprintf(dbgMsg, "PbniRegex :: needs to reallocate bigger block for group matches (maxgroup was %d, increase to %d)\n", m_maxgroups, newmaxgroups);
 					OutputDebugStringA(dbgMsg);
+#endif
 					m_maxgroups = newmaxgroups;
 					m_ovecsize = (m_maxgroups + 1) * 3;
 					m_matchinfo = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_matchinfo, sizeof(int) * (m_maxmatches * m_ovecsize));
@@ -451,13 +453,17 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 		do {
 			if (nmatch >= m_maxmatches){
 				//if we have already filled the vector to the maximum number of matches, reallocate some more space
+#ifdef _DEBUG
 				sprintf(dbgMsg, "PbniRegex :: needs more memory to store matches (max matches was %d)\n", m_maxmatches);
 				OutputDebugStringA(dbgMsg);
+#endif
 				//lets say that we grow the buffer by 25%
 				m_maxmatches *= 1.5;
 				m_maxmatches++;
+#ifdef _DEBUG
 				sprintf(dbgMsg, "PbniRegex :: new max matches will be %d\n", m_maxmatches);
 				OutputDebugStringA(dbgMsg);
+#endif
 				//TODO: should handle a try/catch if the mem alloc fails ?
 				m_matchinfo = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_matchinfo, sizeof(int) * (m_maxmatches * m_ovecsize));
 				if(!m_matchinfo){
@@ -729,7 +735,7 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 	int nmatch = 0;
 	int nbgroups;
 	int startoffset = 0;
-	int res;
+	int res, res2;
 	char toexp[10];
 	PBXRESULT pbxr = PBX_OK;
 
@@ -772,7 +778,7 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 			if (res > 0) {
 				basic_string<char> rep(rep_utf8);
 				//get the number of capturing patterns
-				res = pcre_fullinfo(re, studinfo, PCRE_INFO_CAPTURECOUNT, &nbgroups); //need to check res ?
+				res2 = pcre_fullinfo(re, studinfo, PCRE_INFO_CAPTURECOUNT, &nbgroups); //need to check res ?
 				
 				//expansion of substrings
 				for(int j = nbgroups; j > 0; j--)
