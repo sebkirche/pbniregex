@@ -1,6 +1,9 @@
 HISTORY
 =======
 
+2009-03-11 - Bugfix in Replace() : broken by last modification to get the capturing groups count, 
+             was replacing only the first occurence :S
+
 2009-02-25 - Bugfix in Replace() : use the number of capturing groups from the pattern 
              instead of the number of the matched groups for the expansion of the \nn items.
              E.g: Replace() returned \1 instead of an empty string when a pattern with a capturing group
