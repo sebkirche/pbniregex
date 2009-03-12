@@ -179,10 +179,11 @@ void PbniRegex::Destroy()
 
 PBXRESULT PbniRegex::Version( PBCallInfo * ci )
 {
-	const char *verStr;
+	char verStr[256];
 	PBXRESULT	pbxr = PBX_OK;
 
-	verStr = pcre_version();
+	strcpy(verStr, "PCRE v.");
+	strcat(verStr, pcre_version());
 	int verLen = mbstowcs(NULL, verStr, strlen(verStr)+1);
 	LPWSTR wstr = (LPWSTR)malloc((verLen+1) * sizeof(wchar_t));
 	mbstowcs(wstr, verStr, strlen(verStr)+1);
