@@ -1,9 +1,12 @@
 HISTORY
 =======
 
+2009-03-12 - Nicolas Georges added the unit-test functionnality
+
 2009-03-11 - Bugfix in Replace() : broken by last modification to get the capturing groups count, 
              was replacing only the first occurence
              Bugfix 2 : trying to replace an empty string by an empty string got endless loop :S
+             Nicolas Georges refactored the UI to use a splitter and and added a live-update of the results
 
 2009-02-25 - Bugfix in Replace() : use the number of capturing groups from the pattern 
              instead of the number of the matched groups for the expansion of the \nn items.
