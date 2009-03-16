@@ -1,7 +1,12 @@
 HISTORY
 =======
 
-2009-03-12 - Nicolas Georges added the unit-test functionnality
+2009-03-16 - Minor refactor of the GUI + added a mini-help
+             TODO : there is a little GUI problem : the close button and system menu have disappeared
+                    you have to quit with the File / Quit menu item
+
+2009-03-12 - Nicolas Georges added the unit-test functionnality, and introduced several GUI improvements :
+             auto-resizing + horizontal and vertical splitters (only the vertical is used by now)
 
 2009-03-11 - Bugfix in Replace() : broken by last modification to get the capturing groups count, 
              was replacing only the first occurence
