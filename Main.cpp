@@ -24,7 +24,7 @@ BOOL APIENTRY DllMain
 		OutputDebugString(_T("PbniRegex Dll :: DllMain(DLL_THREAD_ATTACH)\n"));
 #endif
 		break;
-	case DLL_THREAD_DETACH:		
+	case DLL_THREAD_DETACH:
 #ifdef _DEBUG
 		OutputDebugString(_T("PbniRegex Dll :: DllMain(DLL_THREAD_DETACH)\n"));
 #endif

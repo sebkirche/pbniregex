@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <mbstring.h>
 #include "PbniRegex.h"
 #include "pcre.h"
 #include "pcrecpp.h"
@@ -36,7 +37,7 @@ PbniRegex::PbniRegex( IPB_Session * pSession )
 	m_bDotNL = false;
 	m_bExtended = false;
 	m_bUnGreedy = false;
-	m_butf8 = false;
+	m_butf8 = true;			//always work in utf-8
 	m_sPattern = NULL;
 	m_sData = NULL;
 	re = NULL;
@@ -49,6 +50,7 @@ PbniRegex::PbniRegex( IPB_Session * pSession )
 	m_matchinfo = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * (m_maxmatches * m_ovecsize));
 	m_replacebuf = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * m_ovecsize);
 	m_groupcount = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * m_maxmatches);
+	char *toto = setlocale(LC_ALL, NULL);
 }
 
 PbniRegex::~PbniRegex()
@@ -231,12 +233,14 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 			free(m_sPattern);
 		int patternLen = wcstombs(NULL, (LPWSTR)pattern_ucs2, 0) + 2;
 		m_sPattern = (LPSTR)malloc(patternLen);
-		if (m_butf8){
+		//if (m_butf8){
 			WideCharToMultiByte(CP_UTF8,0,pattern_ucs2,-1,m_sPattern,patternLen,NULL,NULL);	
 			opts += PCRE_UTF8;
+		/*
 		}
 		else
 			WideCharToMultiByte(CP_ACP,0,pattern_ucs2,-1,m_sPattern,patternLen,NULL,NULL);	
+		*/
 
 		m_matchCount = 0;
 		if(!m_bCaseSensitive)
@@ -349,12 +353,13 @@ PBXRESULT PbniRegex::Test( PBCallInfo * ci )
 
 		int testLen = wcstombs(NULL, (LPWSTR)testString, 0) + 2;
 		LPSTR testStr_utf8 = (LPSTR)malloc(testLen);
-		if (m_butf8)
-		{
+		//if (m_butf8){
 			WideCharToMultiByte(CP_UTF8,0,testString,-1,testStr_utf8,testLen,NULL,NULL);	
+		/*
 		}
 		else
 			WideCharToMultiByte(CP_ACP,0,testString,-1,testStr_utf8,testLen,NULL,NULL);	
+		*/
 		rc = pcre_exec(
 		  re,                   /* the compiled pattern */
 		  studinfo,             /* extra data if we studied the pattern */
@@ -390,7 +395,7 @@ PBXRESULT PbniRegex::SetUtf(PBCallInfo *ci)
 {
 	PBXRESULT pbxr = PBX_OK;
 
-	m_butf8 = ci->pArgs->GetAt(0)->GetBool();
+	//m_butf8 = ci->pArgs->GetAt(0)->GetBool();
 	return pbxr;
 }
 
@@ -445,11 +450,13 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 			free(m_sData);
 		int searchLen = wcstombs(NULL, (LPWSTR)searchString, 0) + 2;
 		/*LPSTR searchString_utf8*/m_sData = (LPSTR)malloc(searchLen);
-		if (m_butf8){
+		//if (m_butf8){
 			WideCharToMultiByte(CP_UTF8,0,searchString,-1,m_sData,searchLen,NULL,NULL);	
+		/*
 		}
 		else
 			WideCharToMultiByte(CP_ACP,0,searchString,-1,m_sData,searchLen,NULL,NULL);	
+		*/
 
 		do {
 			if (nmatch >= m_maxmatches){
@@ -565,7 +572,7 @@ PBXRESULT PbniRegex::MatchPos(PBCallInfo *ci)
 
 	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 	if(index >= 0 && index < m_matchCount)
-		ci->returnValue->SetLong(m_matchinfo[index * m_ovecsize + 0] + 1);
+		ci->returnValue->SetLong(_mbsnccnt((const unsigned char*)m_sData, m_matchinfo[index * m_ovecsize + 0]) + 1);
 	else
 		ci->returnValue->SetLong(-1);
 	return pbxr;
@@ -577,7 +584,7 @@ PBXRESULT PbniRegex::MatchLen(PBCallInfo *ci)
 
 	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 	if(index >= 0 && index <= m_matchCount)
-		ci->returnValue->SetLong(m_matchinfo[index * m_ovecsize + 1] - m_matchinfo[index * m_ovecsize + 0]);
+		ci->returnValue->SetLong(_mbsnccnt((const unsigned char*)m_sData + m_matchinfo[index * m_ovecsize + 0], m_matchinfo[index * m_ovecsize + 1] - m_matchinfo[index * m_ovecsize + 0]));
 	else
 		ci->returnValue->SetLong(-1);
 	return pbxr;
@@ -654,9 +661,12 @@ PBXRESULT PbniRegex::Match(PBCallInfo *ci)
 		LPSTR match = (LPSTR)malloc(matchLen + 1);
 		lstrcpynA(match, (LPCSTR)(m_sData + m_matchinfo[index * m_ovecsize + 0]), matchLen);
 		//convert in WC
-		matchLenW = mbstowcs(NULL, match, strlen(match)+1);
-		LPWSTR wstr = (LPWSTR)malloc((matchLenW+1) * sizeof(wchar_t));
-		mbstowcs(wstr, match, strlen(match)+1);
+		//matchLenW = mbstowcs(NULL, match, strlen(match)+1);
+		//LPWSTR wstr = (LPWSTR)malloc((matchLenW+1) * sizeof(wchar_t));
+		//mbstowcs(wstr, match, strlen(match)+1);
+		matchLenW = MultiByteToWideChar(CP_UTF8, 0, match, -1, NULL, 0);
+		LPWSTR wstr = (LPWSTR)malloc((matchLenW) * sizeof(wchar_t));
+		MultiByteToWideChar(CP_UTF8, 0, match, -1, wstr, matchLenW);
 
 		// return value
 		ci->returnValue->SetString(wstr);
@@ -674,9 +684,13 @@ PBXRESULT PbniRegex::GetPattern(PBCallInfo *ci)
 	int lenW;
 	
 	if (m_sPattern) {
-		lenW = mbstowcs(NULL, m_sPattern, strlen(m_sPattern)+1);
-		LPWSTR wstr = (LPWSTR)malloc((lenW+1) * sizeof(wchar_t));
-		mbstowcs(wstr, m_sPattern, strlen(m_sPattern)+1);
+		//lenW = mbstowcs(NULL, m_sPattern, strlen(m_sPattern)+1);
+		//LPWSTR wstr = (LPWSTR)malloc((lenW+1) * sizeof(wchar_t));
+		//mbstowcs(wstr, m_sPattern, strlen(m_sPattern)+1);
+		lenW = MultiByteToWideChar(CP_UTF8, 0, m_sPattern, -1, NULL, 0);
+		LPWSTR wstr = (LPWSTR)malloc((lenW) * sizeof(wchar_t));
+		MultiByteToWideChar(CP_UTF8, 0, m_sPattern, -1, wstr, lenW);
+
 		ci->returnValue->SetString(wstr);
 		free(wstr);
 	} 
@@ -713,9 +727,12 @@ PBXRESULT PbniRegex::Group(PBCallInfo *ci)
 				LPSTR group = (LPSTR)malloc(groupLen + 1);
 				lstrcpynA(group, (LPCSTR)(m_sData + m_matchinfo[matchindex * m_ovecsize + 2*groupindex]), groupLen);
 				//convert in WC
-				groupLenW = mbstowcs(NULL, group, strlen(group)+1);
-				LPWSTR wstr = (LPWSTR)malloc((groupLenW+1) * sizeof(wchar_t));
-				mbstowcs(wstr, group, strlen(group)+1);
+				//groupLenW = mbstowcs(NULL, group, strlen(group)+1);
+				//LPWSTR wstr = (LPWSTR)malloc((groupLenW+1) * sizeof(wchar_t));
+				//mbstowcs(wstr, group, strlen(group)+1);
+				groupLenW = MultiByteToWideChar(CP_UTF8, 0, group, -1, NULL, 0);
+				LPWSTR wstr = (LPWSTR)malloc((groupLenW) * sizeof(wchar_t));
+				MultiByteToWideChar(CP_UTF8, 0, group, -1, wstr, groupLenW);
 
 				// return value
 				ci->returnValue->SetString(wstr);
