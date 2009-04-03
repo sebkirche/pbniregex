@@ -1,6 +1,6 @@
 // Main module for PbniRegexp
 //
-// @author : Sebastien Kirche - 2008
+// @author : Sebastien Kirche - 2008, 2009
 
 #include "PbniRegex.h"
 #include "Main.h"
