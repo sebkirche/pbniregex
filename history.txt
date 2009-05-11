@@ -1,11 +1,13 @@
 HISTORY -=- Last edit Time-stamp: <03/04/2009 12:04 sebastien@PC-SEBASTIEN>
 =======
 
+2009-04-27 - PBX recompiled with PB 10.5.2.7826
+
 2009-04-01 - I noticed that the utf-8 mode was buggy : when strings contained some
              extended chars, both length & positions functions returned wrong values and
              the returned strings were not correctly translated back into PB internal
              utf-16. Reworked the internal string handling to always work in utf-8,
-             setutf8() does nothing ans isutf8() always return true.
+             setutf8() does nothing and isutf8() always returns true.
 
              The initialize() method does not fail anymore if the pattern is null (it used
              to return a PBX_E_INVOKE_WRONG_NUM_ARGS status in that case)
