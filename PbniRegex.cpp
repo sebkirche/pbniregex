@@ -13,12 +13,12 @@
 #include "pcrecpp.h"
 
 #ifdef _DEBUG
-#define	VERSION_STR	_T(" (Debug version)")
+#define	VERSION_STR	_T(" (Debug version - ") _T(__DATE__) _T(" ") _T(__TIME__) _T(")")
 #else
-#define	VERSION_STR	_T(" (Release version)")
+#define	VERSION_STR	_T(" (Release version - ") _T(__DATE__) _T(" ") _T(__TIME__) _T(")")
 #endif
 
-char dbgMsg[512];
+char dbgMsg[2048];
 
 PbniRegex::PbniRegex()
 {
@@ -50,7 +50,7 @@ PbniRegex::PbniRegex( IPB_Session * pSession )
 	m_matchinfo = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * (m_maxmatches * m_ovecsize));
 	m_replacebuf = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * m_ovecsize);
 	m_groupcount = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * m_maxmatches);
-	char *toto = setlocale(LC_ALL, NULL);
+	char *test = setlocale(LC_ALL, NULL);
 }
 
 PbniRegex::~PbniRegex()
@@ -201,7 +201,7 @@ PBXRESULT PbniRegex::Hello( PBCallInfo * ci )
 	PBXRESULT	pbxr = PBX_OK;
 
 	// return value
-	ci->returnValue->SetString( _T("Hello from PbniRegex" VERSION_STR) );
+	ci->returnValue->SetString( _T("Hello from PbniRegex") VERSION_STR );
 #ifdef _DEBUG
 	OutputDebugStringA(pcre_version());
 #endif
@@ -256,7 +256,7 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 				&erroffset,           /* for error offset */
 				NULL);                /* use default character tables */
 		if (re == NULL){
-		  sprintf(dbgMsg, "PCRE compilation failed at offset %d: %s\n", erroffset, error);
+		  _snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PCRE compilation failed at offset %d: %s\n", erroffset, error);
 		  OutputDebugStringA(dbgMsg);
 		  ci->returnValue->SetBool(false);
 		}
@@ -268,7 +268,7 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 			if (pcre_fullinfo(re, NULL, PCRE_INFO_CAPTURECOUNT, &newmaxgroups) == 0){
 				if (newmaxgroups > m_maxgroups){
 #ifdef _DEBUG
-					sprintf(dbgMsg, "PbniRegex :: needs to reallocate bigger block for group matches (maxgroup was %d, increase to %d)\n", m_maxgroups, newmaxgroups);
+					_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex :: needs to reallocate bigger block for group matches (maxgroup was %d, increase to %d)\n", m_maxgroups, newmaxgroups);
 					OutputDebugStringA(dbgMsg);
 #endif
 					m_maxgroups = newmaxgroups;
@@ -314,7 +314,7 @@ PBXRESULT PbniRegex::Study(PBCallInfo *ci)
 	
 	studinfo = pcre_study(re, 0, &error);
 	if (error){
-	  sprintf(dbgMsg, "PCRE study failed with message '%s'\n", error);
+	  _snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PCRE study failed with message '%s'\n", error);
 	  OutputDebugStringA(dbgMsg);
 	}
 	if (studinfo == NULL){
@@ -332,7 +332,6 @@ PBXRESULT PbniRegex::Test( PBCallInfo * ci )
 {
 	PBXRESULT	pbxr = PBX_OK;
 	const char *error;
-	int erroffset;
 	int rc;
 
 	// check arguments
@@ -450,14 +449,14 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 			if (nmatch >= m_maxmatches){
 				//if we have already filled the vector to the maximum number of matches, reallocate some more space
 #ifdef _DEBUG
-				sprintf(dbgMsg, "PbniRegex :: needs more memory to store matches (max matches was %d)\n", m_maxmatches);
+				_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex :: needs more memory to store matches (max matches was %d)\n", m_maxmatches);
 				OutputDebugStringA(dbgMsg);
 #endif
 				//lets say that we grow the buffer by 25%
 				m_maxmatches *= 1.5;
 				m_maxmatches++;
 #ifdef _DEBUG
-				sprintf(dbgMsg, "PbniRegex :: new max matches will be %d\n", m_maxmatches);
+				_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex :: new max matches will be %d\n", m_maxmatches);
 				OutputDebugStringA(dbgMsg);
 #endif
 				//TODO: should handle a try/catch if the mem alloc fails ?
@@ -757,7 +756,7 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 	int nmatch = 0;
 	int nbgroups;
 	int startoffset = 0;
-	int res, matchLen, repLen;
+	int res, matchLen = 0;
 	char toexp[10];
 	PBXRESULT pbxr = PBX_OK;
 
@@ -796,7 +795,7 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 				//expansion of substrings
 				for(int j = nbgroups; j > 0; j--)
 				{
-					sprintf(toexp, "\\%d", j);
+					_snprintf(toexp, sizeof(toexp) - 1, "\\%d", j); //TODO : filter out expanded backslashes
 					int p;
 					while((p = rep.find(toexp)) != string::npos)
 						if(m_replacebuf[(j)*2] > -1) //when a group matches nothing its offset equals -1
@@ -846,16 +845,15 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci)
 	else
 	{
 		using namespace std; //for std::wstring
-		bool casesensitive = FALSE;
 		pbstring source = ci->pArgs->GetAt(0)->GetString();
 		pbstring pattern = ci->pArgs->GetAt(1)->GetString();
 
 		LPCTSTR s = m_pSession->GetString(source);
 		LPCTSTR p = m_pSession->GetString(pattern);
 #ifdef _DEBUG
-		sprintf(dbgMsg, "PbniRegex::FastReplace, source = %ls\n", s);
+		_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex::FastReplace, source = %ls\n", s);
 		OutputDebugStringA(dbgMsg);
-		sprintf(dbgMsg, "PbniRegex::FastReplace, pattern = %ls\n", p);
+		_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex::FastReplace, pattern = %ls\n", p);
 		OutputDebugStringA(dbgMsg);
 #endif
 		wstring sourcew(s);
@@ -873,7 +871,7 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci)
 			int p = 0, startoffset = 0;
 			while((p = sourcew.find(patternw, startoffset)) != string::npos){
 #ifdef _DEBUG
-				sprintf(dbgMsg, "PbniRegex::FastReplace, sourcew.find(%ls, %d) found offset %d\n", patternw.c_str(), startoffset, p);
+				_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex::FastReplace, sourcew.find(%ls, %d) found offset %d\n", patternw.c_str(), startoffset, p);
 				OutputDebugStringA(dbgMsg);
 #endif
 				sourcew.replace(p, patternw.length(), replacew);
@@ -881,7 +879,7 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci)
 			}
 			//return the resulting string
 #ifdef _DEBUG
-			sprintf(dbgMsg, "PbniRegex::FastReplace, final string is %ls\n", sourcew.c_str());
+			_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex::FastReplace, final string is %ls\n", sourcew.c_str());
 			OutputDebugStringA(dbgMsg);
 #endif
 			ci->returnValue->SetString(sourcew.c_str());
