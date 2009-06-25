@@ -46,7 +46,7 @@ PbniRegex::PbniRegex( IPB_Session * pSession )
 	m_maxmatches = MAXMATCHES;
 	m_maxgroups = MAXGROUPS;
 	m_ovecsize = (m_maxgroups + 1) * 3;
-	hHeap = HeapCreate(0, 1024 * 64, 0);
+	hHeap = HeapCreate(HEAP_NO_SERIALIZE, 1024 * 64, 0);
 	m_matchinfo = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * (m_maxmatches * m_ovecsize));
 	m_replacebuf = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * m_ovecsize);
 	m_groupcount = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * m_maxmatches);
@@ -852,26 +852,47 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci)
 
 		LPCTSTR s = m_pSession->GetString(source);
 		LPCTSTR p = m_pSession->GetString(pattern);
+#ifdef _DEBUG
+		sprintf(dbgMsg, "PbniRegex::FastReplace, source = %ls\n", s);
+		OutputDebugStringA(dbgMsg);
+		sprintf(dbgMsg, "PbniRegex::FastReplace, pattern = %ls\n", p);
+		OutputDebugStringA(dbgMsg);
+#endif
 		wstring sourcew(s);
 		wstring patternw(p);
 		//test for one occurence
 		if(wcsstr(s, p)){
 			
+#ifdef _DEBUG
+			OutputDebugStringA("PbniRegex::FastReplace, found at least one occurrence.\n");
+#endif
 			pbstring replace = ci->pArgs->GetAt(2)->GetString();
 			wstring replacew(m_pSession->GetString(replace));
 
 			//here is the 'all' of 'replaceall' : replace each occurence
 			int p = 0, startoffset = 0;
-			while((p = sourcew.find(patternw, startoffset)) != string::npos){	
+			while((p = sourcew.find(patternw, startoffset)) != string::npos){
+#ifdef _DEBUG
+				sprintf(dbgMsg, "PbniRegex::FastReplace, sourcew.find(%ls, %d) found offset %d\n", patternw.c_str(), startoffset, p);
+				OutputDebugStringA(dbgMsg);
+#endif
 				sourcew.replace(p, patternw.length(), replacew);
 				startoffset = p + replacew.length();
 			}
 			//return the resulting string
+#ifdef _DEBUG
+			sprintf(dbgMsg, "PbniRegex::FastReplace, final string is %ls\n", sourcew.c_str());
+			OutputDebugStringA(dbgMsg);
+#endif
 			ci->returnValue->SetString(sourcew.c_str());
 		}
-		else
+		else {
 			//if no occurrence, return the given string
+#ifdef _DEBUG
+			OutputDebugStringA("PbniRegex::FastReplace, no occurrence.\n");
+#endif
 			ci->returnValue->SetPBString(source);
+		}
 	}
 	return pbxr;
 }

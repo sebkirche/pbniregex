@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="PbniRegex"
 	ProjectGUID="{33C1C843-57F6-4411-ABA9-58612B39F11F}"
 	RootNamespace="PbniRegex"
@@ -19,7 +19,7 @@
 	</ToolFiles>
 	<Configurations>
 		<Configuration
-			Name="Debug|Win32"
+			Name="Debug Migrator|Win32"
 			OutputDirectory=".\"
 			IntermediateDirectory=".\obj"
 			ConfigurationType="2"
@@ -153,6 +153,89 @@
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				ImportLibrary="$(OutDir)/PbniHash.lib"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Creating the PBD file"
+				CommandLine="pbx2pbd105 $(TargetName).pbd $(TargetFileName)"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug PBRegexCoach|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="2"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 10.5\SDK\PBNI\include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;UNICODE;PBNIHASH_EXPORTS"
+				RuntimeLibrary="1"
+				UsePrecompiledHeader="0"
+				BrowseInformation="0"
+				DebugInformationFormat="4"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_UNICODE;UNICODE;_DEBUG"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="libpcre.a libpcrecpp.a libgcc.a"
+				OutputFile="$(OutDir)/PbniRegex.pbx"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 10.5\SDK\PBNI\lib&quot;"
+				IgnoreDefaultLibraryNames="libc.lib "
+				DelayLoadDLLs=""
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(OutDir)/PbniRegex.pdb"
+				SubSystem="2"
+				ImportLibrary="$(OutDir)/PbniRegex.lib"
 				TargetMachine="1"
 			/>
 			<Tool

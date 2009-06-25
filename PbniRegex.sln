@@ -9,12 +9,15 @@ Global
 		Manager = AnkhSVN - Subversion Support for Visual Studio
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Win32 = Debug|Win32
+		Debug Migrator|Win32 = Debug Migrator|Win32
+		Debug PBRegexCoach|Win32 = Debug PBRegexCoach|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{33C1C843-57F6-4411-ABA9-58612B39F11F}.Debug|Win32.ActiveCfg = Debug|Win32
-		{33C1C843-57F6-4411-ABA9-58612B39F11F}.Debug|Win32.Build.0 = Debug|Win32
+		{33C1C843-57F6-4411-ABA9-58612B39F11F}.Debug Migrator|Win32.ActiveCfg = Debug Migrator|Win32
+		{33C1C843-57F6-4411-ABA9-58612B39F11F}.Debug Migrator|Win32.Build.0 = Debug Migrator|Win32
+		{33C1C843-57F6-4411-ABA9-58612B39F11F}.Debug PBRegexCoach|Win32.ActiveCfg = Debug PBRegexCoach|Win32
+		{33C1C843-57F6-4411-ABA9-58612B39F11F}.Debug PBRegexCoach|Win32.Build.0 = Debug PBRegexCoach|Win32
 		{33C1C843-57F6-4411-ABA9-58612B39F11F}.Release|Win32.ActiveCfg = Release|Win32
 		{33C1C843-57F6-4411-ABA9-58612B39F11F}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
