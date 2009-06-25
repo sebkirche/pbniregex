@@ -6,12 +6,12 @@
 	>
 	<Configurations>
 		<Configuration
-			Name="Debug|Win32"
+			Name="Debug Migrator|Win32"
 			>
 			<DebugSettings
 				Command="C:\Program Files\Sybase\PowerBuilder 10.5\PB105.EXE"
-				WorkingDirectory="$(ProjectDir)"
-				CommandArguments="/workspace worksp.pbw"
+				WorkingDirectory="C:\Dev\PB_Root_105\Legacy\Migrator\"
+				CommandArguments="/workspace C:\Dev\PB_Root_105\Legacy\Migrator\migrator.pbw"
 				Attach="false"
 				DebuggerType="3"
 				Remote="1"
@@ -38,7 +38,35 @@
 			>
 			<DebugSettings
 				Command="C:\Program Files\Sybase\PowerBuilder 10.5\PB105.EXE"
-				WorkingDirectory=""
+				WorkingDirectory="."
+				CommandArguments="/workspace worksp.pbw"
+				Attach="false"
+				DebuggerType="3"
+				Remote="1"
+				RemoteMachine="PC-SEBASTIEN"
+				RemoteCommand=""
+				HttpUrl=""
+				PDBPath=""
+				SQLDebugging=""
+				Environment=""
+				EnvironmentMerge="true"
+				DebuggerFlavor="0"
+				MPIRunCommand=""
+				MPIRunArguments=""
+				MPIRunWorkingDirectory=""
+				ApplicationCommand=""
+				ApplicationArguments=""
+				ShimCommand=""
+				MPIAcceptMode=""
+				MPIAcceptFilter=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug PBRegexCoach|Win32"
+			>
+			<DebugSettings
+				Command="C:\Program Files\Sybase\PowerBuilder 10.5\PB105.EXE"
+				WorkingDirectory="$(ProjectDir)"
 				CommandArguments="/workspace worksp.pbw"
 				Attach="false"
 				DebuggerType="3"
