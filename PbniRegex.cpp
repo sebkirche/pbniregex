@@ -50,6 +50,8 @@ PbniRegex::PbniRegex( IPB_Session * pSession )
 	m_matchinfo = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * (m_maxmatches * m_ovecsize));
 	m_replacebuf = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * m_ovecsize);
 	m_groupcount = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * m_maxmatches);
+	m_lastErr = (LPSTR)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, 1);
+	m_lastErr[0] = '\0';
 	char *test = setlocale(LC_ALL, NULL);
 }
 
@@ -70,6 +72,8 @@ PbniRegex::~PbniRegex()
 		HeapFree(hHeap, 0, m_replacebuf);
 	if(m_groupcount)
 		HeapFree(hHeap, 0, m_groupcount);
+	if (m_lastErr)
+		HeapFree(hHeap, 0, m_lastErr);
 	if(hHeap)
 		HeapDestroy(hHeap);
 }
@@ -165,6 +169,9 @@ PBXRESULT PbniRegex::Invoke
 		case mid_getPattern:
 			pbxr = this->GetPattern(ci);
 			break;
+		case mid_getLastErr:
+			pbxr = this->GetLastErrMsg(ci);
+			break;
 		default:
 			pbxr = PBX_E_INVOKE_METHOD_AMBIGUOUS;
 	}
@@ -181,7 +188,7 @@ void PbniRegex::Destroy()
 
 PBXRESULT PbniRegex::Version( PBCallInfo * ci )
 {
-	char verStr[256];
+	char verStr[256]; // !!!
 	PBXRESULT	pbxr = PBX_OK;
 
 	strcpy(verStr, "PCRE v.");
@@ -256,9 +263,12 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 				&erroffset,           /* for error offset */
 				NULL);                /* use default character tables */
 		if (re == NULL){
-		  _snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PCRE compilation failed at offset %d: %s\n", erroffset, error);
-		  OutputDebugStringA(dbgMsg);
-		  ci->returnValue->SetBool(false);
+			if (error){
+				_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PCRE compilation failed at offset %d: %s\n", erroffset, error);
+				OutputDebugStringA(dbgMsg);
+				SetLastErrMsg(dbgMsg);
+			}
+			ci->returnValue->SetBool(false);
 		}
 		else{
 			ci->returnValue->SetBool(true);
@@ -276,21 +286,27 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 					m_matchinfo = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_matchinfo, sizeof(int) * (m_maxmatches * m_ovecsize));
 					if(!m_matchinfo){
 						long err = GetLastError();
-						OutputDebugStringA("PbniRegex :: initialize failed on memory reallocation for matches\n");
+						_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex :: initialize failed on memory reallocation for matches\n");
+						OutputDebugStringA(dbgMsg);
+						SetLastErrMsg(dbgMsg);
 						ci->returnValue->SetBool(false);
 						pbxr = PBX_E_OUTOF_MEMORY;
 					}
 					m_replacebuf = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_replacebuf, sizeof(int) * m_ovecsize);
 					if(!m_replacebuf){
 						long err = GetLastError();
-						OutputDebugStringA("PbniRegex :: initialize failed on memory reallocation for replace\n");
+						_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex :: initialize failed on memory reallocation for replace\n");
+						OutputDebugStringA(dbgMsg);
+						SetLastErrMsg(dbgMsg);
 						ci->returnValue->SetBool(false);
 						pbxr = PBX_E_OUTOF_MEMORY;
 					}
 					m_groupcount = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_groupcount, sizeof(int) * m_maxmatches);
 					if(!m_groupcount){
 						long err = GetLastError();
-						OutputDebugStringA("PbniRegex :: initialize failed on memory reallocation for groups count\n");
+						_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex :: initialize failed on memory reallocation for groups count\n");
+						OutputDebugStringA(dbgMsg);
+						SetLastErrMsg(dbgMsg);
 						ci->returnValue->SetBool(false);
 						pbxr = PBX_E_OUTOF_MEMORY;
 					}
@@ -316,6 +332,7 @@ PBXRESULT PbniRegex::Study(PBCallInfo *ci)
 	if (error){
 	  _snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PCRE study failed with message '%s'\n", error);
 	  OutputDebugStringA(dbgMsg);
+	  SetLastErrMsg(dbgMsg);
 	}
 	if (studinfo == NULL){
 		//if the study did not found useful data
@@ -463,14 +480,18 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 				m_matchinfo = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_matchinfo, sizeof(int) * (m_maxmatches * m_ovecsize));
 				if(!m_matchinfo){
 					long err = GetLastError();
-					OutputDebugStringA("PbniRegex :: search failed on memory reallocation for matches\n");
+					_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex :: search failed on memory reallocation for matches\n");
+					OutputDebugStringA(dbgMsg);
+					SetLastErrMsg(dbgMsg);
 					ci->returnValue->SetLong(-1);
 					pbxr = PBX_E_OUTOF_MEMORY;
 				}
 				m_groupcount = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_groupcount, sizeof(int) * m_maxmatches);
 				if(!m_groupcount){
 					long err = GetLastError();
-					OutputDebugStringA("PbniRegex :: initialize failed on memory reallocation for groups count\n");
+					_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex :: initialize failed on memory reallocation for groups count\n");
+					OutputDebugStringA(dbgMsg);
+					SetLastErrMsg(dbgMsg);
 					ci->returnValue->SetLong(-1);
 					pbxr = PBX_E_OUTOF_MEMORY;
 				}
@@ -704,6 +725,31 @@ PBXRESULT PbniRegex::GetPattern(PBCallInfo *ci)
 		ci->returnValue->SetToNull();
 
 	return pbxr;
+}
+
+PBXRESULT PbniRegex::GetLastErrMsg(PBCallInfo *ci)
+{
+	PBXRESULT pbxr = PBX_OK;
+
+	if (m_lastErr){
+		int errLen = mbstowcs(NULL, m_lastErr, strlen(m_lastErr)+1);
+		LPWSTR werr = (LPWSTR)malloc((errLen+1) * sizeof(wchar_t));
+		mbstowcs(werr, m_lastErr, strlen(m_lastErr)+1);
+
+		ci->returnValue->SetString((LPCTSTR)werr);
+		free(werr);
+	}
+	else
+		ci->returnValue->SetString(_T(""));
+
+	return pbxr;
+}
+
+void PbniRegex::SetLastErrMsg(const char *msg)
+{
+	m_lastErr = (LPSTR)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_lastErr, strlen(msg) + 1);
+	if (m_lastErr)
+		strcpy(m_lastErr, msg);
 }
 
 PBXRESULT PbniRegex::Group(PBCallInfo *ci)

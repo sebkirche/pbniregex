@@ -59,6 +59,7 @@ public:
 		mid_getUnGreedy,
 		mid_setUnGreedy,
 		mid_getPattern,
+		mid_getLastErr,
 		NO_MORE_METHODS
 	};
 
@@ -96,6 +97,9 @@ protected:
 	PBXRESULT GetUnGreedy(PBCallInfo * ci);
 	PBXRESULT SetUnGreedy(PBCallInfo * ci);
 	PBXRESULT GetPattern(PBCallInfo * ci);
+	PBXRESULT GetLastErrMsg(PBCallInfo * ci);
+private:
+	void SetLastErrMsg(const char *msg);
 
 protected:
     // member variables
@@ -116,11 +120,13 @@ protected:
 	bool m_bUnGreedy;			// option : ungreedy ?			 - maps PCRE_UNGREEDY
 
 	//space to store the matching info
-	int *m_matchinfo;						//buffer for the array of vectors to store matching info
-	int *m_replacebuf;						//working buffer for the replace method
-	int m_matchCount;						//number of matches for the current search()
-	int *m_groupcount;						//number of captured substrings for each match
-	HANDLE hHeap;
+	int *m_matchinfo;		//buffer for the array of vectors to store matching info
+	int *m_replacebuf;		//working buffer for the replace method
+	int m_matchCount;		//number of matches for the current search()
+	int *m_groupcount;		//number of captured substrings for each match
+
+	HANDLE hHeap;			//private heap handle	
+	char *m_lastErr;		//last error message
  };
 
 #endif	// !defined(CPBNIREGEX_H)

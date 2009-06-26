@@ -1,6 +1,8 @@
 HISTORY -=- Last edit Time-stamp: <11/05/2009 22:18 sebastien@PC-DEV>
 =======
 
+2009-06-26 - Added the GetLastError() method to get... err... the last error :)
+
 2009-04-27 - PBX recompiled with PB 10.5.2.7826
 
 2009-04-01 - I noticed that the utf-8 mode was buggy : when strings contained some
