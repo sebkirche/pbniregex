@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 10.5\SDK\PBNI\include&quot;"
+				AdditionalIncludeDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 11.5\SDK\PBNI\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;UNICODE;PBNIHASH_EXPORTS"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
@@ -65,7 +65,7 @@
 				AdditionalDependencies="libpcre.a libpcrecpp.a libgcc.a"
 				OutputFile="$(OutDir)/PbniRegex.pbx"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 10.5\SDK\PBNI\lib&quot;"
+				AdditionalLibraryDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 11.5\SDK\PBNI\lib&quot;"
 				IgnoreDefaultLibraryNames="libc.lib "
 				DelayLoadDLLs=""
 				GenerateDebugInformation="true"
@@ -98,7 +98,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Creating the PBD file"
-				CommandLine="pbx2pbd105 $(TargetName).pbd $(TargetFileName)"
+				CommandLine="pbx2pbd115 $(TargetName).pbd $(TargetFileName)"
 			/>
 		</Configuration>
 		<Configuration
@@ -126,7 +126,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 10.5\SDK\PBNI\include&quot;"
+				AdditionalIncludeDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 11.5\SDK\PBNI\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;UNICODE;PBNIHASH_EXPORTS"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -148,7 +148,7 @@
 				AdditionalDependencies="libpcre.a libpcrecpp.a libgcc.a"
 				OutputFile="$(OutDir)/PbniRegex.pbx"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 10.5\SDK\PBNI\lib&quot;"
+				AdditionalLibraryDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 11.5\SDK\PBNI\lib&quot;"
 				IgnoreDefaultLibraryNames="libc.lib "
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -179,7 +179,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Creating the PBD file"
-				CommandLine="pbx2pbd105 $(TargetName).pbd $(TargetFileName)"
+				CommandLine="pbx2pbd115 $(TargetName).pbd $(TargetFileName)"
 			/>
 		</Configuration>
 		<Configuration
@@ -207,7 +207,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 10.5\SDK\PBNI\include&quot;"
+				AdditionalIncludeDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 11.5\SDK\PBNI\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;UNICODE;PBNIHASH_EXPORTS"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
@@ -228,15 +228,15 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="libpcre.a libpcrecpp.a libgcc.a"
-				OutputFile="$(OutDir)/PbniRegex.pbx"
+				OutputFile="$(OutDir)PbniRegex.pbx"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 10.5\SDK\PBNI\lib&quot;"
+				AdditionalLibraryDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 11.5\SDK\PBNI\lib&quot;"
 				IgnoreDefaultLibraryNames="libc.lib "
 				DelayLoadDLLs=""
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/PbniRegex.pdb"
+				ProgramDatabaseFile="$(OutDir)PbniRegex.pdb"
 				SubSystem="2"
-				ImportLibrary="$(OutDir)/PbniRegex.lib"
+				ImportLibrary="$(OutDir)PbniRegex.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -263,7 +263,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				Description="Creating the PBD file"
-				CommandLine="pbx2pbd105 $(TargetName).pbd $(TargetFileName)"
+				CommandLine="pbx2pbd115 $(TargetName).pbd $(TargetFileName)"
 			/>
 		</Configuration>
 	</Configurations>
