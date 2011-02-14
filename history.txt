@@ -1,5 +1,10 @@
-HISTORY -=- Last edit Time-stamp: <11/05/2009 22:18 sebastien@PC-DEV>
+HISTORY -=- Last edit Time-stamp: <14/02/2011 12:12 Sebastien@PC-SEBASTIEN>
 =======
+
+2011-02-14 - Upgrade of the splitters (various bugfixes and enhancements)
+             Export of the components source code (into pb_src folder) to help backporting
+
+2009-09-09 - Project upgraded to PB 11.5
 
 2009-06-26 - Added the GetLastError() method to get... err... the last error :)
 
