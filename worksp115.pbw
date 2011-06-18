@@ -2,7 +2,7 @@ Save Format v3.0(19990112)
 @begin Unchecked
 @end;
 @begin Targets
- 0 "regexdemo.pbt";
+ 0 "regexdemo115.pbt";
 @end;
-DefaultTarget "regexdemo.pbt";
-DefaultRemoteTarget "regexdemo.pbt";
+DefaultTarget "regexdemo115.pbt";
+DefaultRemoteTarget "regexdemo115.pbt";
