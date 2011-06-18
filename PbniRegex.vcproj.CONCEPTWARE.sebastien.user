@@ -117,5 +117,61 @@
 				MPIAcceptFilter=""
 			/>
 		</Configuration>
+		<Configuration
+			Name="Debug PB10.0|Win32"
+			>
+			<DebugSettings
+				Command="C:\Program Files\Sybase\PowerBuilder 10.0\PB100.EXE"
+				WorkingDirectory=""
+				CommandArguments="/workspace worksp100.pbw"
+				Attach="false"
+				DebuggerType="3"
+				Remote="1"
+				RemoteMachine="PC-DEV"
+				RemoteCommand=""
+				HttpUrl=""
+				PDBPath=""
+				SQLDebugging=""
+				Environment=""
+				EnvironmentMerge="true"
+				DebuggerFlavor="0"
+				MPIRunCommand=""
+				MPIRunArguments=""
+				MPIRunWorkingDirectory=""
+				ApplicationCommand=""
+				ApplicationArguments=""
+				ShimCommand=""
+				MPIAcceptMode=""
+				MPIAcceptFilter=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release PB10.0|Win32"
+			>
+			<DebugSettings
+				Command="C:\Program Files\Sybase\PowerBuilder 10.0\PB100.EXE"
+				WorkingDirectory="$(ProjectDir)"
+				CommandArguments="/workspace worksp105.pbw"
+				Attach="false"
+				DebuggerType="3"
+				Remote="1"
+				RemoteMachine="PC-DEV"
+				RemoteCommand=""
+				HttpUrl=""
+				PDBPath=""
+				SQLDebugging=""
+				Environment=""
+				EnvironmentMerge="true"
+				DebuggerFlavor="0"
+				MPIRunCommand=""
+				MPIRunArguments=""
+				MPIRunWorkingDirectory=""
+				ApplicationCommand=""
+				ApplicationArguments=""
+				ShimCommand=""
+				MPIAcceptMode=""
+				MPIAcceptFilter=""
+			/>
+		</Configuration>
 	</Configurations>
 </VisualStudioUserFile>

@@ -9,16 +9,22 @@ Global
 		Manager = AnkhSVN - Subversion Support for Visual Studio
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug PB10.0|Win32 = Debug PB10.0|Win32
 		Debug PB10.5|Win32 = Debug PB10.5|Win32
 		Debug PB11.5|Win32 = Debug PB11.5|Win32
+		Release PB10.0|Win32 = Release PB10.0|Win32
 		Release PB10.5|Win32 = Release PB10.5|Win32
 		Release PB11.5|Win32 = Release PB11.5|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{33C1C843-57F6-4411-ABA9-58612B39F11F}.Debug PB10.0|Win32.ActiveCfg = Debug PB10.0|Win32
+		{33C1C843-57F6-4411-ABA9-58612B39F11F}.Debug PB10.0|Win32.Build.0 = Debug PB10.0|Win32
 		{33C1C843-57F6-4411-ABA9-58612B39F11F}.Debug PB10.5|Win32.ActiveCfg = Debug PB10.5|Win32
 		{33C1C843-57F6-4411-ABA9-58612B39F11F}.Debug PB10.5|Win32.Build.0 = Debug PB10.5|Win32
 		{33C1C843-57F6-4411-ABA9-58612B39F11F}.Debug PB11.5|Win32.ActiveCfg = Debug PB11.5|Win32
 		{33C1C843-57F6-4411-ABA9-58612B39F11F}.Debug PB11.5|Win32.Build.0 = Debug PB11.5|Win32
+		{33C1C843-57F6-4411-ABA9-58612B39F11F}.Release PB10.0|Win32.ActiveCfg = Release PB10.0|Win32
+		{33C1C843-57F6-4411-ABA9-58612B39F11F}.Release PB10.0|Win32.Build.0 = Release PB10.0|Win32
 		{33C1C843-57F6-4411-ABA9-58612B39F11F}.Release PB10.5|Win32.ActiveCfg = Release PB10.5|Win32
 		{33C1C843-57F6-4411-ABA9-58612B39F11F}.Release PB10.5|Win32.Build.0 = Release PB10.5|Win32
 		{33C1C843-57F6-4411-ABA9-58612B39F11F}.Release PB11.5|Win32.ActiveCfg = Release PB10.5|Win32
