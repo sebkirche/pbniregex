@@ -1,6 +1,8 @@
 HISTORY -=- Last edit Time-stamp: <14/02/2011 12:12 Sebastien@PC-SEBASTIEN>
 =======
 
+2011-06-18 - Added a PB 10.5 version of the regexdemo app
+
 2011-02-14 - Upgrade of the splitters (various bugfixes and enhancements)
              Export of the components source code (into pb_src folder) to help backporting
 
