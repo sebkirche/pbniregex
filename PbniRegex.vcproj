@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="PbniRegex"
 	ProjectGUID="{33C1C843-57F6-4411-ABA9-58612B39F11F}"
 	RootNamespace="PbniRegex"
@@ -47,7 +47,7 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;UNICODE;PBNIHASH_EXPORTS"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
-				BrowseInformation="0"
+				BrowseInformation="1"
 				WarningLevel="4"
 				DebugInformationFormat="4"
 			/>
@@ -131,7 +131,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;UNICODE;PBNIHASH_EXPORTS"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
-				BrowseInformation="0"
+				BrowseInformation="1"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -212,7 +212,7 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;UNICODE;PBNIHASH_EXPORTS"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
-				BrowseInformation="0"
+				BrowseInformation="1"
 				WarningLevel="4"
 				DebugInformationFormat="4"
 			/>
@@ -296,7 +296,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;UNICODE;PBNIHASH_EXPORTS"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
-				BrowseInformation="0"
+				BrowseInformation="1"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -377,7 +377,7 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;UNICODE;PBNIHASH_EXPORTS"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
-				BrowseInformation="0"
+				BrowseInformation="1"
 				WarningLevel="4"
 				DebugInformationFormat="4"
 			/>
@@ -461,7 +461,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;UNICODE;PBNIHASH_EXPORTS"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
-				BrowseInformation="0"
+				BrowseInformation="1"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -513,6 +513,171 @@
 				CommandLine="pbx2pbd100 $(TargetName).pbd $(TargetFileName)"
 			/>
 		</Configuration>
+		<Configuration
+			Name="Debug PB9|Win32"
+			OutputDirectory="$(ProjectDir)"
+			IntermediateDirectory=".\obj"
+			ConfigurationType="2"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 9.0\SDK\PBNI\include&quot;"
+				PreprocessorDefinitions="PB9;WIN32;_DEBUG;_WINDOWS;_USRDLL;PBNIHASH_EXPORTS"
+				RuntimeLibrary="1"
+				UsePrecompiledHeader="0"
+				BrowseInformation="1"
+				WarningLevel="4"
+				DebugInformationFormat="4"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_UNICODE;UNICODE;_DEBUG"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="libpcre.a libpcrecpp.a libgcc.a"
+				OutputFile="$(OutDir)PbniRegex90.pbx"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 9.0\SDK\PBNI\lib&quot;"
+				IgnoreDefaultLibraryNames="libc.lib "
+				DelayLoadDLLs=""
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(OutDir)PbniRegex100.pdb"
+				SubSystem="2"
+				ImportLibrary="$(OutDir)PbniRegex.lib"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Creating the PBD file"
+				CommandLine="pbx2pbd90.bat $(TargetName).pbd $(TargetFileName)"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release PB9|Win32"
+			OutputDirectory="$(ProjectDir)"
+			IntermediateDirectory=".\obj"
+			ConfigurationType="2"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 9.0\SDK\PBNI\include&quot;"
+				PreprocessorDefinitions="PB9;WIN32;NDEBUG;_WINDOWS;_USRDLL;PBNIHASH_EXPORTS"
+				RuntimeLibrary="0"
+				UsePrecompiledHeader="0"
+				BrowseInformation="1"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_UNICODE;UNICODE;NDEBUG"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="libpcre.a libpcrecpp.a libgcc.a"
+				OutputFile="$(OutDir)/PbniRegex90.pbx"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories=".\libpcre;&quot;C:\Program Files\Sybase\PowerBuilder 9.0\SDK\PBNI\lib&quot;"
+				IgnoreDefaultLibraryNames="libc.lib "
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				ImportLibrary="$(OutDir)/PbniHash.lib"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Creating the PBD file"
+				CommandLine="pbx2pbd90.bat $(TargetName).pbd $(TargetFileName)"
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -559,7 +724,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\resource.h"
+				RelativePath=".\strconv.h"
 				>
 			</File>
 		</Filter>
