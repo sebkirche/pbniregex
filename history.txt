@@ -1,7 +1,12 @@
-HISTORY -=- Last edit Time-stamp: <14/02/2011 12:12 Sebastien@PC-SEBASTIEN>
+HISTORY -=- Last edit Time-stamp: <23/06/2011 11:22 Sebastien@PC-DEV>
 =======
 
-2011-06-18 - Added a PB 10.5 version of the regexdemo app
+2011-06-21 - Started the PB9 backport, exported the source code separately into folder
+             for each PB version 9,10,11.5
+
+2011-06-18 - the pbx/pbd files zere backported to PB10.5 and PB10.0 (actually 10.2)
+             the pbx, pbd and sample files (pbregexcoach.exe, pbl's) are named like the 
+             PB development files : pbniregex115, pbregexcoach105, worksp100.pbw...
 
 2011-02-14 - Upgrade of the splitters (various bugfixes and enhancements)
              Export of the components source code (into pb_src folder) to help backporting

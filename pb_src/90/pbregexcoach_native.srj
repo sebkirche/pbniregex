@@ -1,0 +1,33 @@
+$PBExportHeader$pbregexcoach_native.srj
+$PBExportComments$PBregex Coach, © Seki 2008-2011
+EXE:pbregexcoach90_nat.exe,pbregexcoach.pbr,0,1
+CMP:1,1,1,2,0,0
+COM:Conceptware
+DES:Regex debug tool in PB for the PbniRegex object
+CPY:©  2008-2011  Sébastien Kirche & Nicolas Georges
+PRD:PBregex Coach - PB 9 version
+PVS:1.6
+PVN:1,6,0,0
+FVS:1.6
+FVN:1,6,0,0
+PBD:regexdemo.pbl,,1
+PBD:pbniregex.pbd,,1
+OBJ:c:\Dev\pb\CW\PbniRegex\regexdemo.pbl,w_anc_response,w
+OBJ:c:\Dev\pb\CW\PbniRegex\regexdemo.pbl,regexdemo,a
+OBJ:c:\Dev\pb\CW\PbniRegex\pbniregex.pbd,uo_regex,u
+OBJ:c:\Dev\pb\CW\PbniRegex\regexdemo.pbl,w_unit_tests,w
+OBJ:c:\Dev\pb\CW\PbniRegex\regexdemo.pbl,nv_auto_resizer,u
+OBJ:c:\Dev\pb\CW\PbniRegex\regexdemo.pbl,m_main,m
+OBJ:c:\Dev\pb\CW\PbniRegex\regexdemo.pbl,w_minihelp,w
+OBJ:c:\Dev\pb\CW\PbniRegex\regexdemo.pbl,debug_message,f
+OBJ:c:\Dev\pb\CW\PbniRegex\pbniregex.pbd,fastreplaceall2,f
+OBJ:c:\Dev\pb\CW\PbniRegex\regexdemo.pbl,unvo_regexp,u
+OBJ:c:\Dev\pb\CW\PbniRegex\regexdemo.pbl,replaceall,f
+OBJ:c:\Dev\pb\CW\PbniRegex\regexdemo.pbl,u_splitbar_horizontal,u
+OBJ:c:\Dev\pb\CW\PbniRegex\regexdemo.pbl,dw_unittests,d
+OBJ:c:\Dev\pb\CW\PbniRegex\regexdemo.pbl,w_test,w
+OBJ:c:\Dev\pb\CW\PbniRegex\regexdemo.pbl,hasmethod,f
+OBJ:c:\Dev\pb\CW\PbniRegex\pbniregex.pbd,fastreplaceall,f
+OBJ:c:\Dev\pb\CW\PbniRegex\regexdemo.pbl,gettitleheight,f
+OBJ:c:\Dev\pb\CW\PbniRegex\regexdemo.pbl,u_splitbar_vertical,u
+OBJ:c:\Dev\pb\CW\PbniRegex\regexdemo.pbl,iif,f

@@ -1,0 +1,21 @@
+$PBExportHeader$gettitleheight.srf
+$PBExportComments$Returns windows title height
+global type gettitleheight from function_object
+end type
+
+forward prototypes
+global function integer gettitleheight ()
+end prototypes
+
+global function integer gettitleheight ();// returns the window standard title bar height (in PB units)
+
+constant integer SM_CYCAPTION = 4
+integer li_pixels, li_pbunits
+
+li_pixels = GetSystemMetrics(SM_CYCAPTION)
+li_pbunits = PixelsToUnits(li_pixels, YPixelsToUnits!)
+
+return li_pbunits
+
+end function
+
