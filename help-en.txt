@@ -1,5 +1,5 @@
 
-DOCUMENTATION  -=- Last edit Time-stamp: <03/04/2009 11:42 sebastien@PC-SEBASTIEN>
+DOCUMENTATION  -=- Last edit Time-stamp: <27/06/2011 23:17 Sebastien@PC-DEV>
 =============
 
 This is the documentation for uo_regex (pbni C++ extension) and unvo_regexp
@@ -148,11 +148,13 @@ ismultiline()
 
 setutf8(boolean isutf) - DEPRECATED
    Sets the possibilty to use utf-8 strings for pattern & search strings
-   NOTE : pbniregex now ALWAYS use utf-8 encoding internally. This method does nothing.
+   NOTE : pbniregex now ALWAYS use utf-8 encoding internally.
+   This method does nothing.
 
 isutf8() - DEPRECATED
    Returns the state of the utf-8 processing.
-   NOTE : pbniregex now ALWAYS use utf-8 encoding internally. 
+   NOTE : pbniregex now ALWAYS use utf-8 encoding internally.
+   This method always returns true.
 
 study()
    Proceed to a study of the regexp in ordrer to speed up (if possible)

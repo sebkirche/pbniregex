@@ -20,11 +20,10 @@ end type
 global regexdemo90 regexdemo90
 
 type prototypes
-SUBROUTINE OutputDebugString (String lpszOutputString)  LIBRARY "kernel32.dll" ALIAS FOR "OutputDebugStringA;ansi";
+SUBROUTINE OutputDebugString (String lpszOutputString)  LIBRARY "kernel32.dll" ALIAS FOR "OutputDebugStringA";
 FUNCTION integer GetSystemMetrics (int nIndex) LIBRARY "user32.dll"
 
 end prototypes
-
 on regexdemo90.create
 appname="regexdemo90"
 message=create message

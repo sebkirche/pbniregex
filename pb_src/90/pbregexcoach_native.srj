@@ -10,8 +10,8 @@ PVS:1.6
 PVN:1,6,0,0
 FVS:1.6
 FVN:1,6,0,0
-PBD:regexdemo.pbl,,1
-PBD:pbniregex.pbd,,1
+PBD:c:\dev\c_stuff\pbni\pbniregex\regexdemo90.pbl,,0
+PBD:c:\dev\c_stuff\pbni\pbniregex\pbniregex90.pbd,,0
 OBJ:c:\Dev\pb\CW\PbniRegex\regexdemo.pbl,w_anc_response,w
 OBJ:c:\Dev\pb\CW\PbniRegex\regexdemo.pbl,regexdemo,a
 OBJ:c:\Dev\pb\CW\PbniRegex\pbniregex.pbd,uo_regex,u

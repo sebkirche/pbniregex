@@ -121,7 +121,7 @@ type m_about from menu within m_help
 end type
 
 event clicked;messagebox("PB Regex Coach", "A regular expression testing tool for PbniRegex~r~n~r~n" + &
-							"Original idea by SÃ©bastien Kirche.~r~n" + &
+							"Original idea by Sébastien Kirche.~r~n" + &
 							"Many contributions by Nicolas Georges.")
 
 end event

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioUserFile
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	ShowAllFiles="false"
 	>
 	<Configurations>
@@ -122,7 +122,7 @@
 			>
 			<DebugSettings
 				Command="C:\Program Files\Sybase\PowerBuilder 10.0\PB100.EXE"
-				WorkingDirectory=""
+				WorkingDirectory="$(ProjectDir)"
 				CommandArguments="/workspace worksp100.pbw"
 				Attach="false"
 				DebuggerType="3"
@@ -151,7 +151,7 @@
 			<DebugSettings
 				Command="C:\Program Files\Sybase\PowerBuilder 10.0\PB100.EXE"
 				WorkingDirectory="$(ProjectDir)"
-				CommandArguments="/workspace worksp105.pbw"
+				CommandArguments="/workspace worksp100.pbw"
 				Attach="false"
 				DebuggerType="3"
 				Remote="1"
@@ -163,6 +163,118 @@
 				Environment=""
 				EnvironmentMerge="true"
 				DebuggerFlavor="0"
+				MPIRunCommand=""
+				MPIRunArguments=""
+				MPIRunWorkingDirectory=""
+				ApplicationCommand=""
+				ApplicationArguments=""
+				ShimCommand=""
+				MPIAcceptMode=""
+				MPIAcceptFilter=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug PB09|Win32"
+			>
+			<DebugSettings
+				Command="C:\Program Files\Sybase\PowerBuilder 9.0\PB90.EXE"
+				WorkingDirectory="$(ProjectDir)"
+				CommandArguments="/workspace worksp90.pbw"
+				Attach="false"
+				DebuggerType="3"
+				Remote="1"
+				RemoteMachine="PC-DEV"
+				RemoteCommand=""
+				HttpUrl=""
+				PDBPath=""
+				SQLDebugging=""
+				Environment=""
+				EnvironmentMerge="true"
+				DebuggerFlavor="0"
+				MPIRunCommand=""
+				MPIRunArguments=""
+				MPIRunWorkingDirectory=""
+				ApplicationCommand=""
+				ApplicationArguments=""
+				ShimCommand=""
+				MPIAcceptMode=""
+				MPIAcceptFilter=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release PB09|Win32"
+			>
+			<DebugSettings
+				Command="C:\Program Files\Sybase\PowerBuilder 9.0\PB90.EXE"
+				WorkingDirectory="$(ProjectDir)"
+				CommandArguments="/workspace worksp90.pbw"
+				Attach="false"
+				DebuggerType="3"
+				Remote="1"
+				RemoteMachine="PC-DEV"
+				RemoteCommand=""
+				HttpUrl=""
+				PDBPath=""
+				SQLDebugging=""
+				Environment=""
+				EnvironmentMerge="true"
+				DebuggerFlavor="0"
+				MPIRunCommand=""
+				MPIRunArguments=""
+				MPIRunWorkingDirectory=""
+				ApplicationCommand=""
+				ApplicationArguments=""
+				ShimCommand=""
+				MPIAcceptMode=""
+				MPIAcceptFilter=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug PB11|Win32"
+			>
+			<DebugSettings
+				Command=""
+				WorkingDirectory=""
+				CommandArguments=""
+				Attach="false"
+				DebuggerType="3"
+				Remote="1"
+				RemoteMachine="PC-DEV"
+				RemoteCommand=""
+				HttpUrl=""
+				PDBPath=""
+				SQLDebugging=""
+				Environment=""
+				EnvironmentMerge="true"
+				DebuggerFlavor=""
+				MPIRunCommand=""
+				MPIRunArguments=""
+				MPIRunWorkingDirectory=""
+				ApplicationCommand=""
+				ApplicationArguments=""
+				ShimCommand=""
+				MPIAcceptMode=""
+				MPIAcceptFilter=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release PB11|Win32"
+			>
+			<DebugSettings
+				Command=""
+				WorkingDirectory=""
+				CommandArguments=""
+				Attach="false"
+				DebuggerType="3"
+				Remote="1"
+				RemoteMachine="PC-DEV"
+				RemoteCommand=""
+				HttpUrl=""
+				PDBPath=""
+				SQLDebugging=""
+				Environment=""
+				EnvironmentMerge="true"
+				DebuggerFlavor=""
 				MPIRunCommand=""
 				MPIRunArguments=""
 				MPIRunWorkingDirectory=""
