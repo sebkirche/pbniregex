@@ -943,9 +943,10 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 				unsigned int p=0, k, grplen, bck;
 				
 				//expansion of substrings
-				for (int j = nbgroups; j > 0; j--){
-					_snprintf(toexp, sizeof(toexp) - 1, "\\%d", j); //TODO : filter out expanded backslashes
+				for (int j = nbgroups; j >= 0; j--){
+					_snprintf(toexp, sizeof(toexp) - 1, "\\%d", j);
 					grplen = strlen(toexp);
+					p = 0;
 					while ((p = rep.find(toexp, p)) != string::npos){
 						//check if escaped backslashes
 						bck= p ? 0 : 1;
@@ -965,7 +966,7 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 				//replace escaped backslashes
 				p=0;
 				while ((p = rep.find("\\\\", p)) != string::npos){
-					rep.replace(p, 2, "\\");
+					rep.replace(p++, 2, "\\"); //replace and increase pointer, for not eating all successive backslashes
 				}
 
 				//replace the match by the replace string
