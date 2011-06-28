@@ -1,15 +1,24 @@
 // My.h : header file for PBNI class
 //
-// @author : Sebastien Kirche - 2008, 2009
+// @author : Sebastien Kirche - 2008, 2009, 2011
 
 #ifndef CPBNIREGEX_H
 #define CPBNIREGEX_H
 
 #include <pbext.h>
 #include "pcre.h"
+#include "strconv.h"
 
 #define MAXMATCHES 30
 #define MAXGROUPS 20
+
+#ifdef _DEBUG
+#define OutputDBSIfDebug(s) OutputDebugString(s)
+#define OutputDBSIfDebugA(s) OutputDebugStringA(s)
+#else
+#define OutputDBSIfDebug(s) 
+#define OutputDBSIfDebugA(s) 
+#endif
 
 class PbniRegex : public IPBX_NonVisualObject
 {
@@ -60,6 +69,9 @@ public:
 		mid_setUnGreedy,
 		mid_getPattern,
 		mid_getLastErr,
+#ifdef _DEBUG
+		mid_StrTest,
+#endif
 		NO_MORE_METHODS
 	};
 
@@ -98,6 +110,9 @@ protected:
 	PBXRESULT SetUnGreedy(PBCallInfo * ci);
 	PBXRESULT GetPattern(PBCallInfo * ci);
 	PBXRESULT GetLastErrMsg(PBCallInfo * ci);
+#ifdef _DEBUG
+	PBXRESULT StrTest(PBCallInfo * ci);
+#endif
 private:
 	void SetLastErrMsg(const char *msg);
 
@@ -112,12 +127,12 @@ protected:
 	long m_maxgroups;			// max group number for a match, can be automagicaly increased during processing
 	long m_ovecsize;			// size of the vector in number of ints
 	bool m_butf8;				// option : use utf-8 for regexen / data ?
-	bool m_bGlobal;				// option : global search / replace ?
-	bool m_bCaseSensitive;		// option : be case-sensitive ? - maps PCRE_CASELESS == /i option in perl
-	bool m_bmultiLine;			// option : multiline			- maps PCRE_MULTILINE == /m option in perl
-	bool m_bDotNL;				// option : dot matches Newlines - maps PCRE_DOTALL == /s option in perl
-	bool m_bExtended;			// option : use extended regexps - maps PCRE_EXTENDED == /x option in perl
-	bool m_bUnGreedy;			// option : ungreedy ?			 - maps PCRE_UNGREEDY
+	pbboolean m_bGlobal;		// option : global search / replace ?
+	pbboolean m_bCaseSensitive;	// option : be case-sensitive ? - maps PCRE_CASELESS == /i option in perl
+	pbboolean m_bmultiLine;		// option : multiline			- maps PCRE_MULTILINE == /m option in perl
+	pbboolean m_bDotNL;			// option : dot matches Newlines - maps PCRE_DOTALL == /s option in perl
+	pbboolean m_bExtended;		// option : use extended regexps - maps PCRE_EXTENDED == /x option in perl
+	pbboolean m_bUnGreedy;		// option : ungreedy ?			 - maps PCRE_UNGREEDY
 
 	//space to store the matching info
 	int *m_matchinfo;		//buffer for the array of vectors to store matching info

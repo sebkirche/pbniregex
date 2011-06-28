@@ -8,9 +8,9 @@
 
 #define WIN32_LEAN_AND_MEAN			// Exclude rarely-used stuff from Windows headers
 
-// Insert your headers here
 #include <windows.h>
 
-// TODO: reference additional headers your program requires here
+#define PBX_VERSION "1.2"
+#define PBX_VERSION_RC 1,2,0,0
 
 #endif // !defined(MAIN_H)
