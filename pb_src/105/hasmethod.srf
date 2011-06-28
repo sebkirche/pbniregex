@@ -1,0 +1,28 @@
+$PBExportHeader$hasmethod.srf
+global type hasmethod from function_object
+end type
+
+forward prototypes
+global function boolean hasmethod (string as_method, powerobject apo_object)
+end prototypes
+
+global function boolean hasmethod (string as_method, powerobject apo_object);if isnull( apo_object ) or not isvalid( apo_object ) then return false
+
+classdefinition lcd_obj
+lcd_obj = apo_object.classdefinition
+
+ScriptDefinition ls_ScriptList[ ]
+long i
+ls_ScriptList[] = lcd_obj.ScriptList[]
+as_method = lower( as_method )
+for i = 1 to upperbound (ls_ScriptList[])
+	if lower(ls_ScriptList[i].name) = as_method then
+//		debug_message( "", "hasmethod('"+as_method+"',"+ apo_object.classname() + ") return true" )
+		return true
+	end if
+next
+
+return false
+
+end function
+

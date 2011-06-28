@@ -1,0 +1,29 @@
+$PBExportHeader$replaceall.srf
+global type replaceall from function_object
+end type
+
+forward prototypes
+global function string replaceall (string as_source, string as_pattern, string as_replace)
+end prototypes
+
+global function string replaceall (string as_source, string as_pattern, string as_replace);//remplace toute les occurences de as_pattern de as_source par as_replace 
+string ls_target
+long i, j
+
+ls_target=""
+i = 1
+j = 1
+do
+	i = pos( as_source, as_pattern, j )
+	if i>0 then
+		ls_target += mid( as_source, j, i - j )
+		ls_target += as_replace
+		j = i + len( as_pattern )
+	else
+		ls_target += mid( as_source, j )
+	end if
+loop while i>0
+
+return ls_target
+end function
+

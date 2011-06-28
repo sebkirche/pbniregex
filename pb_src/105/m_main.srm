@@ -1,0 +1,227 @@
+$PBExportHeader$m_main.srm
+$PBExportComments$Main menu
+forward
+global type m_main from menu
+end type
+type m_file from menu within m_main
+end type
+type m_quit from menu within m_file
+end type
+type m_file from menu within m_main
+m_quit m_quit
+end type
+type m_help from menu within m_main
+end type
+type m_quickhelp from menu within m_help
+end type
+type m_about from menu within m_help
+end type
+type m_help from menu within m_main
+m_quickhelp m_quickhelp
+m_about m_about
+end type
+global type m_main from menu
+m_file m_file
+m_help m_help
+end type
+end forward
+
+global type m_main from menu
+m_file m_file
+m_help m_help
+end type
+global m_main m_main
+
+on m_main.create
+m_main=this
+call super::create
+this.menutextcolor = 134217735
+this.menubackcolor = 134217732
+this.menuhighlightcolor = 134217741
+this.textsize = 8
+this.weight = 400
+this.facename = "Tahoma"
+this.titlebackcolor = 134217730
+this.bitmapbackcolor = 12632256
+this.menubitmaps = true
+this.titlegradient = true
+this.toolbartextcolor = 134217746
+this.toolbarbackcolor = 67108864
+this.toolbarhighlightcolor = 134217741
+this.toolbargradient = true
+this.bitmapgradient = true
+this.m_file=create m_file
+this.m_help=create m_help
+this.Item[UpperBound(this.Item)+1]=this.m_file
+this.Item[UpperBound(this.Item)+1]=this.m_help
+end on
+
+on m_main.destroy
+call super::destroy
+destroy(this.m_file)
+destroy(this.m_help)
+end on
+
+type m_file from menu within m_main
+m_quit m_quit
+end type
+
+on m_file.create
+call super::create
+this.text = "File"
+this.menutextcolor = 134217735
+this.menubackcolor = 134217732
+this.menuhighlightcolor = 134217741
+this.textsize = 8
+this.weight = 400
+this.facename = "Tahoma"
+this.titlebackcolor = 134217730
+this.bitmapbackcolor = 12632256
+this.menubitmaps = true
+this.titlegradient = true
+this.toolbartextcolor = 134217746
+this.toolbarbackcolor = 67108864
+this.toolbarhighlightcolor = 134217741
+this.toolbargradient = true
+this.bitmapgradient = true
+this.m_quit=create m_quit
+this.Item[UpperBound(this.Item)+1]=this.m_quit
+end on
+
+on m_file.destroy
+call super::destroy
+destroy(this.m_quit)
+end on
+
+type m_quit from menu within m_file
+end type
+
+event clicked;close(w_test)
+
+
+end event
+
+on m_quit.create
+call super::create
+this.text = "Quit"
+this.mergeoption = editmenu!
+this.menutextcolor = 134217735
+this.menubackcolor = 134217732
+this.menuhighlightcolor = 134217741
+this.textsize = 8
+this.weight = 400
+this.facename = "Tahoma"
+this.titlebackcolor = 134217730
+this.bitmapbackcolor = 12632256
+this.menubitmaps = true
+this.titlegradient = true
+this.toolbartextcolor = 134217746
+this.toolbarbackcolor = 67108864
+this.toolbarhighlightcolor = 134217741
+this.toolbargradient = true
+this.bitmapgradient = true
+end on
+
+on m_quit.destroy
+call super::destroy
+end on
+
+type m_help from menu within m_main
+m_quickhelp m_quickhelp
+m_about m_about
+end type
+
+on m_help.create
+call super::create
+this.text = "Help"
+this.menutextcolor = 134217735
+this.menubackcolor = 134217732
+this.menuhighlightcolor = 134217741
+this.textsize = 8
+this.weight = 400
+this.facename = "Tahoma"
+this.titlebackcolor = 134217730
+this.bitmapbackcolor = 12632256
+this.menubitmaps = true
+this.titlegradient = true
+this.toolbartextcolor = 134217746
+this.toolbarbackcolor = 67108864
+this.toolbarhighlightcolor = 134217741
+this.toolbargradient = true
+this.bitmapgradient = true
+this.m_quickhelp=create m_quickhelp
+this.m_about=create m_about
+this.Item[UpperBound(this.Item)+1]=this.m_quickhelp
+this.Item[UpperBound(this.Item)+1]=this.m_about
+end on
+
+on m_help.destroy
+call super::destroy
+destroy(this.m_quickhelp)
+destroy(this.m_about)
+end on
+
+type m_quickhelp from menu within m_help
+end type
+
+event clicked;open(w_minihelp)
+
+end event
+
+on m_quickhelp.create
+call super::create
+this.text = "Quick help"
+this.menutextcolor = 134217735
+this.menubackcolor = 134217732
+this.menuhighlightcolor = 134217741
+this.textsize = 8
+this.weight = 400
+this.facename = "Tahoma"
+this.titlebackcolor = 134217730
+this.bitmapbackcolor = 12632256
+this.menubitmaps = true
+this.titlegradient = true
+this.toolbartextcolor = 134217746
+this.toolbarbackcolor = 67108864
+this.toolbarhighlightcolor = 134217741
+this.toolbargradient = true
+this.bitmapgradient = true
+end on
+
+on m_quickhelp.destroy
+call super::destroy
+end on
+
+type m_about from menu within m_help
+end type
+
+event clicked;messagebox("PB Regex Coach", "A regular expression testing tool for PbniRegex~r~n~r~n" + &
+							"Original idea by Sébastien Kirche.~r~n" + &
+							"Many contributions by Nicolas Georges.")
+
+end event
+
+on m_about.create
+call super::create
+this.text = "About"
+this.menutextcolor = 134217735
+this.menubackcolor = 134217732
+this.menuhighlightcolor = 134217741
+this.textsize = 8
+this.weight = 400
+this.facename = "Tahoma"
+this.titlebackcolor = 134217730
+this.bitmapbackcolor = 12632256
+this.menubitmaps = true
+this.titlegradient = true
+this.toolbartextcolor = 134217746
+this.toolbarbackcolor = 67108864
+this.toolbarhighlightcolor = 134217741
+this.toolbargradient = true
+this.bitmapgradient = true
+end on
+
+on m_about.destroy
+call super::destroy
+end on
+

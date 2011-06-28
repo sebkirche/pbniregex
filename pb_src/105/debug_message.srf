@@ -1,0 +1,54 @@
+$PBExportHeader$debug_message.srf
+global type debug_message from function_object
+end type
+
+type prototypes
+SUBROUTINE OutputDebugString (String lpszOutputString)  LIBRARY "kernel32.dll" ALIAS FOR "OutputDebugStringW";
+end prototypes
+
+forward prototypes
+global function integer debug_message (string as_title, string as_message)
+end prototypes
+
+global function integer debug_message (string as_title, string as_message);//it return always 1 ; like an Ok button (never cancel, No, Ignore...)
+
+/*
+ 1) We will in the futur add a way to know if we are in debug mode or not
+ 2) We will change the messagebox with a postmessage( ... ) and have another application running which will pump the messages qeue.
+	 --> this will reduce debug time when a thousan of msgbox appear before what we want...
+*/
+
+long GL_DEBUG_MESSAGE = 4
+if GL_DEBUG_MESSAGE > 0 then
+	datastore lds_tmp
+	long i
+	string ls_debug_file
+	choose case GL_DEBUG_MESSAGE
+		case 1
+			ls_debug_file = "c:\pb_debug.xml"
+			lds_tmp = create datastore
+			lds_tmp.dataobject = "d_debug_message"
+			lds_tmp.importfile( ls_debug_file, XML! )
+			i = lds_tmp.insertrow(0)
+			lds_tmp.object.d_date[i] = datetime( today(), now() )
+			lds_tmp.object.d_message[i] = as_title + "~t" + as_message
+			lds_tmp.saveas( ls_debug_file, XML!, true )
+			destroy lds_tmp
+		case 2
+			ls_debug_file = "c:\pb_debug.txt"
+			int hFile
+			hFile = FileOpen( "c:\pb_debug.txt", LineMode!, Write! )
+			FileWrite( hFile,  string( datetime(today(),now()), "dd/mm/yyyy hh:mm:ss" ) + "~t" + as_title + "~t" + as_message )
+			FileClose( hFile )
+		case 3
+			messagebox( as_title, as_message)
+		case 4
+			string ls_tmp
+			ls_tmp = "["+ as_title + "]~t" + as_message
+			OutputDebugString( ls_tmp )
+	end choose
+end if
+
+return 1
+end function
+

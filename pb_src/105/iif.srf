@@ -1,0 +1,15 @@
+$PBExportHeader$iif.srf
+global type iif from function_object
+end type
+
+forward prototypes
+global function any iif (boolean ab_condition, any aa_on_true, any aa_on_false)
+end prototypes
+
+global function any iif (boolean ab_condition, any aa_on_true, any aa_on_false);if ab_condition then
+	return aa_on_true
+end if
+
+return aa_on_false
+end function
+
