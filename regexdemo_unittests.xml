@@ -80,4 +80,36 @@
 		<result> m()</result>
 		<description>Replace empty by empty must not loop</description>
 	</UnitTest>
+	<UnitTest>
+		<state>1</state>
+		<index>6</index>
+		<pattern>(action)</pattern>
+		<Global>1</Global>
+		<Insensitive>0</Insensitive>
+		<Xtended/>
+		<MultiLine/>
+		<stripSpace/>
+		<nonGreedy/>
+		<dataValue>Action</dataValue>
+		<action>R</action>
+		<replaceby>Re\1</replaceby>
+		<result>ReAction</result>
+		<description>Escape backslash 1</description>
+	</UnitTest>
+	<UnitTest>
+		<state>1</state>
+		<index>7</index>
+		<pattern>(action)</pattern>
+		<Global>1</Global>
+		<Insensitive>0</Insensitive>
+		<Xtended/>
+		<MultiLine/>
+		<stripSpace/>
+		<nonGreedy/>
+		<dataValue>Action</dataValue>
+		<action>R</action>
+		<replaceby>Re\\1</replaceby>
+		<result>Re\1</result>
+		<description>Escape backslash 2</description>
+	</UnitTest>
 </UnitTests>
