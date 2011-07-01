@@ -5,7 +5,7 @@
 
 #include <string>
 
-#ifdef PB9
+#if defined (PBVER) && (PBVER < 100)
 
 #define STR(x) x
 

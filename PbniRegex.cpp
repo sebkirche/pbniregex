@@ -193,7 +193,7 @@ PBXRESULT PbniRegex::Version( PBCallInfo * ci )
 
 	strcpy(verStr, "PCRE v.");
 	strcat(verStr, pcre_version());
-#ifdef PB9
+#if defined (PBVER) && (PBVER < 100)
 	ci->returnValue->SetString(verStr);
 #else
 	/*int verLen = mbstowcs(NULL, verStr, strlen(verStr)+1);
@@ -235,7 +235,7 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 	{
 		pbstring arg_pattern = ci->pArgs->GetAt(0)->GetString();
 		LPCWSTR pattern_ucs2;
-#ifdef PB9
+#if defined (PBVER) && (PBVER < 100)
 		pattern_ucs2 = AnsiStrToWC(m_pSession->GetString(arg_pattern));
 #else
 		pattern_ucs2 = m_pSession->GetString(arg_pattern);
@@ -250,7 +250,7 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 		int patternLen = WideCharToMultiByte(CP_UTF8,0,pattern_ucs2,-1,NULL,NULL,NULL,NULL);
 		m_sPattern = (LPSTR)malloc(patternLen);
 		WideCharToMultiByte(CP_UTF8,0,pattern_ucs2,-1,m_sPattern,patternLen,NULL,NULL);	
-#ifdef PB9
+#if defined (PBVER) && (PBVER < 100)
 		free((void*)pattern_ucs2);
 #endif
 		opts += PCRE_UTF8;
@@ -369,7 +369,7 @@ PBXRESULT PbniRegex::Test( PBCallInfo * ci )
 	else{
 		pbstring pbtest = ci->pArgs->GetAt(0)->GetString();
 		LPCWSTR testStr;
-#ifdef PB9
+#if defined (PBVER) && (PBVER < 100)
 		testStr = AnsiStrToWC(m_pSession->GetString(pbtest));
 #else
 		testStr = m_pSession->GetString(pbtest);
@@ -405,7 +405,7 @@ PBXRESULT PbniRegex::Test( PBCallInfo * ci )
 			ci->returnValue->SetBool(true);
 
 		free(testStr_utf8);
-#ifdef PB9
+#if defined (PBVER) && (PBVER < 100)
 		free((void*)testStr);
 #endif
 	}
@@ -471,7 +471,7 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 		if(m_sData)
 			free(m_sData);
 
-#ifdef PB9
+#if defined (PBVER) && (PBVER < 100)
 		searchStr = AnsiStrToWC(m_pSession->GetString(pbsearch));
 #else
 		searchStr = m_pSession->GetString(pbsearch);
@@ -481,7 +481,7 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 		int searchLen = WideCharToMultiByte(CP_UTF8,0,searchStr,-1,NULL,0,NULL,NULL);
 		m_sData = (LPSTR)malloc(searchLen);
 		WideCharToMultiByte(CP_UTF8,0,searchStr,-1,m_sData,searchLen,NULL,NULL);	
-#ifdef PB9
+#if defined (PBVER) && (PBVER < 100)
 		free((void *)searchStr);
 #endif
 
@@ -720,7 +720,7 @@ PBXRESULT PbniRegex::Match(PBCallInfo *ci)
 		MultiByteToWideChar(CP_UTF8, 0, match, -1, wstr, matchLenW);
 
 		// return value
-#ifdef PB9
+#if defined (PBVER) && (PBVER < 100)
 		LPCSTR ansiRet = WCToAnsiStr(wstr);
 		ci->returnValue->SetString(ansiRet);
 		free((void*)ansiRet);
@@ -744,7 +744,7 @@ PBXRESULT PbniRegex::GetPattern(PBCallInfo *ci)
 		LPWSTR wstr = (LPWSTR)malloc((lenW) * sizeof(wchar_t));
 		MultiByteToWideChar(CP_UTF8, 0, m_sPattern, -1, wstr, lenW);
 
-#ifdef PB9
+#if defined (PBVER) && (PBVER < 100)
 		LPCSTR ansiStr = WCToAnsiStr(wstr);
 		ci->returnValue->SetString(ansiStr);
 		free((void*)ansiStr);
@@ -816,7 +816,7 @@ PBXRESULT PbniRegex::Group(PBCallInfo *ci)
 				MultiByteToWideChar(CP_UTF8, 0, group, -1, wstr, groupLenW);
 
 				// return value
-#ifdef PB9
+#if defined (PBVER) && (PBVER < 100)
 				LPCSTR ansiRet = WCToAnsiStr(wstr);
 				ci->returnValue->SetString(ansiRet);
 				free((void*)ansiRet);
@@ -858,11 +858,11 @@ PBXRESULT PbniRegex::StrTest( PBCallInfo * ci )
 		_tcscat(buf, strIn);
 	}else{
 
-#ifdef PB9
+#if defined (PBVER) && (PBVER < 100)
 		buf = TEST;
 #else
 		int bufLen;
-		//bufLen = _tcslen(strTest) + MultiByteToWideChar(CP_ACP,0,TEST,sizeof(TEST),0,0) + 1;
+		bufLen = _tcslen(strTest) + MultiByteToWideChar(CP_ACP,0,TEST,sizeof(TEST),0,0) + 1;
 		buf = new TCHAR[wcslen(strTest)+sizeof(TEST)+1];
 		memset(buf, 0, bufLen*sizeof(TCHAR));
 		LPCWSTR valeur = AnsiStrToWC(TEST);
@@ -876,7 +876,7 @@ PBXRESULT PbniRegex::StrTest( PBCallInfo * ci )
 
 	// return value
 	ci->returnValue->SetString( buf );
-#ifndef PB9
+#if defined (PBVER) && (PBVER >= 100)
 	delete(buf);
 #endif
 
@@ -903,7 +903,7 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 		LPCWSTR searchWStr;
 
 		//get the utf-16 string
-#ifdef PB9
+#if defined (PBVER) && (PBVER < 100)
 		searchWStr = AnsiStrToWC(m_pSession->GetString(pbsearch));
 #else
 		searchWStr = m_pSession->GetString(pbsearch);
@@ -912,13 +912,13 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 		int searchLen = WideCharToMultiByte(CP_UTF8,0,searchWStr,-1,NULL,0,NULL,NULL);
 		LPSTR search_utf8 = (LPSTR)malloc(searchLen);
 		WideCharToMultiByte(CP_UTF8,0,searchWStr,-1,search_utf8,searchLen,NULL,NULL);
-#ifdef PB9
+#if defined (PBVER) && (PBVER < 100)
 		free((void*)searchWStr);
 #endif
 		//replace string utf-16 -> utf-8
 		pbstring pbreplace = ci->pArgs->GetAt(1)->GetString();
 		LPCWSTR replaceWStr;
-#ifdef PB9
+#if defined (PBVER) && (PBVER < 100)
 		replaceWStr = AnsiStrToWC(m_pSession->GetString(pbreplace));
 #else
 		replaceWStr = m_pSession->GetString(pbreplace);
@@ -926,7 +926,7 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 		int repLen = WideCharToMultiByte(CP_UTF8,0,replaceWStr,-1,NULL,0,NULL,NULL);
 		LPSTR rep_utf8 = (LPSTR)malloc(repLen);
 		WideCharToMultiByte(CP_UTF8,0,replaceWStr,-1,rep_utf8,repLen,NULL,NULL);
-#ifdef PB9
+#if defined (PBVER) && (PBVER < 100)
 		free((void*)replaceWStr);
 #endif
 
@@ -988,7 +988,7 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 		LPWSTR wstr = (LPWSTR)malloc(outLen * sizeof(wchar_t));
 		MultiByteToWideChar(CP_UTF8, 0, working.c_str(), -1, wstr, outLen);
 
-#ifdef PB9
+#if defined (PBVER) && (PBVER < 100)
 		LPCSTR ansiStr = WCToAnsiStr(wstr);
 		ci->returnValue->SetString(ansiStr);
 		free((void*)ansiStr);
@@ -1163,7 +1163,7 @@ typedef std::basic_string< TCHAR, traitws_nocase > tstring_nocase ;
 //           with streams using std::char_traits
 // std::basic_istream< char, std::char_traits<char> > (std::istream) and
 // std::basic_ostream< char, std::char_traits<char> > (std::ostream)
-#ifdef PB9
+#if defined (PBVER) && (PBVER < 100)
 inline std::ostream& operator<< ( std::ostream& stm, const tstring_nocase& str )
 {
 	return stm << reinterpret_cast<const std::string&>(str); 
