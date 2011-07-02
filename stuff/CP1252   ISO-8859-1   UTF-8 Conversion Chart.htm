@@ -1,0 +1,242 @@
+
+<!-- saved from url=(0044)http://www.prismnet.com/~jdawson/cp1252.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>CP1252 / ISO-8859-1 / UTF-8 Conversion Chart</title>
+<style type="text/css">.jlhlebbhengjlhmcjebbkambaekglhkf {top: 0px; left: 0px;min-width: 30px;max-width: 300px;font-size: 13px;font-family: arial, helvetica, sans-serif;opacity: .93;padding:0px;position:absolute;display:block;z-index: 999997;font-style: normal;font-variant: normal;font-weight: normal;}#jlhlebbhengjlhmcjebbkambaekglhkf_up{text-align: center;padding:0px;margin: 0px;}#jlhlebbhengjlhmcjebbkambaekglhkf_cont{background-color: #729FCF;font-family: arial, helvetica, sans-serif-webkit-box-shadow: #729FCF 0px 0px 2px;color: #FFFFFF;padding:7px;-webkit-border-radius: 5px;}#jlhlebbhengjlhmcjebbkambaekglhkf_down{text-align: center;padding:0px;margin: 0px;}</style></head>
+<body>
+<h1>CP1252 (Windows ANSI) / ISO-8859-1 / UTF-8 Conversion Chart</h1>
+
+Author: <a href="http://www.prismnet.com/~jdawson/">John Dawson</a><br>
+Last Updated: 2004-05-05<br>
+<br>
+
+I just made this, and thought to myself that I wish I'd had a handy reference chart like this before doing a recent ISO-8859-1/CP1252 to UTF-8 DB conversion project at work.  It gathers together all the information I needed to do data analysis and debugging.<p>
+
+In case anybody else finds it useful.</p><p>
+
+</p><h1>GLOSSARY</h1>
+
+<dl>
+
+<dt>ISO 8859-1</dt>
+<dd>A very common chararcter set.  Official name
+is ISO/IEC 8859-1.  Informally called Latin-1.  Closely related to
+ISO-8859-1.  One byte per character.  Defines characters in the ranges of 0x00-0x7f and 0xA0-0xFF.</dd>
+
+<dt>ISO-8859-1</dt>
+<dd>Like ISO 8859-1, but it defines characters in the range of 0x80-0x9F. 
+None of these are printable; they are control characters.  With these characters,
+this character set represents the full span of 0x00-0xFF.  When people say
+ISO-8859-1 they usually <em>really</em> mean ISO 8859-1, in my experience.
+Me included!
+
+</dd><dt>CP1252</dt>
+<dd>A hugely popular Windows character set.  A superset of ISO 8859-1;
+defines characters in the range of 0x80-0x9F.  The most commonly-used
+instances of these characters are curly quotes and curly apostrophes.
+Also known as:  Windows-1252, Windows ANSI, Western European.  This
+character set is very widely used.</dd>
+
+<dt>Unicode</dt>
+<dd>A character set that's supposed to contain the union of characters
+from all human character sets.  It's not there yet, but it's probably the
+best we've got.  It can certainly represent all ISO 8859-1 and CP1252
+characters.  Unicode characters are defined as <em>code points</em>,
+independent of any particular representation (encoding).</dd>
+
+<dt>UTF-8</dt>
+<dd>A commonly used byte-representation for Unicode.</dd>
+
+</dl>
+
+<h1>CONVERSION CHART</h1>
+
+<pre>CP1252 Dec   CP1252 Hex   Unicode Dec   Unicode Hex    UTF-8 Bytes  CP1252 Char  Unicode Char
+----------   ----------   -----------   -----------    -----------  -----------  ------------
+128          0x80         8364          0x20ac         e282ac       €            €
+129          0x81         65533         0xfffd         efbfbd                   &#65533;
+130          0x82         8218          0x201a         e2809a       ‚            ‚
+131          0x83         402           0x0192         c692         ƒ            ƒ
+132          0x84         8222          0x201e         e2809e       „            „
+133          0x85         8230          0x2026         e280a6       …            …
+134          0x86         8224          0x2020         e280a0       †            †
+135          0x87         8225          0x2021         e280a1       ‡            ‡
+136          0x88         710           0x02c6         cb86         ˆ            ˆ
+137          0x89         8240          0x2030         e280b0       ‰            ‰
+138          0x8a         352           0x0160         c5a0         Š            Š
+139          0x8b         8249          0x2039         e280b9       ‹            ‹
+140          0x8c         338           0x0152         c592         Œ            Œ
+141          0x8d         65533         0xfffd         efbfbd                   &#65533;
+142          0x8e         381           0x017d         c5bd         Ž            Ž
+143          0x8f         65533         0xfffd         efbfbd                   &#65533;
+144          0x90         65533         0xfffd         efbfbd                   &#65533;
+145          0x91         8216          0x2018         e28098       ‘            ‘
+146          0x92         8217          0x2019         e28099       ’            ’
+147          0x93         8220          0x201c         e2809c       “            “
+148          0x94         8221          0x201d         e2809d       ”            ”
+149          0x95         8226          0x2022         e280a2       •            •
+150          0x96         8211          0x2013         e28093       –            –
+151          0x97         8212          0x2014         e28094       —            —
+152          0x98         732           0x02dc         cb9c         ˜            ˜
+153          0x99         8482          0x2122         e284a2       ™            ™
+154          0x9a         353           0x0161         c5a1         š            š
+155          0x9b         8250          0x203a         e280ba       ›            ›
+156          0x9c         339           0x0153         c593         œ            œ
+157          0x9d         65533         0xfffd         efbfbd                   &#65533;
+158          0x9e         382           0x017e         c5be         ž            ž
+159          0x9f         376           0x0178         c5b8         Ÿ            Ÿ
+160          0xa0         160           0x00a0         c2a0         &nbsp;            &nbsp;
+161          0xa1         161           0x00a1         c2a1         ¡            ¡
+162          0xa2         162           0x00a2         c2a2         ¢            ¢
+163          0xa3         163           0x00a3         c2a3         £            £
+164          0xa4         164           0x00a4         c2a4         ¤            ¤
+165          0xa5         165           0x00a5         c2a5         ¥            ¥
+166          0xa6         166           0x00a6         c2a6         ¦            ¦
+167          0xa7         167           0x00a7         c2a7         §            §
+168          0xa8         168           0x00a8         c2a8         ¨            ¨
+169          0xa9         169           0x00a9         c2a9         ©            ©
+170          0xaa         170           0x00aa         c2aa         ª            ª
+171          0xab         171           0x00ab         c2ab         «            «
+172          0xac         172           0x00ac         c2ac         ¬            ¬
+173          0xad         173           0x00ad         c2ad         ­            ­
+174          0xae         174           0x00ae         c2ae         ®            ®
+175          0xaf         175           0x00af         c2af         ¯            ¯
+176          0xb0         176           0x00b0         c2b0         °            °
+177          0xb1         177           0x00b1         c2b1         ±            ±
+178          0xb2         178           0x00b2         c2b2         ²            ²
+179          0xb3         179           0x00b3         c2b3         ³            ³
+180          0xb4         180           0x00b4         c2b4         ´            ´
+181          0xb5         181           0x00b5         c2b5         µ            µ
+182          0xb6         182           0x00b6         c2b6         ¶            ¶
+183          0xb7         183           0x00b7         c2b7         ·            ·
+184          0xb8         184           0x00b8         c2b8         ¸            ¸
+185          0xb9         185           0x00b9         c2b9         ¹            ¹
+186          0xba         186           0x00ba         c2ba         º            º
+187          0xbb         187           0x00bb         c2bb         »            »
+188          0xbc         188           0x00bc         c2bc         ¼            ¼
+189          0xbd         189           0x00bd         c2bd         ½            ½
+190          0xbe         190           0x00be         c2be         ¾            ¾
+191          0xbf         191           0x00bf         c2bf         ¿            ¿
+192          0xc0         192           0x00c0         c380         À            À
+193          0xc1         193           0x00c1         c381         Á            Á
+194          0xc2         194           0x00c2         c382         Â            Â
+195          0xc3         195           0x00c3         c383         Ã            Ã
+196          0xc4         196           0x00c4         c384         Ä            Ä
+197          0xc5         197           0x00c5         c385         Å            Å
+198          0xc6         198           0x00c6         c386         Æ            Æ
+199          0xc7         199           0x00c7         c387         Ç            Ç
+200          0xc8         200           0x00c8         c388         È            È
+201          0xc9         201           0x00c9         c389         É            É
+202          0xca         202           0x00ca         c38a         Ê            Ê
+203          0xcb         203           0x00cb         c38b         Ë            Ë
+204          0xcc         204           0x00cc         c38c         Ì            Ì
+205          0xcd         205           0x00cd         c38d         Í            Í
+206          0xce         206           0x00ce         c38e         Î            Î
+207          0xcf         207           0x00cf         c38f         Ï            Ï
+208          0xd0         208           0x00d0         c390         Ð            Ð
+209          0xd1         209           0x00d1         c391         Ñ            Ñ
+210          0xd2         210           0x00d2         c392         Ò            Ò
+211          0xd3         211           0x00d3         c393         Ó            Ó
+212          0xd4         212           0x00d4         c394         Ô            Ô
+213          0xd5         213           0x00d5         c395         Õ            Õ
+214          0xd6         214           0x00d6         c396         Ö            Ö
+215          0xd7         215           0x00d7         c397         ×            ×
+216          0xd8         216           0x00d8         c398         Ø            Ø
+217          0xd9         217           0x00d9         c399         Ù            Ù
+218          0xda         218           0x00da         c39a         Ú            Ú
+219          0xdb         219           0x00db         c39b         Û            Û
+220          0xdc         220           0x00dc         c39c         Ü            Ü
+221          0xdd         221           0x00dd         c39d         Ý            Ý
+222          0xde         222           0x00de         c39e         Þ            Þ
+223          0xdf         223           0x00df         c39f         ß            ß
+224          0xe0         224           0x00e0         c3a0         à            à
+225          0xe1         225           0x00e1         c3a1         á            á
+226          0xe2         226           0x00e2         c3a2         â            â
+227          0xe3         227           0x00e3         c3a3         ã            ã
+228          0xe4         228           0x00e4         c3a4         ä            ä
+229          0xe5         229           0x00e5         c3a5         å            å
+230          0xe6         230           0x00e6         c3a6         æ            æ
+231          0xe7         231           0x00e7         c3a7         ç            ç
+232          0xe8         232           0x00e8         c3a8         è            è
+233          0xe9         233           0x00e9         c3a9         é            é
+234          0xea         234           0x00ea         c3aa         ê            ê
+235          0xeb         235           0x00eb         c3ab         ë            ë
+236          0xec         236           0x00ec         c3ac         ì            ì
+237          0xed         237           0x00ed         c3ad         í            í
+238          0xee         238           0x00ee         c3ae         î            î
+239          0xef         239           0x00ef         c3af         ï            ï
+240          0xf0         240           0x00f0         c3b0         ð            ð
+241          0xf1         241           0x00f1         c3b1         ñ            ñ
+242          0xf2         242           0x00f2         c3b2         ò            ò
+243          0xf3         243           0x00f3         c3b3         ó            ó
+244          0xf4         244           0x00f4         c3b4         ô            ô
+245          0xf5         245           0x00f5         c3b5         õ            õ
+246          0xf6         246           0x00f6         c3b6         ö            ö
+247          0xf7         247           0x00f7         c3b7         ÷            ÷
+248          0xf8         248           0x00f8         c3b8         ø            ø
+249          0xf9         249           0x00f9         c3b9         ù            ù
+250          0xfa         250           0x00fa         c3ba         ú            ú
+251          0xfb         251           0x00fb         c3bb         û            û
+252          0xfc         252           0x00fc         c3bc         ü            ü
+253          0xfd         253           0x00fd         c3bd         ý            ý
+254          0xfe         254           0x00fe         c3be         þ            þ
+255          0xff         255           0x00ff         c3bf         ÿ            ÿ
+</pre>
+
+<h1>NOTES</h1>
+
+For values 0x00-0x7F, the CP1252, Unicode, and UTF-8 values are the same.<p>
+
+For ISO 8859-1 (Latin-1), the range 0x80-0x9F is not defined; outside this range it's the same as CP1252.</p><p>
+
+The cases where the Unicode character for a given CP1252 "character" is 0xfffd means that CP1252 doesn't actually define a character for that particular byte value.  These are "holes" in the character set.  The holes are: 0x81, 0x8d, 0x8f, and 0x90.</p><p>
+
+</p><h1>PERL PROGRAM TO GENERATE THAT TABLE</h1>
+
+This program requires the Encode module, which is built in to Perl 5.8, but I think can be downloaded and used in Perl 5.6 too.<p>
+
+</p><pre>#!/usr/local/bin/perl -w
+
+use strict;
+use Encode;
+
+sub hex {
+    return join '', map { sprintf("%02x", ord($_)) } split(//, $_[0]);
+}
+
+print "CP1252 Dec   CP1252 Hex   Unicode Dec   Unicode Hex    UTF-8 Bytes  CP1252 Char  Unicode Char\n";
+print "----------   ----------   -----------   -----------    -----------  -----------  ------------\n";
+for (my $i = 0x80; $i &lt;= 0xFF; $i++) {
+    my $ch = chr($i);
+    my $native = Encode::decode("cp1252", $ch);
+    my $utf8 = Encode::encode("utf-8", $native);
+    printf "%-12d 0x%02x         %-13d 0x%04x         %-12s &amp;#%d;            &amp;#%d;\n",
+        $i, $i, ord($native), ord($native), hex($utf8), $i, ord($native);
+}
+</pre>
+
+<h1>USEFUL LINKS</h1>
+
+<dl>
+    <dt><a href="http://en.wikipedia.org/wiki/ISO_8859-1">Wikipedia - ISO 8859-1</a></dt>
+    <dd>A spectacular page that explains in detail the relationship
+    between ISO 8859-1 (aka Latin-1 aka ISO/IEC 8859-1), ISO-8859-1 (note
+    the extra hyphen), and CP1252 (aka Windows-1252 aka Windows ANSI aka
+    Western European).  CP1252 is the standard Windows Western European
+    character set.  I didn't realize how prevalent CP1252 really is,
+    and that a lot of places that I thought were using ISO-8859-1 were
+    really using CP1252 instead; this works because CP1252 is a strict
+    supserset of ISO 8859-1.</dd>
+
+    <dt><a href="http://www.eki.ee/letter/">The Letter Database</a></dt>
+    <dd>Has dynamically-generated charts that let you compare one
+    character set to another.  Even better, has links to pre-rendered
+    Unicode glyphs for all the character sets it supports (and it supports
+    a <em>lot</em> of them).  This way you can see authoritative answers
+    about what characters look like without wondering if your web browser
+    is right (no font worries, no character encoding worries, no web browser
+    rendering worries).</dd>
+</dl>
+
+
+</body></html>
