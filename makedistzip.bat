@@ -20,5 +20,5 @@ set ZIP="C:\Program Files\7-Zip\7z.exe"
 @rem -y File in archive is older than the file on disk. -> compress
 @rem -z File in archive is same as the file on disk -> copy
 @rem -w Can not be detected what file is newer (times are the same, sizes are different) -> Compress
-%ZIP% u -up0q0r2x1y2z1w2 -tzip -xr!.svn pbniregex.zip @distfiles.lst
+%ZIP% u -up0q0r2x1y2z1w2 -tzip -xr!.svn ../pbniregex.zip @distfiles.lst
 @pause
