@@ -1,5 +1,7 @@
-HISTORY -=- Last edit Time-stamp: <04/07/2011 10:33 Sebastien@PC-SEBASTIEN>
+HISTORY -=- Last edit Time-stamp: <04/07/2011 20:36 Sebastien@PC-DEV>
 =======
+
+2001-07-04 - Added the PB12 version
 
 2011-06-28 - PB9 backport complete.
              Support for escaped backslashes in Replace(), now you can use strings like
