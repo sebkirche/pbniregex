@@ -1,9 +1,10 @@
-HISTORY -=- Last edit Time-stamp: <28/06/2011 00:53 Sebastien@PC-DEV>
+HISTORY -=- Last edit Time-stamp: <04/07/2011 10:33 Sebastien@PC-SEBASTIEN>
 =======
 
 2011-06-28 - PB9 backport complete.
              Support for escaped backslashes in Replace(), now you can use strings like
-             '\\1' for inserting '\1' into replaced text
+             '\\1' for inserting '\1' into replaced text. Added the possibility to get the
+             whole match with '\0'.
 
 2011-06-21 - Started the PB9 backport, exported the source code separately into folder
              for each PB version 9,10,11.5
