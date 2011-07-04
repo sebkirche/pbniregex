@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioUserFile
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	ShowAllFiles="false"
 	>
 	<Configurations>
@@ -275,6 +275,62 @@
 				Environment=""
 				EnvironmentMerge="true"
 				DebuggerFlavor=""
+				MPIRunCommand=""
+				MPIRunArguments=""
+				MPIRunWorkingDirectory=""
+				ApplicationCommand=""
+				ApplicationArguments=""
+				ShimCommand=""
+				MPIAcceptMode=""
+				MPIAcceptFilter=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug PB12.0|Win32"
+			>
+			<DebugSettings
+				Command="C:\Program Files\Sybase\PowerBuilder 12.0\PB120.EXE"
+				WorkingDirectory="$(ProjectDir)"
+				CommandArguments="/workspace worksp120.pbw"
+				Attach="false"
+				DebuggerType="3"
+				Remote="1"
+				RemoteMachine="PC-SEBASTIEN"
+				RemoteCommand=""
+				HttpUrl=""
+				PDBPath=""
+				SQLDebugging=""
+				Environment=""
+				EnvironmentMerge="true"
+				DebuggerFlavor="0"
+				MPIRunCommand=""
+				MPIRunArguments=""
+				MPIRunWorkingDirectory=""
+				ApplicationCommand=""
+				ApplicationArguments=""
+				ShimCommand=""
+				MPIAcceptMode=""
+				MPIAcceptFilter=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release PB12.0|Win32"
+			>
+			<DebugSettings
+				Command="C:\Program Files\Sybase\PowerBuilder 12.0\PB120.EXE"
+				WorkingDirectory="$(ProjectDir)"
+				CommandArguments="/workspace worksp120.pbw"
+				Attach="false"
+				DebuggerType="3"
+				Remote="1"
+				RemoteMachine="PC-SEBASTIEN"
+				RemoteCommand=""
+				HttpUrl=""
+				PDBPath=""
+				SQLDebugging=""
+				Environment=""
+				EnvironmentMerge="true"
+				DebuggerFlavor="0"
 				MPIRunCommand=""
 				MPIRunArguments=""
 				MPIRunWorkingDirectory=""

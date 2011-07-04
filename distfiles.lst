@@ -12,14 +12,8 @@ strconv.h
 pbniregex.rc
 pbx2pbd90.bat
 
-pbniregex90.pbd
-pbniregex90.pbx
-pbniregex100.pbd
-pbniregex100.pbx
-pbniregex105.pbd
-pbniregex105.pbx
-pbniregex115.pbd
-pbniregex115.pbx
+pbniregex*.pbd
+pbniregex*.pbx
 
 worksp*.pbw
 regexdemo*.pbl
