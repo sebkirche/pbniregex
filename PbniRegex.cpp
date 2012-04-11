@@ -1026,31 +1026,64 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci)
 		_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex::FastReplace, pattern = %ls\n", p);
 		OutputDebugStringA(dbgMsg);
 #endif
-		stdstring sourcew(s);
-		stdstring patternw(p);
+		wchar_t* pos = wcsstr((wchar_t*)s, (wchar_t*)p);
+		if(0){
+			stdstring sourcew(s);
+			stdstring patternw(p);
+		}
 		//test for one occurence
-		if(_tcsstr(s, p)){
+		if(/*_tcsstr(s, p)*/pos){
 		
 			OutputDBSIfDebugA("PbniRegex::FastReplace, found at least one occurrence.\n");
 			pbstring replace = ci->pArgs->GetAt(2)->GetString();
-			stdstring replacew(m_pSession->GetString(replace));
-
+			//stdstring replacew(m_pSession->GetString(replace));
+			wchar_t* rpl = (wchar_t*)m_pSession->GetString(replace);
+			wchar_t* trg = wcsdup(s);
+			wchar_t* prev;
 			//here is the 'all' of 'replaceall' : replace each occurence
-			unsigned int p = 0, startoffset = 0;
-			while((p = sourcew.find(patternw, startoffset)) != string::npos){
-#ifdef _DEBUG
-				_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex::FastReplace, sourcew.find(%ls, %d) found offset %d\n", patternw.c_str(), startoffset, p);
-				OutputDebugStringA(dbgMsg);
-#endif
-				sourcew.replace(p, patternw.length(), replacew);
-				startoffset = p + replacew.length();
+			//unsigned int p = 0, startoffset = 0;
+			size_t p_len = wcslen(p);
+			size_t r_len = wcslen(rpl);
+
+			if(p_len<r_len){
+			//si length(rpl) > length(pattern) alors il faut compter combien il y a d'occurance
+			// et augmenter le buffer de la chaine de destination de: Occurences x ( length(rpl) - length(pattern) )
+				prev=pos;
+				unsigned long occ = 1;
+				while(pos=wcsstr(pos + p_len, p)){
+					occ++;
+				}
+				pos = prev;
+				trg = (wchar_t*)realloc((void*)trg, sizeof(wchar_t)*(1 + wcslen(s) + occ*(r_len - p_len) ) );
 			}
+			prev = (wchar_t*)s;
+			trg[0] = (wchar_t)0;
+			wchar_t* tmp_trg = trg;
+			size_t t_len;		//taille des chunks intermédiaires
+			while(pos/*(p = sourcew.find(patternw, startoffset)) != string::npos*/){
+#ifdef _DEBUG
+//				_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex::FastReplace, sourcew.find(%ls, %d) found offset %d\n", patternw.c_str(), startoffset, p);
+//				OutputDebugStringA(dbgMsg);
+#endif
+				//sourcew.replace(p, patternw.length(), replacew);
+				//startoffset = p + replacew.length();
+				
+				t_len = pos - prev;
+				wcsncat(tmp_trg, prev, t_len);	//copie ce qui est avant le match (depuis le précédent match || début)
+				tmp_trg += t_len;
+				wcscat(tmp_trg, rpl);
+				tmp_trg += r_len;
+				prev = pos + p_len;
+				pos = wcsstr(prev,p);
+			}
+			wcscat(tmp_trg, prev);
 			//return the resulting string
 #ifdef _DEBUG
-			_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex::FastReplace, final string is %ls\n", sourcew.c_str());
-			OutputDebugStringA(dbgMsg);
+//			_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex::FastReplace, final string is %ls\n", sourcew.c_str());
+//			OutputDebugStringA(dbgMsg);
 #endif
-			ci->returnValue->SetString(sourcew.c_str());
+			ci->returnValue->SetString(trg/*sourcew.c_str()*/);
+			//free(trg);//do not need anymore, but crash immediatelly in Debug and sometime on release
 		}
 		else {
 			//if no occurrence, return the given string
