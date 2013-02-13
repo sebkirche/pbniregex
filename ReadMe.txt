@@ -7,7 +7,7 @@ PbniRegex is a PBNI extension for Powerbuilder 9 to 12 that provides
    implemented with C++ STL to save you from iterating with Pos() and
    Replace() PBscript functions
    
-PbRegexCoach started a basic test application for PbniRegex and grown 
+PbRegexCoach started as a basic test application for PbniRegex and grown 
 to a full featured regex testing tool similar to the Regex Coach with 
 a unit testing graphical interface.
 
