@@ -1,0 +1,13 @@
+The libpcre.a was compiled this way:
+
+- get the lastet MinGW distribution (mingw-get-inst-20120426.exe) at this time,
+  providing gcc v.4.7.2
+
+- ./configure --enable-utf --enable-unicode-properties --enable-jit --enable-shared=no --enable-static
+
+- make
+
+- the resulting .libs/*.a were copied into the libpcre directory
+
+- the libgcc.a comes from the MinGW\lib\gcc\mingw32\4.7.2\ directory
+
