@@ -1,5 +1,5 @@
 
-DOCUMENTATION  -=- Last edit Time-stamp: <27/06/2011 23:17 Sebastien@PC-DEV>
+DOCUMENTATION  -=- Last edit Time-stamp: <01/07/2013 14:15 Sebastien@PC-SEKI>
 =============
 
 This is the documentation for uo_regex (pbni C++ extension) and unvo_regexp
@@ -53,7 +53,6 @@ Methods
 -------
 
 initialize (string as_pattern, boolean ab_globalscope, boolean ab_casesensitive) 
-
    Sets the global, ignoreCase & pattern attributes of the ole regex. 
    You MUST call initialize() to compile the search pattern before actual search.
 
@@ -92,9 +91,8 @@ groupcount ( long al_matchindex )
    given match.
 
 group ( long al_matchindex, long al_groupindex )
-  When using the pattern grouping, returns the content of the given group of
-  the given match.
-
+   When using the pattern grouping, returns the content of the given group of
+   the given match.
 
 List of the available methods for uo_regex (C++ wrapper for PCRE)
 ==========================================
@@ -102,8 +100,14 @@ List of the available methods for uo_regex (C++ wrapper for PCRE)
 pcreversion()
    Returns the version of PCRE wrapped in the pbx
 
+getversion()
+   Returns the short form of the PbniRegex version
+
+getversionfull()
+   Returns the full form of the PbniRegex version, including the build timestamp
+
 The following methods and functions give the same results than with the unvo_regexp :
-initialize() - see th eremark below about error codes
+initialize() - see the remark below about error codes
 test ( string as_teststring ) 
 search ( string as_searchstring )
 matchCount ( )  
@@ -190,9 +194,15 @@ getungreedy()
    Returns the state of the regex UNgreediness.
 
 getpattern()
-  Returns the pattern that was given to initialize()
+   Returns the pattern that was given to initialize()
 
+getLastError()
+   Returns the last error message, when a pattern failed to compile
 
+stringTest()
+   It is only a debugging function to return the given string.
+   Useful to track down string encoding and / or conversion problems.
+   
 Global functions
 ----------------
 

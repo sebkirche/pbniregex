@@ -1,6 +1,6 @@
 // PbniRegex.cpp : PBNI class
 //
-// @author : Sebastien Kirche - 2008, 2009, 2011
+// @author : Sebastien Kirche - 2008, 2009, 2011, 2013
 
 #define _CRT_SECURE_NO_DEPRECATE
 #define _SCL_SECURE_NO_WARNINGS
@@ -17,10 +17,11 @@
 #include "pcre.h"
 #include "pcrecpp.h"
 
+#define PCRE_VERSION_PREFIX "PCRE v."
 #ifdef _DEBUG
-#define	VERSION_STR	STR(" (Debug version ") STR(PBX_VERSION) STR(" - ") STR(__DATE__) STR(" ") STR(__TIME__) STR(")")
+#define	VERSION_STR	STR(" Debug version ") STR(PBX_VERSION) STR(" - ") STR(__DATE__) STR(" ") STR(__TIME__)
 #else
-#define	VERSION_STR	STR(" (Release version ") STR(PBX_VERSION) STR(" - ") STR(__DATE__) STR(" ") STR(__TIME__) STR(")")
+#define	VERSION_STR	STR(" Release version ") STR(PBX_VERSION) STR(" - ") STR(__DATE__) STR(" ") STR(__TIME__)
 #endif
 
 char dbgMsg[2048];
@@ -36,24 +37,24 @@ PbniRegex::PbniRegex( IPB_Session * pSession )
 
 	m_bGlobal = false;
 	m_bCaseSensitive = false;
-	m_bmultiLine = false;
+	m_bMultiLine = false;
 	m_bDotNL = false;
 	m_bExtended = false;
 	m_bUnGreedy = false;
-	m_butf8 = true;			//2009-04-02 : always work in utf-8
 	m_sPattern = NULL;
 	m_sData = NULL;
-	re = NULL;
-	studinfo = NULL;
+	m_re = NULL;
+	m_studinfo = NULL;
+	m_jitted = false;
 	m_matchCount = 0;
 	m_maxmatches = MAXMATCHES;
 	m_maxgroups = MAXGROUPS;
 	m_ovecsize = (m_maxgroups + 1) * 3;
-	hHeap = HeapCreate(HEAP_NO_SERIALIZE, 1024 * 64, 0);
-	m_matchinfo = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * (m_maxmatches * m_ovecsize));
-	m_replacebuf = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * m_ovecsize);
-	m_groupcount = (int *)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, sizeof(int) * m_maxmatches);
-	m_lastErr = (LPSTR)HeapAlloc(hHeap, HEAP_ZERO_MEMORY, 1);
+	m_hHeap = HeapCreate(HEAP_NO_SERIALIZE, 1024 * 64, 0);
+	m_matchinfo = (int *)HeapAlloc(m_hHeap, HEAP_ZERO_MEMORY, sizeof(int) * (m_maxmatches * m_ovecsize));
+	m_replacebuf = (int *)HeapAlloc(m_hHeap, HEAP_ZERO_MEMORY, sizeof(int) * m_ovecsize);
+	m_groupcount = (int *)HeapAlloc(m_hHeap, HEAP_ZERO_MEMORY, sizeof(int) * m_maxmatches);
+	m_lastErr = (LPSTR)HeapAlloc(m_hHeap, HEAP_ZERO_MEMORY, 1);
 	m_lastErr[0] = '\0';
 	char *test = setlocale(LC_ALL, NULL);
 }
@@ -66,18 +67,22 @@ PbniRegex::~PbniRegex()
 		free(m_sPattern);
 	if(m_sData)
 		free(m_sData);
-	if(re)
-		pcre_free(re);
+	if(m_re)
+		pcre_free(m_re);
+	if(m_studinfo && m_jitted)
+		pcre_free_study(m_studinfo);
+	else if (m_studinfo)
+		pcre_free(m_studinfo);
 	if(m_matchinfo)
-		HeapFree(hHeap, 0, m_matchinfo);
+		HeapFree(m_hHeap, 0, m_matchinfo);
 	if(m_replacebuf)
-		HeapFree(hHeap, 0, m_replacebuf);
+		HeapFree(m_hHeap, 0, m_replacebuf);
 	if(m_groupcount)
-		HeapFree(hHeap, 0, m_groupcount);
+		HeapFree(m_hHeap, 0, m_groupcount);
 	if (m_lastErr)
-		HeapFree(hHeap, 0, m_lastErr);
-	if(hHeap)
-		HeapDestroy(hHeap);
+		HeapFree(m_hHeap, 0, m_lastErr);
+	if(m_hHeap)
+		HeapDestroy(m_hHeap);
 }
 
 // method called by PowerBuilder to invoke PBNI class methods
@@ -85,12 +90,15 @@ PBXRESULT PbniRegex::Invoke(IPB_Session * session, pbobject obj, pbmethodID mid,
 {
    PBXRESULT pbxr = PBX_OK;
 
-	switch ( mid ){
-		case mid_Version:
+	switch(mid){
+		case mid_PcreVersion:
+			pbxr = this->PcreVersion( ci );
+			break;
+		case mid_GetVersion:
 			pbxr = this->Version( ci );
 			break;
-		case mid_Hello:
-			pbxr = this->Hello( ci );
+		case mid_GetVersionFull:
+			pbxr = this->VersionFull(ci);
 			break;
 		case mid_Init:
 			pbxr = this->Initialize(ci);
@@ -134,37 +142,34 @@ PBXRESULT PbniRegex::Invoke(IPB_Session * session, pbobject obj, pbmethodID mid,
 		case mid_IsMulti:
 			pbxr = this->IsMulti(ci);
 			break;
-		case mid_IsUtf:
-			pbxr = this->IsUtf(ci);
-			break;
-		case mid_SetUtf:
-			pbxr = this->SetUtf(ci);
-			break;
 		case mid_Study:
-			pbxr = this->Study(ci);
+			pbxr = this->Study(ci, false);
 			break;
-		case mid_getDot:
+		case mid_JitCompile:
+			pbxr = this->Study(ci, true);
+			break;
+		case mid_GetDot:
 			pbxr = this->GetDotNL(ci);
 			break;
-		case mid_setDot:
+		case mid_SetDot:
 			pbxr = this->SetDotNL(ci);
 			break;
-		case mid_getExtended:
+		case mid_GetExtended:
 			pbxr = this->GetExtended(ci);
 			break;
-		case mid_setExtended:
+		case mid_SetExtended:
 			pbxr = this->SetExtended(ci);
 			break;
-		case mid_getUnGreedy:
+		case mid_GetUnGreedy:
 			pbxr = this->GetUnGreedy(ci);
 			break;
-		case mid_setUnGreedy:
+		case mid_SetUnGreedy:
 			pbxr = this->SetUnGreedy(ci);
 			break;
-		case mid_getPattern:
+		case mid_GetPattern:
 			pbxr = this->GetPattern(ci);
 			break;
-		case mid_getLastErr:
+		case mid_GetLastErr:
 			pbxr = this->GetLastErrMsg(ci);
 			break;
 #ifdef _DEBUG
@@ -186,35 +191,54 @@ void PbniRegex::Destroy()
 
 /*====================== Methods exposed to PowerBuilder ==========================*/
 
-PBXRESULT PbniRegex::Version( PBCallInfo * ci )
+PBXRESULT PbniRegex::PcreVersion( PBCallInfo * ci )
 {
-	char verStr[256]; // !!!
+	size_t versLen;
+	char *verStr;
 	PBXRESULT	pbxr = PBX_OK;
 
-	strcpy(verStr, "PCRE v.");
+	versLen = strlen(PCRE_VERSION_PREFIX) + strlen(pcre_version()) + 1;
+	verStr = (LPSTR)malloc(versLen);
+	strcpy(verStr, PCRE_VERSION_PREFIX);
 	strcat(verStr, pcre_version());
 #if defined (PBVER) && (PBVER < 100)
 	ci->returnValue->SetString(verStr);
 #else
-	/*int verLen = mbstowcs(NULL, verStr, strlen(verStr)+1);
-	LPWSTR wstr = (LPWSTR)malloc((verLen+1) * sizeof(wchar_t));
-	mbstowcs(wstr, verStr, strlen(verStr)+1);
-	// return value
-	ci->returnValue->SetString(wstr);
-	free(wstr);*/
 	LPCWSTR wver = AnsiStrToWC(verStr);
+	ci->returnValue->SetString(wver);
+	free((void*)wver);
+#endif
+	free((void*)verStr);
+	return pbxr;
+}
+
+PBXRESULT PbniRegex::Version( PBCallInfo * ci )
+{
+	PBXRESULT	pbxr = PBX_OK;
+
+	// return value
+#if defined (PBVER) && (PBVER < 100)
+	ci->returnValue->SetString(PBX_VERSION);
+#else
+	LPCWSTR wver = AnsiStrToWC(PBX_VERSION);
 	ci->returnValue->SetString(wver);
 	free((void*)wver);
 #endif
 	return pbxr;
 }
 
-PBXRESULT PbniRegex::Hello( PBCallInfo * ci )
+PBXRESULT PbniRegex::VersionFull( PBCallInfo * ci )
 {
 	PBXRESULT	pbxr = PBX_OK;
 
 	// return value
-	ci->returnValue->SetString( STR("Hello from PbniRegex") VERSION_STR );
+#if defined (PBVER) && (PBVER < 100)
+	LPCSTR aver = WCToAnsiStr(VERSION_STR);
+	ci->returnValue->SetString(aver);
+	free((void*)aver);
+#else
+	ci->returnValue->SetString(VERSION_STR);
+#endif
 	return pbxr;
 }
 
@@ -226,6 +250,12 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 	int erroffset;
 	int opts = 0;
 
+	//if we recompile a new pattern over an old one, clear the memory
+	if(m_studinfo && m_jitted)
+		pcre_free_study(m_studinfo);
+	else if (m_studinfo)
+		pcre_free(m_studinfo);
+	
 	if(ci->pArgs->GetCount() != 3)
 		return PBX_E_INVOKE_WRONG_NUM_ARGS;
 
@@ -258,7 +288,7 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 		m_matchCount = 0;
 		if(!m_bCaseSensitive)
 			opts += PCRE_CASELESS;
-		if(m_bmultiLine)
+		if(m_bMultiLine)
 			opts += PCRE_MULTILINE;
 		if(m_bDotNL)
 			opts += PCRE_DOTALL;
@@ -267,13 +297,13 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 		if(m_bUnGreedy)
 			opts += PCRE_UNGREEDY;
 
-		re = pcre_compile(
+		m_re = pcre_compile(
 				m_sPattern,           /* pattern */
 				opts,                 /* options (défaut = 0)*/
 				&error,               /* for error message */
 				&erroffset,           /* for error offset */
 				NULL);                /* use default character tables */
-		if (re == NULL){
+		if (m_re == NULL){
 			if (error){
 				_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PCRE compilation failed at offset %d: %s\n", erroffset, error);
 				OutputDebugStringA(dbgMsg);
@@ -284,9 +314,9 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 		else{
 			ci->returnValue->SetBool(true);
 		}
-		if(re){
+		if(m_re){
 			int newmaxgroups;
-			if (pcre_fullinfo(re, NULL, PCRE_INFO_CAPTURECOUNT, &newmaxgroups) == 0){
+			if (pcre_fullinfo(m_re, NULL, PCRE_INFO_CAPTURECOUNT, &newmaxgroups) == 0){
 				if (newmaxgroups > m_maxgroups){
 #ifdef _DEBUG
 					_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex :: needs to reallocate bigger block for group matches (maxgroup was %d, increase to %d)\n", m_maxgroups, newmaxgroups);
@@ -294,7 +324,7 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 #endif
 					m_maxgroups = newmaxgroups;
 					m_ovecsize = (m_maxgroups + 1) * 3;
-					m_matchinfo = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_matchinfo, sizeof(int) * (m_maxmatches * m_ovecsize));
+					m_matchinfo = (int *)HeapReAlloc(m_hHeap, HEAP_ZERO_MEMORY, m_matchinfo, sizeof(int) * (m_maxmatches * m_ovecsize));
 					if(!m_matchinfo){
 						long err = GetLastError();
 						_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex :: initialize failed on memory reallocation for matches\n");
@@ -303,7 +333,7 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 						ci->returnValue->SetBool(false);
 						pbxr = PBX_E_OUTOF_MEMORY;
 					}
-					m_replacebuf = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_replacebuf, sizeof(int) * m_ovecsize);
+					m_replacebuf = (int *)HeapReAlloc(m_hHeap, HEAP_ZERO_MEMORY, m_replacebuf, sizeof(int) * m_ovecsize);
 					if(!m_replacebuf){
 						long err = GetLastError();
 						_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex :: initialize failed on memory reallocation for replace\n");
@@ -312,7 +342,7 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
 						ci->returnValue->SetBool(false);
 						pbxr = PBX_E_OUTOF_MEMORY;
 					}
-					m_groupcount = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_groupcount, sizeof(int) * m_maxmatches);
+					m_groupcount = (int *)HeapReAlloc(m_hHeap, HEAP_ZERO_MEMORY, m_groupcount, sizeof(int) * m_maxmatches);
 					if(!m_groupcount){
 						long err = GetLastError();
 						_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex :: initialize failed on memory reallocation for groups count\n");
@@ -334,18 +364,30 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci)
    At present, studying a pattern is useful only for non-anchored patterns that do not have a single fixed starting character.
    A bitmap of possible starting bytes is created. 
 */
-PBXRESULT PbniRegex::Study(PBCallInfo *ci)
+PBXRESULT PbniRegex::Study(PBCallInfo *ci, bool bUseJit)
 {
 	const char *error;
 	PBXRESULT pbxr = PBX_OK;
+	int studyOptions = 0;
 	
-	studinfo = pcre_study(re, 0, &error);
+	//clear the memory in case where Study was already called and resulted in allocated data
+	if(m_studinfo && m_jitted)
+		pcre_free_study(m_studinfo);
+	else if (m_studinfo)
+		pcre_free(m_studinfo);
+
+	if (bUseJit){
+		studyOptions += PCRE_STUDY_JIT_COMPILE;
+		m_jitted = true;
+	}
+	
+	m_studinfo = pcre_study(m_re, studyOptions, &error);
 	if (error){
 	  _snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PCRE study failed with message '%s'\n", error);
 	  OutputDebugStringA(dbgMsg);
 	  SetLastErrMsg(dbgMsg);
 	}
-	if (studinfo == NULL){
+	if (m_studinfo == NULL){
 		//if the study did not found useful data
 		ci->returnValue->SetBool(false);
 	}else{
@@ -362,7 +404,7 @@ PBXRESULT PbniRegex::Test( PBCallInfo * ci )
 	int rc;
 
 	// check arguments
-	if ( ci->pArgs->GetAt(0)->IsNull() || !re){
+	if ( ci->pArgs->GetAt(0)->IsNull() || !m_re){
 		// if any of the passed arguments is null, return the null value
 		ci->returnValue->SetBool(false);
 	}
@@ -381,8 +423,8 @@ PBXRESULT PbniRegex::Test( PBCallInfo * ci )
 		WideCharToMultiByte(CP_UTF8,0,testStr,-1,testStr_utf8,testLen,NULL,NULL);	
 
 		rc = pcre_exec(
-		  re,                   /* the compiled pattern */
-		  studinfo,             /* extra data if we studied the pattern */
+		  m_re,                 /* the compiled pattern */
+		  m_studinfo,           /* extra data if we studied the pattern */
 		  testStr_utf8,         /* the subject string */
 		  testLen-1,			/* the length of the subject */
 		  0,                    /* start at offset 0 in the subject */
@@ -412,15 +454,6 @@ PBXRESULT PbniRegex::Test( PBCallInfo * ci )
 	return pbxr;
 }
 
-PBXRESULT PbniRegex::SetUtf(PBCallInfo *ci)
-{
-	PBXRESULT pbxr = PBX_OK;
-
-	//2009-04-02 : always work with utf-8 
-	//m_butf8 = ci->pArgs->GetAt(0)->GetBool();
-	return pbxr;
-}
-
 PBXRESULT PbniRegex::SetDotNL(PBCallInfo *ci)
 {
 	PBXRESULT pbxr = PBX_OK;
@@ -441,7 +474,7 @@ PBXRESULT PbniRegex::SetMulti(PBCallInfo *ci)
 {
 	PBXRESULT pbxr = PBX_OK;
 
-	m_bmultiLine = ci->pArgs->GetAt(0)->GetBool();
+	m_bMultiLine = ci->pArgs->GetAt(0)->GetBool();
 	return pbxr;
 }
 
@@ -501,7 +534,7 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 				OutputDebugStringA(dbgMsg);
 #endif
 				//TODO: should handle a try/catch if the mem alloc fails ?
-				m_matchinfo = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_matchinfo, sizeof(int) * (m_maxmatches * m_ovecsize));
+				m_matchinfo = (int *)HeapReAlloc(m_hHeap, HEAP_ZERO_MEMORY, m_matchinfo, sizeof(int) * (m_maxmatches * m_ovecsize));
 				if(!m_matchinfo){
 					long err = GetLastError();
 					_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex :: search failed on memory reallocation for matches\n");
@@ -510,7 +543,7 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 					ci->returnValue->SetLong(-1);
 					pbxr = PBX_E_OUTOF_MEMORY;
 				}
-				m_groupcount = (int *)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_groupcount, sizeof(int) * m_maxmatches);
+				m_groupcount = (int *)HeapReAlloc(m_hHeap, HEAP_ZERO_MEMORY, m_groupcount, sizeof(int) * m_maxmatches);
 				if(!m_groupcount){
 					long err = GetLastError();
 					_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex :: initialize failed on memory reallocation for groups count\n");
@@ -520,7 +553,7 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci)
 					pbxr = PBX_E_OUTOF_MEMORY;
 				}
 			}
-			res = pcre_exec(re, studinfo, m_sData, (int)searchLen-1, startoffset, 0, &(m_matchinfo[nmatch * m_ovecsize]), m_ovecsize);
+			res = pcre_exec(m_re, m_studinfo, m_sData, (int)searchLen-1, startoffset, 0, &(m_matchinfo[nmatch * m_ovecsize]), m_ovecsize);
 			if (res > 0) {
 				m_groupcount[nmatch] = res - 1;
 				startoffset = m_matchinfo[(nmatch * m_ovecsize) + 1];
@@ -560,15 +593,7 @@ PBXRESULT PbniRegex::IsMulti(PBCallInfo *ci)
 {
 	PBXRESULT pbxr = PBX_OK;
 
-	ci->returnValue->SetBool(m_bmultiLine);
-	return pbxr;
-}
-
-PBXRESULT PbniRegex::IsUtf(PBCallInfo *ci)
-{
-	PBXRESULT pbxr = PBX_OK;
-
-	ci->returnValue->SetBool(m_butf8);
+	ci->returnValue->SetBool(m_bMultiLine);
 	return pbxr;
 }
 
@@ -613,12 +638,18 @@ int strnlen_utf8(const unsigned char* ptr, unsigned int maxbytes){
 	int c = 0;	
 	while(*ptr && maxbytes){
 		if((*ptr & 0xC0)!=0x80){
-			//printf("\nDEBUG c++ : %c ; %d ; %d ; MASKED = %02X", *ptr, c, maxbytes, (*ptr & 0xC0));
+#ifdef _DEBUG
+			_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "strnlen_utf8 c++ : %c ; %d ; %d ; MASKED = %02X", *ptr, c, maxbytes, (*ptr & 0xC0));
+			OutputDebugStringA(dbgMsg);
+#endif
 			c++;
 		}
 		ptr++;		
 		maxbytes--;
-		//printf("\nDEBUG ptr++ : %c ; %d ; %d", *ptr, c, maxbytes);
+#ifdef _DEBUG
+			_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "strnlen_utf8 ptr++ : %c ; %d ; %d", *ptr, c, maxbytes);
+			OutputDebugStringA(dbgMsg);
+#endif
 	}
 	return c;
 }
@@ -779,7 +810,7 @@ PBXRESULT PbniRegex::GetLastErrMsg(PBCallInfo *ci)
 
 void PbniRegex::SetLastErrMsg(const char *msg)
 {
-	m_lastErr = (LPSTR)HeapReAlloc(hHeap, HEAP_ZERO_MEMORY, m_lastErr, strlen(msg) + 1);
+	m_lastErr = (LPSTR)HeapReAlloc(m_hHeap, HEAP_ZERO_MEMORY, m_lastErr, strlen(msg) + 1);
 	if (m_lastErr)
 		strcpy(m_lastErr, msg);
 }
@@ -934,10 +965,10 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci)
 		string working (search_utf8);
 
 		//get the number of capturing patterns
-		res = pcre_fullinfo(re, studinfo, PCRE_INFO_CAPTURECOUNT, &nbgroups); //need to check res ?
+		res = pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_CAPTURECOUNT, &nbgroups); //need to check res ?
 		do {
 			//crawl the matches
-			res = pcre_exec(re, studinfo, working.c_str(), strlen(working.c_str()), startoffset, 0, m_replacebuf, m_ovecsize);
+			res = pcre_exec(m_re, m_studinfo, working.c_str(), strlen(working.c_str()), startoffset, 0, m_replacebuf, m_ovecsize);
 			if (res > 0) {
 				string rep(rep_utf8);
 				unsigned int p=0, k, grplen, bck;
@@ -1050,7 +1081,7 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci)
 			// et augmenter le buffer de la chaine de destination de: Occurences x ( length(rpl) - length(pattern) )
 				prev=pos;
 				unsigned long occ = 1;
-				while(pos=wcsstr(pos + p_len, p)){
+				while(pos = wcsstr(pos + p_len, p)){
 					occ++;
 				}
 				pos = prev;

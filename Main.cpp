@@ -1,6 +1,6 @@
 // Main module for PbniRegexp
 //
-// @author : Sebastien Kirche - 2008, 2009, 2011
+// @author : Sebastien Kirche - 2008, 2009, 2011, 2013
 
 #include "PbniRegex.h"
 #include "Main.h"
@@ -39,11 +39,9 @@ PBXEXPORT LPCTSTR PBXCALL PBX_GetDescription()
 	static const TCHAR classDesc[] = {
 		/* uo_regex object */
 		STR("class uo_regex from nonvisualobject\n")
-		STR("   function string of_hello()\n")
 		STR("   function string pcreversion()\n") 
 		STR("   function boolean initialize(string as_pattern, boolean ab_globalscope, boolean ab_casesensitive)\n")
 		STR("   function boolean test(string teststring)\n")
-		STR("   subroutine setutf8(boolean isutf)\n")
 		STR("   function long search(string searchstring)\n")
 		STR("   function long matchcount()\n")
 		STR("   function long matchposition(long al_index)\n")
@@ -56,8 +54,8 @@ PBXEXPORT LPCTSTR PBXCALL PBX_GetDescription()
 		STR("   function long grouplength(long al_matchindex, long al_groupindex)\n")
 		STR("   subroutine setmultiline(boolean ismulti)\n")
 		STR("   function boolean ismultiline()\n")
-		STR("   function boolean isutf8()\n")
 		STR("   function boolean study()\n")
+		STR("   function boolean jitcompile()\n")
 		STR("   function boolean getdotmatchnewline()\n")
 		STR("   subroutine setdotmatchnewline(boolean match)\n")
 		STR("   function boolean getextendedsyntax()\n")
@@ -66,6 +64,8 @@ PBXEXPORT LPCTSTR PBXCALL PBX_GetDescription()
 		STR("   subroutine setungreedy(boolean greedy)\n")
 		STR("   function string getpattern()\n")
 		STR("   function string getlasterror()\n")
+		STR("   function string getversion()\n") 
+		STR("   function string getversionfull()\n") 
 #ifdef _DEBUG
 		STR("   function string stringtest(string str)\n") 
 #endif

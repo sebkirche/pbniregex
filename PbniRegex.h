@@ -1,6 +1,6 @@
-// My.h : header file for PBNI class
+// PbniRegex.h : header file for PBNI class
 //
-// @author : Sebastien Kirche - 2008, 2009, 2011
+// @author : Sebastien Kirche - 2008, 2009, 2011, 2013
 
 #ifndef CPBNIREGEX_H
 #define CPBNIREGEX_H
@@ -40,13 +40,12 @@ public:
    void Destroy();
 
 	// PowerBuilder method wrappers
-	enum Function_Entrys
+	// WARNING : the enum order must match the functions declarations in Main.cpp::PBX_GetDescription()
+	enum Function_Entries
 	{
-		mid_Hello = 0,
-		mid_Version,
+		mid_PcreVersion = 0,
 		mid_Init,
 		mid_Test,
-		mid_SetUtf,
 		mid_Search,
 		mid_MatchCount,
 		mid_MatchPos,
@@ -59,16 +58,18 @@ public:
 		mid_GroupLen,
 		mid_SetMulti,
 		mid_IsMulti,
-		mid_IsUtf,
 		mid_Study,
-		mid_getDot,
-		mid_setDot,
-		mid_getExtended,
-		mid_setExtended,
-		mid_getUnGreedy,
-		mid_setUnGreedy,
-		mid_getPattern,
-		mid_getLastErr,
+		mid_JitCompile,
+		mid_GetDot,
+		mid_SetDot,
+		mid_GetExtended,
+		mid_SetExtended,
+		mid_GetUnGreedy,
+		mid_SetUnGreedy,
+		mid_GetPattern,
+		mid_GetLastErr,
+		mid_GetVersion,
+		mid_GetVersionFull,
 #ifdef _DEBUG
 		mid_StrTest,
 #endif
@@ -77,42 +78,41 @@ public:
 
 public:
 	PBXRESULT FastReplace(PBCallInfo * ci);
-	PBXRESULT FastReplaceChooseCase(PBCallInfo * ci);
 	PBXRESULT FastReplaceCase(PBCallInfo * ci);
+	PBXRESULT FastReplaceChooseCase(PBCallInfo * ci);
 	PBXRESULT FastReplaceNoCase(PBCallInfo * ci);
 
 protected:
  	// methods callable from PowerBuilder
-	PBXRESULT Version( PBCallInfo * ci );
-	PBXRESULT Hello( PBCallInfo * ci );
-	PBXRESULT Initialize(PBCallInfo * ci);
-	PBXRESULT Test(PBCallInfo * ci);
-	PBXRESULT SetUtf(PBCallInfo * ci);
-	PBXRESULT Search(PBCallInfo * ci);
-	PBXRESULT MatchCount(PBCallInfo * ci);
-	PBXRESULT MatchPos(PBCallInfo * ci);
-	PBXRESULT MatchLen(PBCallInfo * ci);
-	PBXRESULT GroupCount(PBCallInfo * ci);
-	PBXRESULT Match(PBCallInfo * ci);
-	PBXRESULT Group(PBCallInfo * ci);
-	PBXRESULT Replace(PBCallInfo * ci);
-	PBXRESULT GroupPos(PBCallInfo * ci);
-	PBXRESULT GroupLen(PBCallInfo * ci);
-	PBXRESULT SetMulti(PBCallInfo * ci);
-	PBXRESULT IsMulti(PBCallInfo * ci);
-	PBXRESULT IsUtf(PBCallInfo * ci);
-	PBXRESULT Study(PBCallInfo * ci);
 	PBXRESULT GetDotNL(PBCallInfo * ci);
-	PBXRESULT SetDotNL(PBCallInfo * ci);
 	PBXRESULT GetExtended(PBCallInfo * ci);
-	PBXRESULT SetExtended(PBCallInfo * ci);
-	PBXRESULT GetUnGreedy(PBCallInfo * ci);
-	PBXRESULT SetUnGreedy(PBCallInfo * ci);
-	PBXRESULT GetPattern(PBCallInfo * ci);
 	PBXRESULT GetLastErrMsg(PBCallInfo * ci);
+	PBXRESULT GetPattern(PBCallInfo * ci);
+	PBXRESULT Version(PBCallInfo * ci);
+	PBXRESULT VersionFull(PBCallInfo * ci);
+	PBXRESULT GetUnGreedy(PBCallInfo * ci);
+	PBXRESULT Group(PBCallInfo * ci);
+	PBXRESULT GroupCount(PBCallInfo * ci);
+	PBXRESULT GroupLen(PBCallInfo * ci);
+	PBXRESULT GroupPos(PBCallInfo * ci);
+	PBXRESULT Initialize(PBCallInfo * ci);
+	PBXRESULT IsMulti(PBCallInfo * ci);
+	PBXRESULT Match(PBCallInfo * ci);
+	PBXRESULT MatchCount(PBCallInfo * ci);
+	PBXRESULT MatchLen(PBCallInfo * ci);
+	PBXRESULT MatchPos(PBCallInfo * ci);
+	PBXRESULT Replace(PBCallInfo * ci);
+	PBXRESULT Search(PBCallInfo * ci);
+	PBXRESULT SetDotNL(PBCallInfo * ci);
+	PBXRESULT SetExtended(PBCallInfo * ci);
+	PBXRESULT SetMulti(PBCallInfo * ci);
+	PBXRESULT SetUnGreedy(PBCallInfo * ci);
 #ifdef _DEBUG
 	PBXRESULT StrTest(PBCallInfo * ci);
 #endif
+	PBXRESULT Study(PBCallInfo * ci, bool bUseJit);
+	PBXRESULT Test(PBCallInfo * ci);
+	PBXRESULT PcreVersion( PBCallInfo * ci );
 private:
 	void SetLastErrMsg(const char *msg);
 
@@ -121,15 +121,15 @@ protected:
     IPB_Session * m_pSession;	// session PB
 	LPSTR m_sPattern;			// regexp pattern
 	LPSTR m_sData;				// data searched by the regex
-	pcre *re;					// compiled regexp
-	pcre_extra *studinfo;		// infos resulting of the pcre_study() call
+	pcre *m_re;					// compiled regexp
+	pcre_extra *m_studinfo;		// infos resulting of the pcre_study() call
+	bool m_jitted;				// did we invoked the jit in this regexp ?
 	long m_maxmatches;			// max match number, can be automagicaly increased during processing
 	long m_maxgroups;			// max group number for a match, can be automagicaly increased during processing
 	long m_ovecsize;			// size of the vector in number of ints
-	bool m_butf8;				// option : use utf-8 for regexen / data ?
 	pbboolean m_bGlobal;		// option : global search / replace ?
 	pbboolean m_bCaseSensitive;	// option : be case-sensitive ? - maps PCRE_CASELESS == /i option in perl
-	pbboolean m_bmultiLine;		// option : multiline			- maps PCRE_MULTILINE == /m option in perl
+	pbboolean m_bMultiLine;		// option : multiline			- maps PCRE_MULTILINE == /m option in perl
 	pbboolean m_bDotNL;			// option : dot matches Newlines - maps PCRE_DOTALL == /s option in perl
 	pbboolean m_bExtended;		// option : use extended regexps - maps PCRE_EXTENDED == /x option in perl
 	pbboolean m_bUnGreedy;		// option : ungreedy ?			 - maps PCRE_UNGREEDY
@@ -140,7 +140,7 @@ protected:
 	int m_matchCount;		//number of matches for the current search()
 	int *m_groupcount;		//number of captured substrings for each match
 
-	HANDLE hHeap;			//private heap handle	
+	HANDLE m_hHeap;			//private heap handle	
 	char *m_lastErr;		//last error message
  };
 
