@@ -52,10 +52,13 @@ public:
 		mid_MatchLen,
 		mid_GroupCount,
 		mid_Match,
-		mid_Group,
+		mid_GroupByIndex,
+		mid_GroupByName,
 		mid_Replace,
-		mid_GroupPos,
-		mid_GroupLen,
+		mid_GroupPosByIndex,
+		mid_GroupPosByName,
+		mid_GroupLenByIndex,
+		mid_GroupLenByName,
 		mid_SetMulti,
 		mid_IsMulti,
 		mid_Study,
@@ -70,6 +73,8 @@ public:
 		mid_GetLastErr,
 		mid_GetVersion,
 		mid_GetVersionFull,
+		mid_SetDup,
+		mid_GetDup,
 #ifdef _DEBUG
 		mid_StrTest,
 #endif
@@ -85,6 +90,7 @@ public:
 protected:
  	// methods callable from PowerBuilder
 	PBXRESULT GetDotNL(PBCallInfo * ci);
+	PBXRESULT GetDuplicates(PBCallInfo * ci);
 	PBXRESULT GetExtended(PBCallInfo * ci);
 	PBXRESULT GetLastErrMsg(PBCallInfo * ci);
 	PBXRESULT GetPattern(PBCallInfo * ci);
@@ -104,6 +110,7 @@ protected:
 	PBXRESULT Replace(PBCallInfo * ci);
 	PBXRESULT Search(PBCallInfo * ci);
 	PBXRESULT SetDotNL(PBCallInfo * ci);
+	PBXRESULT SetDuplicates(PBCallInfo * ci);
 	PBXRESULT SetExtended(PBCallInfo * ci);
 	PBXRESULT SetMulti(PBCallInfo * ci);
 	PBXRESULT SetUnGreedy(PBCallInfo * ci);
@@ -115,6 +122,8 @@ protected:
 	PBXRESULT PcreVersion( PBCallInfo * ci );
 private:
 	void SetLastErrMsg(const char *msg);
+	void ClearStudyInfo(void);
+	int GetGroupIndex(int matchIndex, pbstring pbgroupname);
 
 protected:
     // member variables
@@ -127,12 +136,14 @@ protected:
 	long m_maxmatches;			// max match number, can be automagicaly increased during processing
 	long m_maxgroups;			// max group number for a match, can be automagicaly increased during processing
 	long m_ovecsize;			// size of the vector in number of ints
+	int m_Opts;					// compile options given to pcre_compile()
 	pbboolean m_bGlobal;		// option : global search / replace ?
 	pbboolean m_bCaseSensitive;	// option : be case-sensitive ? - maps PCRE_CASELESS == /i option in perl
 	pbboolean m_bMultiLine;		// option : multiline			- maps PCRE_MULTILINE == /m option in perl
 	pbboolean m_bDotNL;			// option : dot matches Newlines - maps PCRE_DOTALL == /s option in perl
 	pbboolean m_bExtended;		// option : use extended regexps - maps PCRE_EXTENDED == /x option in perl
 	pbboolean m_bUnGreedy;		// option : ungreedy ?			 - maps PCRE_UNGREEDY
+	pbboolean m_bDuplicates;	// option : allow duplicates ?	 - maps PCRE_DUPNAMES
 
 	//space to store the matching info
 	int *m_matchinfo;		//buffer for the array of vectors to store matching info

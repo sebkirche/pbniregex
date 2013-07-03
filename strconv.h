@@ -23,6 +23,10 @@ typedef std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wch
 
 #endif
 
-LPCWSTR AnsiStrToWC(LPCSTR AnsiStr);
-LPCSTR WCToAnsiStr(LPCWSTR wcStr);
+//ANSI <-> Wide char conversion
+LPCWSTR AnsiToWC(LPCSTR AnsiStr);
+LPCSTR WCToAnsi(LPCWSTR wcStr);
 
+//UTF-8 <-> Wide char conversion
+LPCWSTR Utf8ToWC(LPCSTR AnsiStr);
+LPCSTR WCToUtf8(LPCWSTR wcStr);
