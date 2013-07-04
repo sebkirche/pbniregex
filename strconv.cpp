@@ -42,3 +42,36 @@ LPCWSTR Utf8ToWC(LPCSTR AnsiStr){
 LPCSTR WCToUtf8(LPCWSTR wcStr){
 	return WCToMultiBStr(wcStr, CP_ACP);
 }
+
+//preliminary versions for an utf-8 compliant strlen()
+int strlen_utf8(const unsigned char *ptr){
+	int c = 0;
+	while(*ptr){
+		if((*ptr & 0xC0)!=0x80){
+			c++;
+		}
+		ptr++;		
+	}
+	return c;
+}
+
+//utf-8 compliant strlen that can parse a limited amount of bytes
+int strnlen_utf8(const unsigned char* ptr, unsigned int maxbytes){
+	int c = 0;	
+	while(*ptr && maxbytes){
+		if((*ptr & 0xC0)!=0x80){
+#ifdef _DEBUG
+			_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "strnlen_utf8 c++ : %c ; %d ; %d ; MASKED = %02X", *ptr, c, maxbytes, (*ptr & 0xC0));
+			OutputDebugStringA(dbgMsg);
+#endif
+			c++;
+		}
+		ptr++;		
+		maxbytes--;
+#ifdef _DEBUG
+			_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "strnlen_utf8 ptr++ : %c ; %d ; %d", *ptr, c, maxbytes);
+			OutputDebugStringA(dbgMsg);
+#endif
+	}
+	return c;
+}

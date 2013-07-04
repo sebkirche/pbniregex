@@ -30,3 +30,8 @@ LPCSTR WCToAnsi(LPCWSTR wcStr);
 //UTF-8 <-> Wide char conversion
 LPCWSTR Utf8ToWC(LPCSTR AnsiStr);
 LPCSTR WCToUtf8(LPCWSTR wcStr);
+
+int strlen_utf8(const unsigned char *ptr);
+int strnlen_utf8(const unsigned char* ptr, unsigned int maxbytes);
+
+extern char dbgMsg[2048];

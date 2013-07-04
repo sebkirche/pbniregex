@@ -678,39 +678,6 @@ PBXRESULT PbniRegex::GetDuplicates(PBCallInfo *ci){
 	return pbxr;
 }
 
-//preliminary versions for an utf-8 compliant strlen()
-int strlen_utf8(const unsigned char *ptr){
-	int c = 0;
-	while(*ptr){
-		if((*ptr & 0xC0)!=0x80){
-			c++;
-		}
-		ptr++;		
-	}
-	return c;
-}
-
-//utf-8 compliant strlen that can parse a limited amount of bytes
-int strnlen_utf8(const unsigned char* ptr, unsigned int maxbytes){
-	int c = 0;	
-	while(*ptr && maxbytes){
-		if((*ptr & 0xC0)!=0x80){
-#ifdef _DEBUG
-			_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "strnlen_utf8 c++ : %c ; %d ; %d ; MASKED = %02X", *ptr, c, maxbytes, (*ptr & 0xC0));
-			OutputDebugStringA(dbgMsg);
-#endif
-			c++;
-		}
-		ptr++;		
-		maxbytes--;
-#ifdef _DEBUG
-			_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "strnlen_utf8 ptr++ : %c ; %d ; %d", *ptr, c, maxbytes);
-			OutputDebugStringA(dbgMsg);
-#endif
-	}
-	return c;
-}
-
 // Return the position of the match from the last Search()
 PBXRESULT PbniRegex::MatchPos(PBCallInfo *ci){
 
@@ -899,6 +866,14 @@ void PbniRegex::SetLastErrMsg(const char *msg){
 }
 
 // Return the group index of a named group
+//
+// There is 2 cases :
+// - duplicates are NOT allowed (you did not called setnameduplicates(true) before initialize() or not used (?J) in the regex pattern)
+//   -> you can easilly call pcre_get_stringnumber(name) to get the group number then access the group
+// - duplicates ARE allowed
+//   -> pcre_get_stringnumber() is not deterministic about the group index it will return
+//   -> you need to pcre_get_stringtable_entries() to get the portion of the names table
+//      then iterate to see if a group matched something
 int PbniRegex::GetGroupIndex(int matchIndex, pbstring pbgroupname){
 	
 	const char *groupName;
@@ -924,9 +899,10 @@ int PbniRegex::GetGroupIndex(int matchIndex, pbstring pbgroupname){
 			if (nameEntrySize < 1)
 				goto skip; //not found or no other error
 			
+			//These are the possible infos available concerning the name-to-number table for groups
 			//pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_NAMECOUNT, &nameCount);
 			//pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_NAMEENTRYSIZE, &nameentrysize);
-			pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_NAMETABLE, &nameTable);
+			//pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_NAMETABLE, &nameTable);
 
 			//get the first non-null match if any
 			for (entryPtr = first; entryPtr <= last; entryPtr += nameEntrySize){
@@ -938,7 +914,7 @@ int PbniRegex::GetGroupIndex(int matchIndex, pbstring pbgroupname){
 			}
 
 	} else {
-		//no duplicate names allowed, we can use pcre_get_stringnumber()
+		//no duplicate names allowed => we can use pcre_get_stringnumber() directly
 		groupIndex = pcre_get_stringnumber(m_re, groupName);
 	}
 
@@ -1071,9 +1047,11 @@ PBXRESULT PbniRegex::StrTest( PBCallInfo * ci ){
 
 	return pbxr;
 }
-#endif
+#endif //_DEBUG
 
 // String replacement using the regexp
+//
+// The replacement string supports the usage of matched groups indexes \1 \2 ... \n (\0 is whole match)
 PBXRESULT PbniRegex::Replace(PBCallInfo *ci){
 
 	int nmatch = 0;
@@ -1194,7 +1172,7 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci){
 }
 
 // Fast string replacement => global function
-// by "fast" I mean "faster than using pbscript built-in Pos() and Mid()
+// by "fast" I mean "faster than using pbscript built-in Pos() and Mid()"
 PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci){
 	PBXRESULT pbxr = PBX_OK;
 
