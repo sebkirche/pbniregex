@@ -2,10 +2,6 @@
 forward
 global type w_test from w_anc_response
 end type
-type sle_2 from singlelineedit within w_test
-end type
-type sle_1 from singlelineedit within w_test
-end type
 type cbx_duplicates from checkbox within w_test
 end type
 type ddlb_history from dropdownlistbox within w_test
@@ -186,8 +182,6 @@ boolean ib_resize_handler = true
 boolean ib_resizable = true
 long il_minwidth = 668
 long il_minheight = 560
-sle_2 sle_2
-sle_1 sle_1
 cbx_duplicates cbx_duplicates
 ddlb_history ddlb_history
 mle_key mle_key
@@ -534,8 +528,6 @@ on w_test.create
 int iCurrent
 call super::create
 if this.MenuName = "m_main" then this.MenuID = create m_main
-this.sle_2=create sle_2
-this.sle_1=create sle_1
 this.cbx_duplicates=create cbx_duplicates
 this.ddlb_history=create ddlb_history
 this.mle_key=create mle_key
@@ -608,86 +600,82 @@ this.gb_3=create gb_3
 this.gb_4=create gb_4
 this.cbx_replaceby_null=create cbx_replaceby_null
 iCurrent=UpperBound(this.Control)
-this.Control[iCurrent+1]=this.sle_2
-this.Control[iCurrent+2]=this.sle_1
-this.Control[iCurrent+3]=this.cbx_duplicates
-this.Control[iCurrent+4]=this.ddlb_history
-this.Control[iCurrent+5]=this.mle_key
-this.Control[iCurrent+6]=this.cb_jit
-this.Control[iCurrent+7]=this.cb_version
-this.Control[iCurrent+8]=this.mle_result
-this.Control[iCurrent+9]=this.cb_strtest
-this.Control[iCurrent+10]=this.cb_lasterr
-this.Control[iCurrent+11]=this.cb_grplen
-this.Control[iCurrent+12]=this.cb_grppos
-this.Control[iCurrent+13]=this.cbx_pattern_null
-this.Control[iCurrent+14]=this.cbx_data_null
-this.Control[iCurrent+15]=this.rb_autogroup
-this.Control[iCurrent+16]=this.rb_automatch
-this.Control[iCurrent+17]=this.cb_unittests
-this.Control[iCurrent+18]=this.rb_test
-this.Control[iCurrent+19]=this.rb_replace
-this.Control[iCurrent+20]=this.rb_search
-this.Control[iCurrent+21]=this.st_vsplit
-this.Control[iCurrent+22]=this.st_hsplit
-this.Control[iCurrent+23]=this.cbx_autoupdate
-this.Control[iCurrent+24]=this.st_replace
-this.Control[iCurrent+25]=this.cb_getpattern
-this.Control[iCurrent+26]=this.cbx_ungreedy
-this.Control[iCurrent+27]=this.cbx_dotall
-this.Control[iCurrent+28]=this.cbx_extended
-this.Control[iCurrent+29]=this.cb_study
-this.Control[iCurrent+30]=this.st_study
-this.Control[iCurrent+31]=this.cb_fast2_sensitive
-this.Control[iCurrent+32]=this.cb_fast2_insensitive
-this.Control[iCurrent+33]=this.st_group_count
-this.Control[iCurrent+34]=this.st_match_count
-this.Control[iCurrent+35]=this.st_5
-this.Control[iCurrent+36]=this.cbx_multiline
-this.Control[iCurrent+37]=this.cb_next_group
-this.Control[iCurrent+38]=this.cb_prev_group
-this.Control[iCurrent+39]=this.cb_next_match
-this.Control[iCurrent+40]=this.cb_prev_match
-this.Control[iCurrent+41]=this.cb_mreplace
-this.Control[iCurrent+42]=this.cb_fastreplace
-this.Control[iCurrent+43]=this.cb_mfastreplace
-this.Control[iCurrent+44]=this.sle_replace
-this.Control[iCurrent+45]=this.cb_replace
-this.Control[iCurrent+46]=this.em_grp
-this.Control[iCurrent+47]=this.cb_group
-this.Control[iCurrent+48]=this.cb_match
-this.Control[iCurrent+49]=this.cb_grpcount
-this.Control[iCurrent+50]=this.cbx_case
-this.Control[iCurrent+51]=this.cbx_global
-this.Control[iCurrent+52]=this.cb_matchlen
-this.Control[iCurrent+53]=this.cb_matchpos
-this.Control[iCurrent+54]=this.st_4
-this.Control[iCurrent+55]=this.em_index
-this.Control[iCurrent+56]=this.cb_matchcount
-this.Control[iCurrent+57]=this.mle_data
-this.Control[iCurrent+58]=this.cb_msearch
-this.Control[iCurrent+59]=this.cb_search
-this.Control[iCurrent+60]=this.em_loops
-this.Control[iCurrent+61]=this.st_3
-this.Control[iCurrent+62]=this.st_time
-this.Control[iCurrent+63]=this.cb_mtest
-this.Control[iCurrent+64]=this.cb_test
-this.Control[iCurrent+65]=this.cb_init
-this.Control[iCurrent+66]=this.cb_debugstr
-this.Control[iCurrent+67]=this.st_2
-this.Control[iCurrent+68]=this.st_1
-this.Control[iCurrent+69]=this.gb_data
-this.Control[iCurrent+70]=this.gb_2
-this.Control[iCurrent+71]=this.gb_3
-this.Control[iCurrent+72]=this.gb_4
-this.Control[iCurrent+73]=this.cbx_replaceby_null
+this.Control[iCurrent+1]=this.cbx_duplicates
+this.Control[iCurrent+2]=this.ddlb_history
+this.Control[iCurrent+3]=this.mle_key
+this.Control[iCurrent+4]=this.cb_jit
+this.Control[iCurrent+5]=this.cb_version
+this.Control[iCurrent+6]=this.mle_result
+this.Control[iCurrent+7]=this.cb_strtest
+this.Control[iCurrent+8]=this.cb_lasterr
+this.Control[iCurrent+9]=this.cb_grplen
+this.Control[iCurrent+10]=this.cb_grppos
+this.Control[iCurrent+11]=this.cbx_pattern_null
+this.Control[iCurrent+12]=this.cbx_data_null
+this.Control[iCurrent+13]=this.rb_autogroup
+this.Control[iCurrent+14]=this.rb_automatch
+this.Control[iCurrent+15]=this.cb_unittests
+this.Control[iCurrent+16]=this.rb_test
+this.Control[iCurrent+17]=this.rb_replace
+this.Control[iCurrent+18]=this.rb_search
+this.Control[iCurrent+19]=this.st_vsplit
+this.Control[iCurrent+20]=this.st_hsplit
+this.Control[iCurrent+21]=this.cbx_autoupdate
+this.Control[iCurrent+22]=this.st_replace
+this.Control[iCurrent+23]=this.cb_getpattern
+this.Control[iCurrent+24]=this.cbx_ungreedy
+this.Control[iCurrent+25]=this.cbx_dotall
+this.Control[iCurrent+26]=this.cbx_extended
+this.Control[iCurrent+27]=this.cb_study
+this.Control[iCurrent+28]=this.st_study
+this.Control[iCurrent+29]=this.cb_fast2_sensitive
+this.Control[iCurrent+30]=this.cb_fast2_insensitive
+this.Control[iCurrent+31]=this.st_group_count
+this.Control[iCurrent+32]=this.st_match_count
+this.Control[iCurrent+33]=this.st_5
+this.Control[iCurrent+34]=this.cbx_multiline
+this.Control[iCurrent+35]=this.cb_next_group
+this.Control[iCurrent+36]=this.cb_prev_group
+this.Control[iCurrent+37]=this.cb_next_match
+this.Control[iCurrent+38]=this.cb_prev_match
+this.Control[iCurrent+39]=this.cb_mreplace
+this.Control[iCurrent+40]=this.cb_fastreplace
+this.Control[iCurrent+41]=this.cb_mfastreplace
+this.Control[iCurrent+42]=this.sle_replace
+this.Control[iCurrent+43]=this.cb_replace
+this.Control[iCurrent+44]=this.em_grp
+this.Control[iCurrent+45]=this.cb_group
+this.Control[iCurrent+46]=this.cb_match
+this.Control[iCurrent+47]=this.cb_grpcount
+this.Control[iCurrent+48]=this.cbx_case
+this.Control[iCurrent+49]=this.cbx_global
+this.Control[iCurrent+50]=this.cb_matchlen
+this.Control[iCurrent+51]=this.cb_matchpos
+this.Control[iCurrent+52]=this.st_4
+this.Control[iCurrent+53]=this.em_index
+this.Control[iCurrent+54]=this.cb_matchcount
+this.Control[iCurrent+55]=this.mle_data
+this.Control[iCurrent+56]=this.cb_msearch
+this.Control[iCurrent+57]=this.cb_search
+this.Control[iCurrent+58]=this.em_loops
+this.Control[iCurrent+59]=this.st_3
+this.Control[iCurrent+60]=this.st_time
+this.Control[iCurrent+61]=this.cb_mtest
+this.Control[iCurrent+62]=this.cb_test
+this.Control[iCurrent+63]=this.cb_init
+this.Control[iCurrent+64]=this.cb_debugstr
+this.Control[iCurrent+65]=this.st_2
+this.Control[iCurrent+66]=this.st_1
+this.Control[iCurrent+67]=this.gb_data
+this.Control[iCurrent+68]=this.gb_2
+this.Control[iCurrent+69]=this.gb_3
+this.Control[iCurrent+70]=this.gb_4
+this.Control[iCurrent+71]=this.cbx_replaceby_null
 end on
 
 on w_test.destroy
 call super::destroy
 if IsValid(MenuID) then destroy(MenuID)
-destroy(this.sle_2)
-destroy(this.sle_1)
 destroy(this.cbx_duplicates)
 destroy(this.ddlb_history)
 destroy(this.mle_key)
@@ -809,40 +797,6 @@ end event
 event ue_getminmaxinfo;call super::ue_getminmaxinfo;//
 
 end event
-
-type sle_2 from singlelineedit within w_test
-integer x = 736
-integer y = 1256
-integer width = 402
-integer height = 112
-integer taborder = 280
-integer textsize = -10
-integer weight = 400
-fontcharset fontcharset = ansi!
-fontpitch fontpitch = variable!
-fontfamily fontfamily = swiss!
-string facename = "Tahoma"
-long textcolor = 33554432
-string text = "none"
-borderstyle borderstyle = stylelowered!
-end type
-
-type sle_1 from singlelineedit within w_test
-integer x = 197
-integer y = 1240
-integer width = 402
-integer height = 112
-integer taborder = 270
-integer textsize = -10
-integer weight = 400
-fontcharset fontcharset = ansi!
-fontpitch fontpitch = variable!
-fontfamily fontfamily = swiss!
-string facename = "Tahoma"
-long textcolor = 33554432
-string text = "none"
-borderstyle borderstyle = stylelowered!
-end type
 
 type cbx_duplicates from checkbox within w_test
 string tag = "TR;"
@@ -1996,6 +1950,7 @@ end event
 
 type cbx_global from checkbox within w_test
 string tag = "TR;"
+string accessibledescription = "blah"
 integer x = 2190
 integer y = 100
 integer width = 727
@@ -2009,7 +1964,6 @@ fontfamily fontfamily = swiss!
 string facename = "Tahoma"
 long textcolor = 33554432
 long backcolor = 67108864
-boolean enabled = false
 string text = "global (/g)"
 boolean checked = true
 end type
