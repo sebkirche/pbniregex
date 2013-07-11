@@ -25,11 +25,15 @@ typedef std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wch
 
 //ANSI <-> Wide char conversion
 LPWSTR AnsiToWC(LPCSTR AnsiStr);
+LPWSTR AnsiToWC(LPCSTR AnsiStr, int *wcLen);
 LPSTR WCToAnsi(LPCWSTR wcStr);
+LPSTR WCToAnsi(LPCWSTR wcStr, int *byteLen);
 
 //UTF-8 <-> Wide char conversion
 LPWSTR Utf8ToWC(LPCSTR AnsiStr);
+LPWSTR Utf8ToWC(LPCSTR AnsiStr, int *wcLen);
 LPSTR WCToUtf8(LPCWSTR wcStr);
+LPSTR WCToUtf8(LPCWSTR wcStr, int *byteLen);
 
 int strlen_utf8(const unsigned char *ptr);
 int strnlen_utf8(const unsigned char* ptr, unsigned int maxbytes);

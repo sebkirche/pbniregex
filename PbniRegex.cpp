@@ -288,6 +288,9 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci){
 		pbstring arg_pattern = ci->pArgs->GetAt(0)->GetString();
 		LPCWSTR pattern_ucs2;
 #if defined (PBVER) && (PBVER < 100)
+		/* PB >= 10 uses natively utf-16le, while I choosed to process string in PCRE in utf-8
+		   if we received the pattern from PB9, we use utf-16le as pivot encoding
+		*/
 		pattern_ucs2 = AnsiToWC(m_pSession->GetString(arg_pattern));
 #else
 		pattern_ucs2 = m_pSession->GetString(arg_pattern);
@@ -299,9 +302,7 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci){
 			free(m_sPattern);
 
 		//convert the utf-16 pattern -> utf-8
-		int patternLen = WideCharToMultiByte(CP_UTF8,0,pattern_ucs2,-1,NULL,NULL,NULL,NULL);
-		m_sPattern = (LPSTR)malloc(patternLen);
-		WideCharToMultiByte(CP_UTF8,0,pattern_ucs2,-1,m_sPattern,patternLen,NULL,NULL);	
+		m_sPattern = WCToUtf8(pattern_ucs2);
 #if defined (PBVER) && (PBVER < 100)
 		free((void*)pattern_ucs2);
 #endif
@@ -439,9 +440,8 @@ PBXRESULT PbniRegex::Test( PBCallInfo * ci ){
 #endif
 
 		//convert the test string -> utf-8
-		int testLen = WideCharToMultiByte(CP_UTF8,0,testStr,-1,NULL,0,NULL,NULL);
-		LPSTR testStr_utf8 = (LPSTR)malloc(testLen);
-		WideCharToMultiByte(CP_UTF8,0,testStr,-1,testStr_utf8,testLen,NULL,NULL);	
+		int testLen;
+		LPSTR testStr_utf8 = WCToUtf8(testStr, &testLen);
 
 		rc = pcre_exec(
 		  m_re,                 /* the compiled pattern */
@@ -554,9 +554,8 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci){
 #endif
 
 		//convert searched string -> utf-8
-		int searchLen = WideCharToMultiByte(CP_UTF8,0,searchStr,-1,NULL,0,NULL,NULL);
-		m_sData = (LPSTR)malloc(searchLen);
-		WideCharToMultiByte(CP_UTF8,0,searchStr,-1,m_sData,searchLen,NULL,NULL);	
+		int searchLen;
+		m_sData = WCToUtf8(searchStr, &searchLen);
 #if defined (PBVER) && (PBVER < 100)
 		free((void *)searchStr);
 #endif
@@ -1077,9 +1076,7 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci){
 		searchWStr = m_pSession->GetString(pbsearch);
 #endif
 		//search string utf-16 -> utf-8
-		int searchLen = WideCharToMultiByte(CP_UTF8,0,searchWStr,-1,NULL,0,NULL,NULL);
-		LPSTR search_utf8 = (LPSTR)malloc(searchLen);
-		WideCharToMultiByte(CP_UTF8,0,searchWStr,-1,search_utf8,searchLen,NULL,NULL);
+		LPSTR search_utf8 = WCToUtf8(searchWStr);
 #if defined (PBVER) && (PBVER < 100)
 		free((void*)searchWStr);
 #endif
@@ -1091,9 +1088,8 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci){
 #else
 		replaceWStr = m_pSession->GetString(pbreplace);
 #endif
-		int repLen = WideCharToMultiByte(CP_UTF8,0,replaceWStr,-1,NULL,0,NULL,NULL);
-		LPSTR rep_utf8 = (LPSTR)malloc(repLen);
-		WideCharToMultiByte(CP_UTF8,0,replaceWStr,-1,rep_utf8,repLen,NULL,NULL);
+		int repLen;
+		LPSTR rep_utf8 = WCToUtf8(replaceWStr, &repLen);
 #if defined (PBVER) && (PBVER < 100)
 		free((void*)replaceWStr);
 #endif
