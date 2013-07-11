@@ -7,7 +7,7 @@
 
 // Convert an ANSI encoded string into a wide char string
 // /!\ Do not forget to free the allocated string !!!
-LPCWSTR MultiBStrToWC(LPCSTR AnsiStr, UINT encoding){
+LPWSTR MultiBStrToWC(LPCSTR AnsiStr, UINT encoding){
 	int strLen = MultiByteToWideChar(encoding, 0, AnsiStr, -1, 0, 0);
 	LPWSTR wstr = (LPWSTR)malloc((strLen + 1) * sizeof(WCHAR));
 	MultiByteToWideChar(encoding, 0, AnsiStr, -1, wstr, strLen);
@@ -16,7 +16,7 @@ LPCWSTR MultiBStrToWC(LPCSTR AnsiStr, UINT encoding){
 
 // Convert a wide char string into an ANSI encoded string
 // /!\ Do not forget to free the allocated string !!!
-LPCSTR WCToMultiBStr(LPCWSTR wcStr, UINT encoding){
+LPSTR WCToMultiBStr(LPCWSTR wcStr, UINT encoding){
 	int strLen = WideCharToMultiByte(encoding, 0, wcStr, -1, 0, 0, 0, 0);
 	LPSTR str = (LPSTR)malloc(strLen + 1);
 	WideCharToMultiByte(encoding, 0, wcStr, -1, str, strLen, 0, 0);
@@ -24,23 +24,23 @@ LPCSTR WCToMultiBStr(LPCWSTR wcStr, UINT encoding){
 }
 
 //ANSI -> Wide char
-LPCWSTR AnsiToWC(LPCSTR AnsiStr){
+LPWSTR AnsiToWC(LPCSTR AnsiStr){
 	return MultiBStrToWC(AnsiStr, CP_ACP);
 }
 
 //Wide char -> ANSI
-LPCSTR WCToAnsi(LPCWSTR wcStr){
+LPSTR WCToAnsi(LPCWSTR wcStr){
 	return WCToMultiBStr(wcStr, CP_ACP);
 }
 
 //UTF-8 -> Wide char
-LPCWSTR Utf8ToWC(LPCSTR AnsiStr){
-	return MultiBStrToWC(AnsiStr, CP_ACP);
+LPWSTR Utf8ToWC(LPCSTR AnsiStr){
+	return MultiBStrToWC(AnsiStr, CP_UTF8);
 }
 
 //Wide char -> UTF-8
-LPCSTR WCToUtf8(LPCWSTR wcStr){
-	return WCToMultiBStr(wcStr, CP_ACP);
+LPSTR WCToUtf8(LPCWSTR wcStr){
+	return WCToMultiBStr(wcStr, CP_UTF8);
 }
 
 //preliminary versions for an utf-8 compliant strlen()
