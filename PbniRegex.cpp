@@ -37,7 +37,7 @@ PbniRegex::PbniRegex()
 PbniRegex::PbniRegex( IPB_Session * pSession )
 :m_pSession( pSession )
 {
-	OutputDBSIfDebug(STR("PbniRegex :: Constructor\n"));
+	OutputDBSIfDebug(STR("PbniRegex::Constructor\n"));
 
 	m_bGlobal = false;
 	m_bCaseSensitive = false;
@@ -61,11 +61,15 @@ PbniRegex::PbniRegex( IPB_Session * pSession )
 	m_groupcount = (int *)HeapAlloc(m_hHeap, HEAP_ZERO_MEMORY, sizeof(int) * m_maxmatches);
 	m_lastErr = (LPSTR)HeapAlloc(m_hHeap, HEAP_ZERO_MEMORY, 1);
 	m_lastErr[0] = '\0';
-	char *test = setlocale(LC_ALL, NULL);
+#ifdef _DEBUG
+	char *curLocale = setlocale(LC_ALL, NULL);
+	_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex: current locale is `%s`\n", curLocale);
+	OutputDebugStringA(dbgMsg);
+#endif
 }
 
 PbniRegex::~PbniRegex(){
-	OutputDebugString(STR("PbniRegex :: Destructor\n"));
+	OutputDebugString(STR("PbniRegex::Destructor\n"));
 
 	if(m_sPattern)
 		free(m_sPattern);
@@ -301,8 +305,8 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci){
 		if (m_sPattern)
 			free(m_sPattern);
 
-		//convert the utf-16 pattern -> utf-8
 		m_sPattern = WCToUtf8(pattern_ucs2);
+
 #if defined (PBVER) && (PBVER < 100)
 		free((void*)pattern_ucs2);
 #endif
@@ -423,7 +427,7 @@ PBXRESULT PbniRegex::Study(PBCallInfo *ci, bool bUseJit){
 PBXRESULT PbniRegex::Test( PBCallInfo * ci ){
 
 	PBXRESULT	pbxr = PBX_OK;
-	int rc;
+	int rc, testLen;
 
 	// check arguments
 	if ( ci->pArgs->GetAt(0)->IsNull() || !m_re){
@@ -438,9 +442,6 @@ PBXRESULT PbniRegex::Test( PBCallInfo * ci ){
 #else
 		testStr = m_pSession->GetString(pbtest);
 #endif
-
-		//convert the test string -> utf-8
-		int testLen;
 		LPSTR testStr_utf8 = WCToUtf8(testStr, &testLen);
 
 		rc = pcre_exec(
@@ -534,6 +535,7 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci){
 	int nmatch = 0;
 	int startoffset = 0;
 	int res;
+	int searchLen;
 	PBXRESULT pbxr = PBX_OK;
 
 	if(ci->pArgs->GetAt(0)->IsNull()){
@@ -552,9 +554,6 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci){
 #else
 		searchStr = m_pSession->GetString(pbsearch);
 #endif
-
-		//convert searched string -> utf-8
-		int searchLen;
 		m_sData = WCToUtf8(searchStr, &searchLen);
 #if defined (PBVER) && (PBVER < 100)
 		free((void *)searchStr);
@@ -783,7 +782,7 @@ PBXRESULT PbniRegex::Match(PBCallInfo *ci)
 {
 	PBXRESULT pbxr = PBX_OK;
 
-	int matchLen, matchLenW;
+	int matchLen;
 	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 
 	if(index >= 0 && index <= m_matchCount){
@@ -791,10 +790,7 @@ PBXRESULT PbniRegex::Match(PBCallInfo *ci)
 		matchLen = m_matchinfo[index * m_ovecsize + 1] - m_matchinfo[index * m_ovecsize + 0] + 1;
 		LPSTR match = (LPSTR)malloc(matchLen + 1);
 		lstrcpynA(match, (LPCSTR)(m_sData + m_matchinfo[index * m_ovecsize + 0]), matchLen);
-		//convert in WC
-		matchLenW = MultiByteToWideChar(CP_UTF8, 0, match, -1, NULL, 0);
-		LPWSTR wstr = (LPWSTR)malloc((matchLenW) * sizeof(wchar_t));
-		MultiByteToWideChar(CP_UTF8, 0, match, -1, wstr, matchLenW);
+		LPWSTR wstr = Utf8ToWC(match);
 
 		// return value
 #if defined (PBVER) && (PBVER < 100)
@@ -818,9 +814,7 @@ PBXRESULT PbniRegex::GetPattern(PBCallInfo *ci){
 	PBXRESULT pbxr = PBX_OK;
 	
 	if (m_sPattern) {
-		int lenW = MultiByteToWideChar(CP_UTF8, 0, m_sPattern, -1, NULL, 0);
-		LPWSTR wstr = (LPWSTR)malloc((lenW) * sizeof(wchar_t));
-		MultiByteToWideChar(CP_UTF8, 0, m_sPattern, -1, wstr, lenW);
+		LPWSTR wstr = Utf8ToWC(m_sPattern);
 
 #if defined (PBVER) && (PBVER < 100)
 		LPCSTR ansiStr = WCToAnsi(wstr);
@@ -890,27 +884,27 @@ int PbniRegex::GetGroupIndex(int matchIndex, pbstring pbgroupname){
 	if (m_Opts & PCRE_DUPNAMES 
 		||
 		((ret = pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_JCHANGED, &optionJ)) == 0 && optionJ == 1)){
-			//duplicates were allowed
+		//duplicates were allowed
 
-			//get the entries corresponding to our named group
-			//ret = size of each entry in name-to-number table
-			nameEntrySize = pcre_get_stringtable_entries(m_re, groupName, &first, &last);
-			if (nameEntrySize < 1)
-				goto skip; //not found or no other error
+		//get the entries corresponding to our named group
+		//ret = size of each entry in name-to-number table
+		nameEntrySize = pcre_get_stringtable_entries(m_re, groupName, &first, &last);
+		if (nameEntrySize < 1)
+			goto skip; //not found or no other error
 			
-			//These are the possible infos available concerning the name-to-number table for groups
-			//pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_NAMECOUNT, &nameCount);
-			//pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_NAMEENTRYSIZE, &nameentrysize);
-			//pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_NAMETABLE, &nameTable);
+		//These are the possible infos available concerning the name-to-number table for groups
+		//pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_NAMECOUNT, &nameCount);
+		//pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_NAMEENTRYSIZE, &nameentrysize);
+		//pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_NAMETABLE, &nameTable);
 
-			//get the first non-null match if any
-			for (entryPtr = first; entryPtr <= last; entryPtr += nameEntrySize){
-				groupIndex = (*(unsigned char*)entryPtr << 8) | *((unsigned char*)entryPtr+1); //rebuild little-endian short from big-endian data
-				if ((m_groupcount[matchIndex] >= groupIndex)
-					&& 
-					(m_matchinfo[matchIndex * m_ovecsize + 2*groupIndex]) != -1)
-					break;
-			}
+		//get the first non-null match if any
+		for (entryPtr = first; entryPtr <= last; entryPtr += nameEntrySize){
+			groupIndex = (*(unsigned char*)entryPtr << 8) | *((unsigned char*)entryPtr+1); //rebuild little-endian short from big-endian data
+			if ((m_groupcount[matchIndex] >= groupIndex)
+				&& 
+				(m_matchinfo[matchIndex * m_ovecsize + 2*groupIndex]) != -1)
+				break;
+		}
 
 	} else {
 		//no duplicate names allowed => we can use pcre_get_stringnumber() directly
@@ -935,7 +929,7 @@ int PbniRegex::GetGroupIndex(int matchIndex, pbstring pbgroupname){
 PBXRESULT PbniRegex::Group(PBCallInfo *ci){
 
 	PBXRESULT pbxr = PBX_OK;
-	int groupLen, groupLenW;
+	int groupLen;
 	long groupindex;
 	pbstring pbgroupname;
 	const char *groupname;
@@ -973,10 +967,7 @@ PBXRESULT PbniRegex::Group(PBCallInfo *ci){
 				groupLen = m_matchinfo[matchindex * m_ovecsize + 2*groupindex + 1] - m_matchinfo[matchindex * m_ovecsize + 2*groupindex] + 1;
 				LPSTR group = (LPSTR)malloc(groupLen + 1);
 				lstrcpynA(group, (LPCSTR)(m_sData + m_matchinfo[matchindex * m_ovecsize + 2*groupindex]), groupLen);
-				//convert in WC
-				groupLenW = MultiByteToWideChar(CP_UTF8, 0, group, -1, NULL, 0);
-				LPWSTR wstr = (LPWSTR)malloc((groupLenW) * sizeof(wchar_t));
-				MultiByteToWideChar(CP_UTF8, 0, group, -1, wstr, groupLenW);
+				LPWSTR wstr = Utf8ToWC(group);
 
 				// return value
 #if defined (PBVER) && (PBVER < 100)
@@ -1034,10 +1025,7 @@ PBXRESULT PbniRegex::StrTest( PBCallInfo * ci ){
 		wcscat(buf,valeur);
 		free((void*)valeur);
 #endif
-		
-
 	}
-
 	// return value
 	ci->returnValue->SetString( buf );
 #if defined (PBVER) && (PBVER >= 100)
@@ -1147,10 +1135,7 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci){
 #ifdef _DEBUG
 		OutputDebugStringA(working.c_str());
 #endif
-		//result string  utf-8 -> utf-16
-		int outLen = MultiByteToWideChar(CP_UTF8, 0, working.c_str(), -1, NULL, 0);
-		LPWSTR wstr = (LPWSTR)malloc(outLen * sizeof(wchar_t));
-		MultiByteToWideChar(CP_UTF8, 0, working.c_str(), -1, wstr, outLen);
+		LPWSTR wstr = Utf8ToWC(working.c_str());
 
 #if defined (PBVER) && (PBVER < 100)
 		LPCSTR ansiStr = WCToAnsi(wstr);
