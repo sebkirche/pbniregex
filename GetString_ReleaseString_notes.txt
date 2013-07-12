@@ -1,0 +1,48 @@
+
+Notes concerning GetString() / ReleaseString()
+----------------------------------------------
+
+- PB9: PB9 did not use unicode characters, thus there is no problem.
+
+- PB10 - 10.5: the help for IPB_Session::GetString() in PB10.5 states 
+  
+  In PowerBuilder 10 and later, the GetString function behaves differently
+  depending on the encoding used in your PBNI application. In PowerBuilder
+  extensions, a pbstring is always in Unicode, but the strings in your
+  application might be ANSI or Unicode.
+
+  If you use Unicode encoding, the GetString function returns the string in the
+  input parameter. If you use ANSI encoding, the function converts the Unicode
+  string in the input parameter to an ANSI string, allocates a memory block to
+  hold the ANSI string, and then returns a pointer to the memory block. The
+  memory block is not destroyed until the session ends. It can therefore cause
+  memory usage to increase throughout the session, until the session ends, if
+  GetString is invoked repeatedly.
+
+  If you must use ANSI encoding, you can work around this issue by using your
+  own version of the GetString function. Cast the pbstring to an LPWSTR,
+  allocate a memory block, convert the LPWSTR to an LPSTR, then put the
+  converted data into the newly allocated memory block:
+
+  LPTSTR myGetString(IPB_Session* sess, pbstring  str)
+    {
+     #if defined(UNICODE) || defined(_UNICODE)
+         return sess->GetString(str);
+     #else
+         LPWSTR lpUnicodeStr;
+         LPSTR  lpAnsiStr;
+         int    iStrLen;
+   
+         lpUnicodeStr = (LPWSTR)str;
+         iStrLen = wcstombs(NULL, lpUnicodeStr, 0) + 1;
+         lpAnsiStr = (LPSTR)malloc(iStrLen);
+         wcstombs(lpAnsiStr, lpUnicodeStr, iStrLen);
+         return lpAnsiStr;
+     #endif
+    }
+
+  After using the string, free the allocated memory.
+
+- PB11+ : PB had introduced a new method IPB_Session::ReleaseString() that frees
+  the memory acquired by GetString, GetClassName, GetFieldName, or
+  GetEnumItemName.

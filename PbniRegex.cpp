@@ -309,6 +309,8 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci){
 
 #if defined (PBVER) && (PBVER < 100)
 		free((void*)pattern_ucs2);
+#else
+		CommonReleaseString(m_pSession, pattern_ucs2);
 #endif
 		m_Opts += PCRE_UTF8;
 
@@ -471,6 +473,8 @@ PBXRESULT PbniRegex::Test( PBCallInfo * ci ){
 		free(testStr_utf8);
 #if defined (PBVER) && (PBVER < 100)
 		free((void*)testStr);
+#else
+		CommonReleaseString(m_pSession, testStr);
 #endif
 	}
 	return pbxr;
@@ -557,6 +561,8 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci){
 		m_sData = WCToUtf8(searchStr, &searchLen);
 #if defined (PBVER) && (PBVER < 100)
 		free((void *)searchStr);
+#else
+		CommonReleaseString(m_pSession, searchStr);
 #endif
 
 		do {
@@ -878,7 +884,8 @@ int PbniRegex::GetGroupIndex(int matchIndex, pbstring pbgroupname){
 #if defined (PBVER) && (PBVER < 100)
 	groupName = m_pSession->GetString(pbgroupname);
 #else
-	groupName = WCToAnsi(m_pSession->GetString(pbgroupname));
+	LPCWSTR wcGroupName = m_pSession->GetString(pbgroupname);
+	groupName = WCToAnsi(wcGroupName);
 #endif
 
 	if (m_Opts & PCRE_DUPNAMES 
@@ -917,7 +924,7 @@ int PbniRegex::GetGroupIndex(int matchIndex, pbstring pbgroupname){
 		OutputDebugStringA(dbgMsg);
 		SetLastErrMsg(dbgMsg);
 #if defined (PBVER) && (PBVER > 90)
-		free((void*)groupName);
+		CommonReleaseString(m_pSession, wcGroupName);
 #endif
 	}
 
@@ -1030,6 +1037,7 @@ PBXRESULT PbniRegex::StrTest( PBCallInfo * ci ){
 	ci->returnValue->SetString( buf );
 #if defined (PBVER) && (PBVER >= 100)
 	delete(buf);
+	CommonReleaseString(m_pSession, strIn);
 #endif
 
 	return pbxr;
@@ -1067,6 +1075,8 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci){
 		LPSTR search_utf8 = WCToUtf8(searchWStr);
 #if defined (PBVER) && (PBVER < 100)
 		free((void*)searchWStr);
+#else
+		CommonReleaseString(m_pSession, searchWStr);
 #endif
 		//replace string utf-16 -> utf-8
 		pbstring pbreplace = ci->pArgs->GetAt(1)->GetString();
@@ -1080,6 +1090,8 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci){
 		LPSTR rep_utf8 = WCToUtf8(replaceWStr, &repLen);
 #if defined (PBVER) && (PBVER < 100)
 		free((void*)replaceWStr);
+#else
+		CommonReleaseString(m_pSession, replaceWStr);
 #endif
 
 		using namespace std;
@@ -1253,9 +1265,17 @@ PBXRESULT PbniRegex::FastReplaceCase(PBCallInfo *ci){
 	pbstring pattern = ci->pArgs->GetAt(1)->GetString();
 	pbstring replace = ci->pArgs->GetAt(2)->GetString();
 
-	stdstring sourcew(m_pSession->GetString(source));
-	stdstring patternw(m_pSession->GetString(pattern));
-	stdstring replacew(m_pSession->GetString(replace));
+	LPCTSTR sourceStr = m_pSession->GetString(source);
+	LPCTSTR patternStr = m_pSession->GetString(pattern);
+	LPCTSTR replaceStr = m_pSession->GetString(replace);
+
+	stdstring sourcew(sourceStr);
+	stdstring patternw(patternStr);
+	stdstring replacew(replaceStr);
+
+	CommonReleaseString(m_pSession, sourceStr);
+	CommonReleaseString(m_pSession, patternStr);
+	CommonReleaseString(m_pSession, replaceStr);
 
 	unsigned int p = 0, startoffset = 0;
 	//test for one occurence
@@ -1396,9 +1416,17 @@ PBXRESULT PbniRegex::FastReplaceNoCase(PBCallInfo *ci){
 	pbstring pattern = ci->pArgs->GetAt(1)->GetString();
 	pbstring replace = ci->pArgs->GetAt(2)->GetString();
 
-	tstring_nocase sourcew(m_pSession->GetString(source));
-	tstring_nocase patternw(m_pSession->GetString(pattern));
-	tstring_nocase replacew(m_pSession->GetString(replace));
+	LPCTSTR sourceStr = m_pSession->GetString(source);
+	LPCTSTR patternStr = m_pSession->GetString(pattern);
+	LPCTSTR replaceStr = m_pSession->GetString(replace);
+
+	tstring_nocase sourcew(sourceStr);
+	tstring_nocase patternw(patternStr);
+	tstring_nocase replacew(replaceStr);
+
+	CommonReleaseString(m_pSession, sourceStr);
+	CommonReleaseString(m_pSession, patternStr);
+	CommonReleaseString(m_pSession, replaceStr);
 
 	unsigned int p = 0, startoffset = 0;
 	//test for one occurence

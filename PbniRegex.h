@@ -128,7 +128,7 @@ private:
 protected:
     // member variables
     IPB_Session * m_pSession;	// session PB
-	LPSTR m_sPattern;			// regexp pattern
+	LPSTR m_sPattern;			// regexp pattern (local copy, utf-8)
 	LPSTR m_sData;				// data searched by the regex
 	pcre *m_re;					// compiled regexp
 	pcre_extra *m_studinfo;		// infos resulting of the pcre_study() call

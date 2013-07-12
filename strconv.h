@@ -4,6 +4,7 @@
 // @author : Sebastien Kirche - 2011
 
 #include <string>
+#include <PBEXT.H>
 
 #if defined (PBVER) && (PBVER < 100)
 
@@ -37,5 +38,6 @@ LPSTR WCToUtf8(LPCWSTR wcStr, int *byteLen);
 
 int strlen_utf8(const unsigned char *ptr);
 int strnlen_utf8(const unsigned char* ptr, unsigned int maxbytes);
+void CommonReleaseString(IPB_Session *sess, LPCWSTR str);
 
 extern char dbgMsg[2048];

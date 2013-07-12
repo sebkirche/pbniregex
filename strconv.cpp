@@ -77,7 +77,7 @@ int strnlen_utf8(const unsigned char* ptr, unsigned int maxbytes){
 	while(*ptr && maxbytes){
 		if((*ptr & 0xC0)!=0x80){
 #ifdef _DEBUG
-			_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "strnlen_utf8 c++ : %c ; %d ; %d ; MASKED = %02X", *ptr, c, maxbytes, (*ptr & 0xC0));
+			_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "strnlen_utf8 c++ : %c ; %d ; %d ; MASKED = %02X\n", *ptr, c, maxbytes, (*ptr & 0xC0));
 			OutputDebugStringA(dbgMsg);
 #endif
 			c++;
@@ -85,9 +85,18 @@ int strnlen_utf8(const unsigned char* ptr, unsigned int maxbytes){
 		ptr++;		
 		maxbytes--;
 #ifdef _DEBUG
-			_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "strnlen_utf8 ptr++ : %c ; %d ; %d", *ptr, c, maxbytes);
+			_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "strnlen_utf8 ptr++ : %c ; %d ; %d\n", *ptr, c, maxbytes);
 			OutputDebugStringA(dbgMsg);
 #endif
 	}
 	return c;
+}
+
+// Smart releaseString compatible PB10,10.5, and 11+
+void CommonReleaseString(IPB_Session *sess, LPCWSTR str){
+#if defined (PBVER) && (PBVER > 90) && (PBVER < 110)
+	free(str);
+#elif defined (PBVER) && (PBVER > 105)
+	sess->ReleaseString((LPWSTR)str);
+#endif
 }
