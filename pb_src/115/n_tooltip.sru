@@ -199,6 +199,7 @@ Constant ulong TTDT_INITIAL = 3
 
 
 end variables
+
 forward prototypes
 public subroutine of_setfont (long hfont)
 public subroutine of_settipposition (integer ai_x, integer ai_y)
@@ -611,6 +612,7 @@ public function unsignedlong of_addtool (dragobject ado_object, string as_tiptex
 
 TOOLINFO ToolInfo
 Integer	li_Width, li_Height
+ulong lul_ret
 
 ToolInfo.cbSize 	= 40
 ToolInfo.uFlags 	= aul_flags	//TTF_SUBCLASS	//Flags 
@@ -620,7 +622,6 @@ ToolInfo.uID		= Handle( ado_Object )//ToolID
 iul_Handle[ToolID] = ToolInfo.hWnd
 ToolID++
 ToolInfo.lpszText	= LocalAlloc( 0, 2*((Len(as_TipText)+1)))
-POST LocalFree( ToolInfo.lpszText ) // Free Allocated Memory
 lStrCpy( ToolInfo.lpszText, as_tiptext )
 
 //	Define the object as a rectangle
@@ -631,10 +632,13 @@ ToolInfo.Rect.Bottom	= UnitsToPixels( ado_Object.Height, YUnitsToPixels! )
 
 If ToolTipMsg( hWndTT, TTM_ADDTOOLW, 0, ToolInfo ) = 0 Then
 	MessageBox( "Error", "Cannot register object in the toolwindow control!", StopSign!, Ok! )
-	Return( -1 )
+	lul_ret = -1
 End If
+lul_ret = ToolID - 1
 
-Return ( ToolID - 1 )
+LocalFree( ToolInfo.lpszText ) // Free Allocated Memory
+
+Return lul_ret
 
 end function
 
