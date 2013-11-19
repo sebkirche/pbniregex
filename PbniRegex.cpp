@@ -61,6 +61,9 @@ PbniRegex::PbniRegex( IPB_Session * pSession )
 	m_groupcount = (int *)HeapAlloc(m_hHeap, HEAP_ZERO_MEMORY, sizeof(int) * m_maxmatches);
 	m_lastErr = (LPSTR)HeapAlloc(m_hHeap, HEAP_ZERO_MEMORY, 1);
 	m_lastErr[0] = '\0';
+	m_nameTable = NULL;
+	m_nameEntrySize = 0;
+	m_nameEntriesCount = 0;
 #ifdef _DEBUG
 	char *curLocale = setlocale(LC_ALL, NULL);
 	_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex: current locale is `%s`\n", curLocale);
@@ -278,6 +281,9 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci){
 	int erroffset;
 	
 	m_Opts = 0;
+	m_nameTable = NULL;
+	m_nameEntrySize = 0;
+	m_nameEntriesCount = 0;
 
 	//if we recompile a new pattern over an old one, clear the memory
 	ClearStudyInfo();
@@ -330,7 +336,7 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci){
 
 		m_re = pcre_compile(
 				m_sPattern,           /* pattern */
-				m_Opts,                 /* options (défaut = 0)*/
+				m_Opts,               /* options (défaut = 0)*/
 				&error,               /* for error message */
 				&erroffset,           /* for error offset */
 				NULL);                /* use default character tables */
@@ -864,6 +870,18 @@ void PbniRegex::SetLastErrMsg(const char *msg){
 		strcpy(m_lastErr, msg);
 }
 
+// (private) read named groups data
+void PbniRegex::GetNamedGroupsInfos(void){
+	if (!m_nameTable){
+		//Lazy initialization
+		pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_NAMECOUNT, &m_nameEntriesCount);
+		if (!m_nameEntriesCount)
+			return;
+		pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_NAMEENTRYSIZE, &m_nameEntrySize);
+		pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_NAMETABLE, &m_nameTable);
+	}
+}
+
 // Return the group index of a named group
 //
 // There is 2 cases :
@@ -878,8 +896,8 @@ int PbniRegex::GetGroupIndex(int matchIndex, pbstring pbgroupname){
 	const char *groupName;
 	int ret, optionJ;
 	char *first, *last;	//defined as char* by pcre.h, but actually pointer to entry = int + stringz
-	int nameCount, nameEntrySize, groupIndex = -1;
-	char *nameTable, *entryPtr;
+	int nameCount, groupIndex = -1;
+	char *entryPtr;
 
 #if defined (PBVER) && (PBVER < 100)
 	groupName = m_pSession->GetString(pbgroupname);
@@ -888,24 +906,20 @@ int PbniRegex::GetGroupIndex(int matchIndex, pbstring pbgroupname){
 	groupName = WCToAnsi(wcGroupName);
 #endif
 
+	GetNamedGroupsInfos();
+
 	if (m_Opts & PCRE_DUPNAMES 
 		||
-		((ret = pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_JCHANGED, &optionJ)) == 0 && optionJ == 1)){
+		(((ret = pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_JCHANGED, &optionJ)) == 0) && (optionJ == 1))){
 		//duplicates were allowed
 
 		//get the entries corresponding to our named group
 		//ret = size of each entry in name-to-number table
-		nameEntrySize = pcre_get_stringtable_entries(m_re, groupName, &first, &last);
-		if (nameEntrySize < 1)
+		if (pcre_get_stringtable_entries(m_re, groupName, &first, &last) < 1)
 			goto skip; //not found or no other error
 			
-		//These are the possible infos available concerning the name-to-number table for groups
-		//pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_NAMECOUNT, &nameCount);
-		//pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_NAMEENTRYSIZE, &nameentrysize);
-		//pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_NAMETABLE, &nameTable);
-
 		//get the first non-null match if any
-		for (entryPtr = first; entryPtr <= last; entryPtr += nameEntrySize){
+		for (entryPtr = first; entryPtr <= last; entryPtr += m_nameEntrySize){
 			groupIndex = (*(unsigned char*)entryPtr << 8) | *((unsigned char*)entryPtr+1); //rebuild little-endian short from big-endian data
 			if ((m_groupcount[matchIndex] >= groupIndex)
 				&& 
@@ -1053,7 +1067,7 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci){
 	int nbgroups;
 	int startoffset = 0;
 	int res, matchLen = 0;
-	char toexp[10];
+	char toexp[128]; //TODO / FIXME get the correct size from max(10, entrysize)
 	PBXRESULT pbxr = PBX_OK;
 
 	if(ci->pArgs->GetCount() != 2)
@@ -1099,16 +1113,29 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci){
 
 		//get the number of capturing patterns
 		res = pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_CAPTURECOUNT, &nbgroups); //need to check res ?
+
+		if (!nbgroups) //skip group replacement if no group
+			goto nogroup;
+
+		GetNamedGroupsInfos();
 		do {
-			//crawl the matches
+			//crawl the matches and replace by the replacement string
+			char *entryPtr, *tmpEntry;
 			res = pcre_exec(m_re, m_studinfo, working.c_str(), strlen(working.c_str()), startoffset, 0, m_replacebuf, m_ovecsize);
 			if (res > 0) {
 				string rep(rep_utf8);
 				unsigned int p=0, k, grplen, bck;
 				
 				//expansion of substrings
-				for (int j = nbgroups; j >= 0; j--){
-					_snprintf(toexp, sizeof(toexp) - 1, "\\%d", j);
+				//-----------------------
+				//we generate the group notation \nn (in decrasing order to avoid replacing e.g. \1 when there is also \10)
+				//then if the notation is found, we expand it with the corresponding match
+				//else (if did not matched) we delete the notation from the replace string
+				for (int curgroup = nbgroups; curgroup >= 0; curgroup--){
+					bool nameEntryTried = false;
+					int repgroup, testgroup;
+					_snprintf(toexp, sizeof(toexp) - 1, "\\%d", curgroup);
+secondTryWithName:
 					grplen = strlen(toexp);
 					p = 0;
 					while ((p = rep.find(toexp, p)) != string::npos){
@@ -1118,14 +1145,47 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci){
 							bck++;
 						}
 						if (bck & 1){ //if odd number of backslashes it's ok to replace
-							if (m_replacebuf[j*2] > -1) //when a group matches nothing its offset equals -1
+							
+							repgroup = curgroup;
+							//either we are replacing the \nn notation and curgroup is ok
+							//or we are looking for another named group
+							if(m_replacebuf[repgroup*2] == -1 && nameEntryTried){
+								int cmp;
+								for (tmpEntry = entryPtr-m_nameEntrySize/*start with previous entry*/;
+										tmpEntry >= m_nameTable ; /*until we reach the first entry*/
+										tmpEntry -= m_nameEntrySize /*we search backwards*/){
+										cmp = strncmp(tmpEntry+2, entryPtr+2, m_nameEntrySize-2); 
+										testgroup = (tmpEntry - m_nameTable) / m_nameEntrySize + 1;
+										if ((!cmp && m_replacebuf[testgroup *2] > -1) || cmp){
+											repgroup = testgroup;
+											break;
+										}
+									}
+							}
+
+							if (m_replacebuf[repgroup*2] > -1){ //when a group matches nothing its offset equals -1
 								//do NOT map byte offsets into characters offsets : it is ok for replacement
-								rep.replace(p, grplen, working.substr(m_replacebuf[j*2], m_replacebuf[j*2 +1] - m_replacebuf[j*2]));
-							else
+								rep.replace(p, grplen, working.substr(m_replacebuf[repgroup*2], m_replacebuf[repgroup*2 +1] - m_replacebuf[repgroup*2]));
+							}
+							else { //no match for group notation -> replace with empty string
 								rep.erase(p, grplen);
+							}
 						} else
 							p += grplen;
 					}
+
+					//the case of named groups : generate the \k<name> notation corresponding to the current group
+					if (m_nameTable && !nameEntryTried){
+						//search a name corresponding to the current processed group in the name table
+						for (entryPtr = m_nameTable; entryPtr < m_nameTable + m_nameEntriesCount * m_nameEntrySize; entryPtr += m_nameEntrySize){
+							if( (*(unsigned char*)entryPtr << 8) | *((unsigned char*)entryPtr+1) == curgroup){ //rebuild the big-endian index
+								nameEntryTried = true;
+								_snprintf(toexp, sizeof(toexp) - 1, "\\k<%s>", entryPtr + 2);
+								goto secondTryWithName;
+							}
+						}
+					}
+
 				}
 				//replace escaped backslashes
 				p=0;
@@ -1143,6 +1203,7 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci){
 		//until there is no match left OR if we did not set the global attribute for a single replacement
 		//also, if we replaced nothing by nothing, we can stop too
 		}while (m_bGlobal && (res > 0) && (matchLen || repLen));
+nogroup:
 
 #ifdef _DEBUG
 		OutputDebugStringA(working.c_str());

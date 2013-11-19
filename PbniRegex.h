@@ -124,6 +124,7 @@ private:
 	void SetLastErrMsg(const char *msg);
 	void ClearStudyInfo(void);
 	int GetGroupIndex(int matchIndex, pbstring pbgroupname);
+	void GetNamedGroupsInfos(void);
 
 protected:
     // member variables
@@ -150,6 +151,11 @@ protected:
 	int *m_replacebuf;		//working buffer for the replace method
 	int m_matchCount;		//number of matches for the current search()
 	int *m_groupcount;		//number of captured substrings for each match
+
+	//info of named capturing groups - see pcreapi for details
+	char *m_nameTable;		//a table of named groups
+	int m_nameEntrySize;	//the max size of the names (=size of the biggest)
+	int m_nameEntriesCount;	//the number of items in the table
 
 	HANDLE m_hHeap;			//private heap handle	
 	char *m_lastErr;		//last error message
