@@ -1249,6 +1249,13 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci){
 		_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex::FastReplace, pattern = %ls\n", p);
 		OutputDebugStringA(dbgMsg);
 #endif
+
+		//sanity check : if empty pattern string, return source string
+		if(wcslen(p) == 0){
+			ci->returnValue->SetPBString(source);
+			return pbxr;
+		}
+
 		wchar_t* pos = wcsstr((wchar_t*)s, (wchar_t*)p);
 		if(0){
 			stdstring sourcew(s);
@@ -1337,6 +1344,12 @@ PBXRESULT PbniRegex::FastReplaceCase(PBCallInfo *ci){
 	CommonReleaseString(m_pSession, sourceStr);
 	CommonReleaseString(m_pSession, patternStr);
 	CommonReleaseString(m_pSession, replaceStr);
+
+	//sanity check : if empty pattern string, return source string
+	if(patternw.length() == 0){
+		ci->returnValue->SetPBString(source);
+		return PBX_OK;
+	}
 
 	unsigned int p = 0, startoffset = 0;
 	//test for one occurence
@@ -1488,6 +1501,12 @@ PBXRESULT PbniRegex::FastReplaceNoCase(PBCallInfo *ci){
 	CommonReleaseString(m_pSession, sourceStr);
 	CommonReleaseString(m_pSession, patternStr);
 	CommonReleaseString(m_pSession, replaceStr);
+
+	//sanity check : if empty pattern string, return source string
+	if(patternw.length() == 0){
+		ci->returnValue->SetPBString(source);
+		return PBX_OK;
+	}
 
 	unsigned int p = 0, startoffset = 0;
 	//test for one occurence
