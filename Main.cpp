@@ -89,7 +89,7 @@ PBXEXPORT LPCTSTR PBXCALL PBX_GetDescription()
 PBXEXPORT PBXRESULT PBXCALL PBX_CreateNonVisualObject(IPB_Session * session, pbobject obj, LPCTSTR className, IPBX_NonVisualObject ** nvobj)
 {
 	// The name must not contain upper case
-	if (_tccmp(className, STR("uo_regex")) == 0)
+	if (_tcscmp(className, STR("uo_regex")) == 0)
 		*nvobj = new PbniRegex(session);
 	return PBX_OK;
 }
@@ -99,13 +99,13 @@ PBXEXPORT PBXRESULT PBXCALL PBX_InvokeGlobalFunction(IPB_Session* pbsession, LPC
 {
 	PBXRESULT pbxr = PBX_E_NO_SUCH_CLASS;
 
-	if (_tccmp(functionName, STR("fastreplaceall")) == 0){
+	if (_tcscmp(functionName, STR("fastreplaceall")) == 0){
 		PbniRegex *regex = new PbniRegex(pbsession) ;
 		pbxr = regex->FastReplace(ci) ;
  		if (regex != NULL) delete regex ;
 		return PBX_OK ;
 	}
-	else if(_tccmp(functionName, STR("fastreplaceall2")) == 0){
+	else if(_tcscmp(functionName, STR("fastreplaceall2")) == 0){
 		PbniRegex  *regex = new PbniRegex(pbsession) ;
 		pbxr = regex->FastReplaceChooseCase(ci) ;
  		if (regex != NULL) delete regex ;
