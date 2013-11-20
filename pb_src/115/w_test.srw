@@ -263,12 +263,11 @@ end prototypes
 
 type variables
 
-n_tooltip i_PCRETip, i_UITip
+n_tooltip i_PCRETip, i_UITip, i_hexTip
 uo_regex regex
 string is_ini = "regexdemo.ini"
 
 end variables
-
 forward prototypes
 public subroutine of_makeresizable ()
 public subroutine of_auto_update ()
@@ -404,7 +403,7 @@ regex.setungreedy(cbx_ungreedy.checked)
 regex.setnameduplicates(cbx_duplicates.checked)
 
 if cbx_pattern_null.checked then
-	setnull(ls_pattern )
+	setnull(ls_pattern)
 else
 	ls_pattern = mle_key.text
 end if
@@ -503,7 +502,7 @@ end subroutine
 
 public subroutine of_addtips ();
 
-i_PCRETip.of_SetTipTitle( i_PCRETip.TTI_INFO, "PCRE pattern option")
+i_PCRETip.of_SetTipTitle(i_PCRETip.TTI_INFO, "PCRE pattern option")
 i_PCRETip.of_addtool(cbx_global, "This is only a PbniRegex option as PCRE cannot retrieve multiple matches at once.", i_PCRETip.TTF_SUBCLASS)
 i_PCRETip.of_addtool(cbx_extended, "(?x)", i_PCRETip.TTF_SUBCLASS)
 i_PCRETip.of_addtool(cbx_case, "(?i)", i_PCRETip.TTF_SUBCLASS)
@@ -514,7 +513,14 @@ i_PCRETip.of_addtool(cbx_duplicates, "This is a PCRE only option, as Perl allow 
 
 i_UITip.of_SetTipTitle(i_UITip.TTI_INFO, "Quick Help")
 i_UITip.of_addtool(ddlb_history, "History: this listbox contains the previously used patterns", i_UITip.TTF_SUBCLASS)
-i_UITip.of_SetMaxWidth( ddlb_history.width )
+i_UITip.of_SetMaxWidth(ddlb_history.width )
+
+string ls_hextip = "Middle-click = display UTF-8 data used by PCRE~r~n&
+Shift+Middle-click = display native UTF-16le data"
+
+i_hexTip.of_settiptitle(i_PCRETip.TTI_INFO, "View hex display")
+i_hextip.of_addtool(mle_data, ls_hextip, i_PCRETip.TTF_SUBCLASS)
+i_hextip.of_addtool(mle_result, ls_hextip, i_PCRETip.TTF_SUBCLASS)
 
 end subroutine
 
@@ -925,6 +931,7 @@ end event
 
 type mle_result from multilineedit within w_test
 event doubleclicked pbm_bndoubleclicked
+event middleclick pbm_mbuttondown
 string tag = "TLBR;"
 integer x = 32
 integer y = 1268
@@ -949,6 +956,15 @@ boolean hideselection = false
 end type
 
 event doubleclicked;messagebox("Easy Copy/Past", this.text )
+end event
+
+event middleclick;
+if keydown(keyshift!) then
+	display_blob(blob(text)) //native = utf16le
+else
+	display_blob(blob(text, encodingutf8!))
+end if
+
 end event
 
 type cb_strtest from commandbutton within w_test
@@ -1425,7 +1441,27 @@ string text = "fastreplace2 (case sensitive)"
 end type
 
 event clicked;
-mle_data.text = fastreplaceall2(mle_data.text, mle_key.text, sle_replace.text, true)
+string ls_pat, ls_data, ls_rep
+
+if cbx_pattern_null.checked then
+	setnull(ls_pat)
+else
+	ls_pat = mle_key.text
+end if
+
+if cbx_data_null.checked then
+	setnull(ls_data)
+else
+	ls_data = mle_data.text
+end if
+
+if cbx_replaceby_null.checked then
+	setnull(ls_rep)
+else
+	ls_rep = sle_replace.text
+end if
+
+mle_data.text = fastreplaceall2(ls_data, ls_pat, ls_rep, true)
 
 end event
 
@@ -1446,7 +1482,27 @@ string text = "fastreplace2 (no case)"
 end type
 
 event clicked;
-mle_data.text = fastreplaceall2(mle_data.text, mle_key.text, sle_replace.text, false)
+string ls_pat, ls_data, ls_rep
+
+if cbx_pattern_null.checked then
+	setnull(ls_pat)
+else
+	ls_pat = mle_key.text
+end if
+
+if cbx_data_null.checked then
+	setnull(ls_data)
+else
+	ls_data = mle_data.text
+end if
+
+if cbx_replaceby_null.checked then
+	setnull(ls_rep)
+else
+	ls_rep = sle_replace.text
+end if
+
+mle_data.text = fastreplaceall2(ls_data, ls_pat, ls_rep, false)
 
 end event
 
@@ -1711,7 +1767,27 @@ string text = "fastreplaceall() - case sensitive"
 end type
 
 event clicked;
-mle_data.text = fastreplaceall(mle_data.text, mle_key.text, sle_replace.text)
+string ls_pat, ls_data, ls_rep
+
+if cbx_pattern_null.checked then
+	setnull(ls_pat)
+else
+	ls_pat = mle_key.text
+end if
+
+if cbx_data_null.checked then
+	setnull(ls_data)
+else
+	ls_data = mle_data.text
+end if
+
+if cbx_replaceby_null.checked then
+	setnull(ls_rep)
+else
+	ls_rep = sle_replace.text
+end if
+
+mle_data.text = fastreplaceall(ls_data, ls_pat, ls_rep)
 
 end event
 
@@ -1793,7 +1869,8 @@ borderstyle borderstyle = stylelowered!
 boolean hideselection = false
 end type
 
-event onchanged;of_auto_update()
+event onchanged;
+of_auto_update()
 end event
 
 type cb_replace from commandbutton within w_test
@@ -2017,7 +2094,7 @@ type st_4 from statictext within w_test
 string tag = "TR;"
 integer x = 2208
 integer y = 1344
-integer width = 165
+integer width = 320
 integer height = 64
 integer textsize = -8
 integer weight = 400
@@ -2027,7 +2104,7 @@ fontfamily fontfamily = swiss!
 string facename = "Tahoma"
 long textcolor = 33554432
 long backcolor = 67108864
-string text = "Index"
+string text = "Indexnname"
 boolean focusrectangle = false
 end type
 
@@ -2082,6 +2159,7 @@ end event
 
 type mle_data from multilineedit within w_test
 event onchanged pbm_enchange
+event middleclick pbm_mbuttondown
 string tag = "TLR;"
 integer x = 69
 integer y = 480
@@ -2105,6 +2183,15 @@ boolean hideselection = false
 end type
 
 event onchanged;of_auto_update()
+end event
+
+event middleclick;
+if keydown(keyshift!) then
+	display_blob(blob(text)) //native = utf16le
+else
+	display_blob(blob(text, encodingutf8!))
+end if
+
 end event
 
 type cb_msearch from commandbutton within w_test

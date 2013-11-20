@@ -1,0 +1,49 @@
+﻿$PBExportHeader$hexdump_blob.srf
+global type hexdump_blob from function_object
+end type
+
+forward prototypes
+global function string hexdump_blob (blob abl_data, boolean ab_fill_lastline)
+end prototypes
+
+global function string hexdump_blob (blob abl_data, boolean ab_fill_lastline);//display blob content in a messagebox : usefull for debuggin.
+string ls_tohex = "0123456789ABCDEF"
+string ls_msg = "", ls_line, ls_binary
+long i, j, length
+byte b
+string ls_fill
+
+if isnull( abl_data ) then return ""
+
+if ab_fill_lastline then
+	ls_fill = " __"
+else
+	ls_fill = "   "
+end if
+
+length = len( abl_data )
+for i = 1 to length
+	GetByte( abl_data, i, b )
+	ls_line += mid( ls_tohex, 1+ mod(int(b/16),16), 1)
+	ls_line += mid( ls_tohex, 1+ mod(b,16), 1)
+	ls_line += " "
+	ls_binary += string( iif(b>31 and b<128,char(b)," "))
+	if mod(i,16) = 0 and i > 0 then
+		ls_binary = fastreplaceall( ls_binary, "~r", "·")	//no cr/lf
+		ls_binary = fastreplaceall( ls_binary, "~n", "·")
+		ls_binary = fastreplaceall( ls_binary, "~t", "·")
+		ls_msg += "[" + string( i - 16, "0000") + "] " + ls_line + "~t" + ls_binary + "~r~n"
+		ls_line = ""
+		ls_binary = ""
+	end if
+next
+i -- // i - 1 due to the last loop in for
+ls_line += fill(ls_fill, 3 * ( 16 - mod(i, 16) ) )
+ls_msg += "[" + string( i - mod(i,16), "0000") + "] " + ls_line + "~t" + ls_binary
+
+//ls_msg = fastreplaceall(ls_msg, "~t", "    ")
+
+return ls_msg
+
+end function
+
