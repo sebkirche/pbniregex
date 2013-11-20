@@ -51,7 +51,7 @@ PbniRegex::PbniRegex( IPB_Session * pSession )
 	m_re = NULL;
 	m_studinfo = NULL;
 	m_jitted = false;
-	m_matchCount = 0;
+	m_matchCount = -1;
 	m_maxmatches = MAXMATCHES;
 	m_maxgroups = MAXGROUPS;
 	m_ovecsize = (m_maxgroups + 1) * 3;
@@ -694,7 +694,7 @@ PBXRESULT PbniRegex::MatchPos(PBCallInfo *ci){
 	PBXRESULT pbxr = PBX_OK;
 
 	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
-	if(index >= 0 && index < m_matchCount)
+	if(m_re != NULL && index >= 0 && index < m_matchCount)
 		ci->returnValue->SetLong(strnlen_utf8((const unsigned char*)m_sData, m_matchinfo[index * m_ovecsize + 0]) + 1);
 	else
 		ci->returnValue->SetLong(-1);
@@ -707,7 +707,7 @@ PBXRESULT PbniRegex::MatchLen(PBCallInfo *ci)
 	PBXRESULT pbxr = PBX_OK;
 
 	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
-	if(index >= 0 && index <= m_matchCount)
+	if(m_re != NULL && index >= 0 && index <= m_matchCount)
 		ci->returnValue->SetLong(strnlen_utf8((const unsigned char*)m_sData + m_matchinfo[index * m_ovecsize + 0], m_matchinfo[index * m_ovecsize + 1] - m_matchinfo[index * m_ovecsize + 0]));
 	else
 		ci->returnValue->SetLong(-1);
@@ -725,7 +725,7 @@ PBXRESULT PbniRegex::GroupPos(PBCallInfo *ci){
 
 	matchindex = ci->pArgs->GetAt(0)->GetLong() - 1; // for PB, first match is 1
 
-	if(matchindex >= 0 && matchindex <= m_matchCount){
+	if(m_re != NULL && matchindex >= 0 && matchindex <= m_matchCount){
 		//by index or by name ?
 		if(ci->pArgs->GetAt(1)->GetType() == pbvalue_long)
 			groupindex = ci->pArgs->GetAt(1)->GetLong(); //the group 0 is the whole match
@@ -756,7 +756,7 @@ PBXRESULT PbniRegex::GroupLen(PBCallInfo *ci){
 
 	matchindex = ci->pArgs->GetAt(0)->GetLong() - 1; // for PB, first match is 1
 
-	if(matchindex >= 0 && matchindex <= m_matchCount){
+	if(m_re != NULL && matchindex >= 0 && matchindex <= m_matchCount){
 		//by index or by name ?
 		if(ci->pArgs->GetAt(1)->GetType() == pbvalue_long)
 			groupindex = ci->pArgs->GetAt(1)->GetLong(); //the group 0 is the whole match
@@ -782,7 +782,7 @@ PBXRESULT PbniRegex::GroupCount(PBCallInfo *ci){
 
 	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 
-	if(index >= 0 && index <= m_matchCount)
+	if(m_re != NULL && index >= 0 && index <= m_matchCount)
 			ci->returnValue->SetLong(m_groupcount[index]);
 	else
 		ci->returnValue->SetLong(-1);
@@ -797,7 +797,7 @@ PBXRESULT PbniRegex::Match(PBCallInfo *ci)
 	int matchLen;
 	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 
-	if(index >= 0 && index <= m_matchCount){
+	if(m_re != NULL && index >= 0 && index <= m_matchCount){
 		//extract the match from the data
 		matchLen = m_matchinfo[index * m_ovecsize + 1] - m_matchinfo[index * m_ovecsize + 0] + 1;
 		LPSTR match = (LPSTR)malloc(matchLen + 1);
@@ -960,7 +960,7 @@ PBXRESULT PbniRegex::Group(PBCallInfo *ci){
 
 	long matchindex = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 
-	if(matchindex >= 0 && matchindex <= m_matchCount){
+	if(m_re != NULL && matchindex >= 0 && matchindex <= m_matchCount){
 		
 		//by index or by name ?
 		if(ci->pArgs->GetAt(1)->GetType() == pbvalue_long)

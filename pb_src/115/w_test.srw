@@ -268,6 +268,7 @@ uo_regex regex
 string is_ini = "regexdemo.ini"
 
 end variables
+
 forward prototypes
 public subroutine of_makeresizable ()
 public subroutine of_auto_update ()
@@ -1123,7 +1124,7 @@ end event
 type rb_autogroup from radiobutton within w_test
 string tag = "R;"
 integer x = 2935
-integer y = 876
+integer y = 872
 integer width = 567
 integer height = 80
 integer textsize = -8
@@ -1140,7 +1141,7 @@ end type
 type rb_automatch from radiobutton within w_test
 string tag = "R;"
 integer x = 2194
-integer y = 876
+integer y = 872
 integer width = 613
 integer height = 80
 integer textsize = -8
@@ -1317,7 +1318,7 @@ string text = "getpattern()"
 end type
 
 event clicked;
-mle_result.text = regex.getpattern( )
+mle_result.text = string(regex.getpattern(), "[General];(null)")
 
 end event
 
@@ -1544,11 +1545,11 @@ end type
 
 type st_5 from statictext within w_test
 string tag = "TR;"
-integer x = 2935
-integer y = 1344
-integer width = 165
-integer height = 64
-integer textsize = -8
+integer x = 2971
+integer y = 1332
+integer width = 142
+integer height = 96
+integer textsize = -7
 integer weight = 400
 fontcharset fontcharset = ansi!
 fontpitch fontpitch = variable!
@@ -1556,7 +1557,8 @@ fontfamily fontfamily = swiss!
 string facename = "Tahoma"
 long textcolor = 33554432
 long backcolor = 67108864
-string text = "Index"
+string text = "Index / Name"
+alignment alignment = right!
 boolean focusrectangle = false
 end type
 
@@ -1951,7 +1953,7 @@ else
 	grouplen = regex.grouplength(lmatch, lname)
 end if
 
-mle_result.text = lres
+mle_result.text = string(lres, "[General];(null)")
 mle_data.selecttext(grouppos, grouplen)
 
 end event
@@ -1975,7 +1977,7 @@ end type
 event clicked;
 long lmatch
 lmatch = long(em_index.text)
-mle_result.text = regex.match(lmatch)
+mle_result.text = string(regex.match(lmatch), "[General];(null)")
 
 st_group_count.text = "/"+string(regex.groupcount(lmatch))
 
@@ -2092,10 +2094,10 @@ end event
 
 type st_4 from statictext within w_test
 string tag = "TR;"
-integer x = 2208
+integer x = 2235
 integer y = 1344
-integer width = 320
-integer height = 64
+integer width = 142
+integer height = 72
 integer textsize = -8
 integer weight = 400
 fontcharset fontcharset = ansi!
@@ -2104,7 +2106,8 @@ fontfamily fontfamily = swiss!
 string facename = "Tahoma"
 long textcolor = 33554432
 long backcolor = 67108864
-string text = "Indexnname"
+string text = "Index"
+alignment alignment = right!
 boolean focusrectangle = false
 end type
 
@@ -2507,7 +2510,7 @@ end type
 type gb_2 from groupbox within w_test
 string tag = "TR;"
 integer x = 2126
-integer y = 16
+integer y = 12
 integer width = 1481
 integer height = 1428
 integer taborder = 170
