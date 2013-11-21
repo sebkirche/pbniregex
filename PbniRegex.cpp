@@ -389,6 +389,14 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci){
 						pbxr = PBX_E_OUTOF_MEMORY;
 					}
 				}//mem reallocation needed
+
+
+				//update the duplicate option
+				int optionJ, ret;
+				m_bDuplicates = (m_Opts & PCRE_DUPNAMES 
+								||
+								(((ret = pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_JCHANGED, &optionJ)) == 0) && (optionJ == 1)));
+
 			}//pcre-fullinfo was successful
 		}//pcre_compile was successful
 
@@ -894,7 +902,7 @@ void PbniRegex::GetNamedGroupsInfos(void){
 int PbniRegex::GetGroupIndex(int matchIndex, pbstring pbgroupname){
 	
 	const char *groupName;
-	int ret, optionJ;
+	int ret;
 	char *first, *last;	//defined as char* by pcre.h, but actually pointer to entry = int + stringz
 	int nameCount, groupIndex = -1;
 	char *entryPtr;
@@ -908,10 +916,8 @@ int PbniRegex::GetGroupIndex(int matchIndex, pbstring pbgroupname){
 
 	GetNamedGroupsInfos();
 
-	if (m_Opts & PCRE_DUPNAMES 
-		||
-		(((ret = pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_JCHANGED, &optionJ)) == 0) && (optionJ == 1))){
-		//duplicates were allowed
+	if (m_bDuplicates){
+		//duplicates were allowed, we will retrieve the first group with that name that matched something
 
 		//get the entries corresponding to our named group
 		//ret = size of each entry in name-to-number table
@@ -1124,7 +1130,7 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci){
 			res = pcre_exec(m_re, m_studinfo, working.c_str(), strlen(working.c_str()), startoffset, 0, m_replacebuf, m_ovecsize);
 			if (res > 0) {
 				string rep(rep_utf8);
-				unsigned int p=0, k, grplen, bck;
+				unsigned int p=0, k, grplen, backslashcount;
 				
 				//expansion of substrings
 				//-----------------------
@@ -1132,24 +1138,27 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci){
 				//then if the notation is found, we expand it with the corresponding match
 				//else (if did not matched) we delete the notation from the replace string
 				for (int curgroup = nbgroups; curgroup >= 0; curgroup--){
-					bool nameEntryTried = false;
+					bool bTryingGroupName = false;
 					int repgroup, testgroup;
+
+					//look for the group by its index
 					_snprintf(toexp, sizeof(toexp) - 1, "\\%d", curgroup);
+
 secondTryWithName:
 					grplen = strlen(toexp);
 					p = 0;
 					while ((p = rep.find(toexp, p)) != string::npos){
 						//check if escaped backslashes
-						bck= p ? 0 : 1;
-						for (k=p; k > 0 && rep[k]=='\\'; k--){
-							bck++;
+						backslashcount = rep[p] == '\\' ? 1 : 0;				//count 1 if the pattern begins with \ char
+						for (k=p; k > 0 && rep[k-1]=='\\'; k--){	//then 1 more for each consecutive \ until the begining of string
+							backslashcount++;
 						}
-						if (bck & 1){ //if odd number of backslashes it's ok to replace
+						if ((backslashcount & 1) == bTryingGroupName ? 0 : 1){ //if zero or even number of backslashes it's ok to replace
 							
 							repgroup = curgroup;
 							//either we are replacing the \nn notation and curgroup is ok
 							//or we are looking for another named group
-							if(m_replacebuf[repgroup*2] == -1 && nameEntryTried){
+							if(m_replacebuf[repgroup*2] == -1 && bTryingGroupName && m_bDuplicates){
 								int cmp;
 								for (tmpEntry = entryPtr-m_nameEntrySize/*start with previous entry*/;
 										tmpEntry >= m_nameTable ; /*until we reach the first entry*/
@@ -1162,6 +1171,7 @@ secondTryWithName:
 										}
 									}
 							}
+							
 
 							if (m_replacebuf[repgroup*2] > -1){ //when a group matches nothing its offset equals -1
 								//do NOT map byte offsets into characters offsets : it is ok for replacement
@@ -1174,13 +1184,14 @@ secondTryWithName:
 							p += grplen;
 					}
 
-					//the case of named groups : generate the \k<name> notation corresponding to the current group
-					if (m_nameTable && !nameEntryTried){
+					//the case of named groups : generate the $+{name} notation corresponding to the current group
+					if (m_nameTable && !bTryingGroupName){
 						//search a name corresponding to the current processed group in the name table
 						for (entryPtr = m_nameTable; entryPtr < m_nameTable + m_nameEntriesCount * m_nameEntrySize; entryPtr += m_nameEntrySize){
 							if( (*(unsigned char*)entryPtr << 8) | *((unsigned char*)entryPtr+1) == curgroup){ //rebuild the big-endian index
-								nameEntryTried = true;
-								_snprintf(toexp, sizeof(toexp) - 1, "\\k<%s>", entryPtr + 2);
+								//if that group matched something
+								bTryingGroupName = true;
+								_snprintf(toexp, sizeof(toexp) - 1, "$+{%s}", entryPtr + 2);
 								goto secondTryWithName;
 							}
 						}

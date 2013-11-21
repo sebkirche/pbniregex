@@ -139,12 +139,12 @@ protected:
 	long m_ovecsize;			// size of the vector in number of ints
 	int m_Opts;					// compile options given to pcre_compile()
 	pbboolean m_bGlobal;		// option : global search / replace ?
-	pbboolean m_bCaseSensitive;	// option : be case-sensitive ? - maps PCRE_CASELESS == /i option in perl
-	pbboolean m_bMultiLine;		// option : multiline			- maps PCRE_MULTILINE == /m option in perl
-	pbboolean m_bDotNL;			// option : dot matches Newlines - maps PCRE_DOTALL == /s option in perl
-	pbboolean m_bExtended;		// option : use extended regexps - maps PCRE_EXTENDED == /x option in perl
-	pbboolean m_bUnGreedy;		// option : ungreedy ?			 - maps PCRE_UNGREEDY
-	pbboolean m_bDuplicates;	// option : allow duplicates ?	 - maps PCRE_DUPNAMES
+	pbboolean m_bCaseSensitive;	// option : be case-sensitive ?		- maps PCRE_CASELESS == /i option in perl
+	pbboolean m_bMultiLine;		// option : multiline				- maps PCRE_MULTILINE == /m option in perl
+	pbboolean m_bDotNL;			// option : dot matches Newlines	- maps PCRE_DOTALL == /s option in perl
+	pbboolean m_bExtended;		// option : use extended regexps	- maps PCRE_EXTENDED == /x option in perl
+	pbboolean m_bUnGreedy;		// option : ungreedy ?				- maps PCRE_UNGREEDY
+	pbboolean m_bDuplicates;	// option : allow duplicates ?		- maps PCRE_DUPNAMES
 
 	//space to store the matching info
 	int *m_matchinfo;		//buffer for the array of vectors to store matching info

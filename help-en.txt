@@ -52,45 +52,45 @@ string searchPattern : stores the regexp pattern
 Methods
 -------
 
-initialize (string as_pattern, boolean ab_globalscope, boolean ab_casesensitive) 
+initialize(string as_pattern, boolean ab_globalscope, boolean ab_casesensitive) 
    Sets the global, ignoreCase & pattern attributes of the ole regex. 
    You MUST call initialize() to compile the search pattern before actual search.
 
 initialize()
    Same as the previous initialize, reuses the instance variables as arguments
 
-test ( string as_teststring ) 
+test( string as_teststring ) 
    Tells only if the given string matches the regexp.
 
-search ( string as_searchstring )
+search( string as_searchstring )
    Look for the previously compiled regexp into the given search string. The
    right name for this method should be 'execute' but it is a reserved name
    in powerscripts ;)
    Returns : the number of matches, or -1
    Remark : if you don't search in global mode, there can be only 0 or 1 match.
 
-matchCount ( )  
+matchCount( )  
    Returns the number of matches in the previous search() 
 
-match ( long al_index )  
+match( long al_index )  
    Returns the content of the given match. The first match has index 1.
 
-matchPosition ( long al_index )
+matchPosition( long al_index )
    Returns the offset of the given match or -1 if al_index is wrong.
 
-matchLength ( long al_index )
+matchLength( long al_index )
    Returns the length of the given match or -1 if al_index is wrong.
 
-replace ( string as_searchstring, string as_replacestring )
+replace( string as_searchstring, string as_replacestring )
    Returns the result of the replacement of the pattern by the
    as_replacestring into the as_searchstring. If no match occurs, the
    original string is returned.
 
-groupcount ( long al_matchindex )  
+groupcount( long al_matchindex )  
    When using the pattern grouping, returns the number of groups in the
    given match.
 
-group ( long al_matchindex, long al_groupindex )
+group( long al_matchindex, long al_groupindex )
    When using the pattern grouping, returns the content of the given group of
    the given match.
 
@@ -108,14 +108,17 @@ getversionfull()
 
 The following methods and functions give the same results than with the unvo_regexp :
 initialize() - see the remark below about error codes
-test ( string as_teststring ) 
-search ( string as_searchstring )
-matchCount ( )  
-match ( long al_index )  
-matchPosition ( long al_index )
-matchLength ( long al_index )
-groupcount ( long al_matchindex )  
-group ( long al_matchindex, long al_groupindex )
+test( string as_teststring ) 
+search( string as_searchstring )
+matchCount()  
+match( long al_index ) 
+     (note that a null string might be returned if the regex was not initialized)
+matchPosition( long al_index )
+matchLength( long al_index )
+groupcount( long al_matchindex )  
+group( long al_matchindex, long al_groupindex ) 
+     (note that a null string might be returned if the regex was not initialized)
+
   remark: the whole match will be in group #0 to mimick the vbscript behavior
 
 Initialize() errors
@@ -126,23 +129,32 @@ or MS Visual Studio.
 
 Replace
 -------
-replace ( string as_searchstring, string as_replacestring )
+replace( string as_searchstring, string as_replacestring )
 
 The PCRE engine can only search and does not provides replacing
 functionality, therefore I have implemented my own replace method. 
 While the replace func has the same prototype than the vbscript one, it has
 been extended and has the possiblity to uses the perl-like backslash-number
 notation (\1, \2 .. \n) to reuse for replacement the matched groups.
-
-
+\0 returns the whole match.
+Since 1.3.1: replace() supports named groups with the perlish notation $+{name}
 
 The following functions are in addition to the unvo_regexp ones :
 
+group(long al_matchindex, string as_name)
+   Returns a group by its name
+
 groupposition(long al_matchindex, long al_groupindex)
-   Returns the offset of the given group of the given match.
+   Returns the offset of the given group in the given match.
+
+groupposition(long al_matchindex, string as_name)
+   Returns the offset of the named group in the given match.
 
 grouplength(long al_matchindex, long al_groupindex)
-   Returns the length of the given group of the given match.
+   Returns the length of the given group in the given match.
+
+grouplength(long al_matchindex, string as_name)
+   Returns the length of the named group in the given match.
 
 setmultiline(boolean ismulti)
    Sets the possibilty to match the EOL character with '.'
@@ -193,6 +205,14 @@ setungreedy(boolean greedy)
 getungreedy()
    Returns the state of the regex UNgreediness.
 
+getnameduplicates()
+   Returns the state of the regex usage of duplicates in named capturing groups.
+   Note that the flag may change if either setnameduplicates(true) is called
+   or the option (?J) is used in the pattern.
+
+setnameduplicates(boolean allow_dup)
+   Set the flag that allow duplices in named capturing groups
+
 getpattern()
    Returns the pattern that was given to initialize()
 
@@ -202,6 +222,18 @@ getLastError()
 stringTest()
    It is only a debugging function to return the given string.
    Useful to track down string encoding and / or conversion problems.
+
+Named groups
+------------
+
+Starting with release 1.3.1, capturing groups can be named.
+ - a named capturing group is declared by (?<name>) or (?'name')
+ - inside a pattern, a named group can be refered by \k<name>, \k'name', \g<name>, \g'name'
+ - the replace() method can use reference to named groups with $+{name} in addition to the 
+   \1, \2, \n notation.
+   You can have duplicated names in groups, provided that only one group is matching at a time
+   (or you will have unwanted results - the last named group that is matching is used)
+
    
 Global functions
 ----------------
