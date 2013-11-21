@@ -95,7 +95,7 @@ int strnlen_utf8(const unsigned char* ptr, unsigned int maxbytes){
 // Smart releaseString compatible PB10,10.5, and 11+
 void CommonReleaseString(IPB_Session *sess, LPCWSTR str){
 #if defined (PBVER) && (PBVER > 90) && (PBVER < 110)
-	free(str);
+	free((void*)str);
 #elif defined (PBVER) && (PBVER > 105)
 	sess->ReleaseString((LPWSTR)str);
 #endif
