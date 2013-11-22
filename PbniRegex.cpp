@@ -261,13 +261,13 @@ PBXRESULT PbniRegex::VersionFull( PBCallInfo * ci ){
 	PBXRESULT	pbxr = PBX_OK;
 
 	// return value
-#if defined (PBVER) && (PBVER < 100)
-	LPCSTR aver = WCToAnsi(VERSION_STR);
-	ci->returnValue->SetString(aver);
-	free((void*)aver);
-#else
+//#if defined (PBVER) && (PBVER < 100)
+//	LPCSTR aver = WCToAnsi(VERSION_STR);
+//	ci->returnValue->SetString(aver);
+//	free((void*)aver);
+//#else
 	ci->returnValue->SetString(VERSION_STR);
-#endif
+//#endif
 	return pbxr;
 }
 
@@ -1017,9 +1017,9 @@ PBXRESULT PbniRegex::Group(PBCallInfo *ci){
 }
 
 #ifdef _DEBUG
-char EURO_CP1252[] = {0x80};
-char EURO_UTF8[] = {0xE2, 0x82, 0xAC};
-char TEST[] = {0x80, 0xE9};
+unsigned char EURO_CP1252[] = {0x80};
+unsigned char EURO_UTF8[] = {0xE2, 0x82, 0xAC};
+unsigned char TEST[] = {0x80, 0xE9};
 
 // Debug function : return to PB the string that was passed (to check if encoding is ok)
 PBXRESULT PbniRegex::StrTest( PBCallInfo * ci ){
@@ -1041,7 +1041,7 @@ PBXRESULT PbniRegex::StrTest( PBCallInfo * ci ){
 	}else{
 
 #if defined (PBVER) && (PBVER < 100)
-		buf = TEST;
+		buf = (LPTCH)TEST;
 #else
 		int bufLen;
 		bufLen = _tcslen(strTest) + MultiByteToWideChar(CP_ACP,0,TEST,sizeof(TEST),0,0) + 1;
@@ -1153,7 +1153,7 @@ secondTryWithName:
 						for (k=p; k > 0 && rep[k-1]=='\\'; k--){	//then 1 more for each consecutive \ until the begining of string
 							backslashcount++;
 						}
-						if ((backslashcount & 1) == bTryingGroupName ? 0 : 1){ //if zero or even number of backslashes it's ok to replace
+						if ((backslashcount & 1) == (unsigned int)(bTryingGroupName ? 0 : 1)){ //if zero or even number of backslashes it's ok to replace
 							
 							repgroup = curgroup;
 							//either we are replacing the \nn notation and curgroup is ok
@@ -1188,7 +1188,7 @@ secondTryWithName:
 					if (m_nameTable && !bTryingGroupName){
 						//search a name corresponding to the current processed group in the name table
 						for (entryPtr = m_nameTable; entryPtr < m_nameTable + m_nameEntriesCount * m_nameEntrySize; entryPtr += m_nameEntrySize){
-							if( (*(unsigned char*)entryPtr << 8) | *((unsigned char*)entryPtr+1) == curgroup){ //rebuild the big-endian index
+							if( ((*(unsigned char*)entryPtr << 8) | *((unsigned char*)entryPtr+1)) == curgroup){ //rebuild the big-endian index
 								//if that group matched something
 								bTryingGroupName = true;
 								_snprintf(toexp, sizeof(toexp) - 1, "$+{%s}", entryPtr + 2);
@@ -1262,12 +1262,12 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci){
 #endif
 
 		//sanity check : if empty pattern string, return source string
-		if(wcslen(p) == 0){
+		if(_tcslen(p) == 0){
 			ci->returnValue->SetPBString(source);
 			return pbxr;
 		}
 
-		wchar_t* pos = wcsstr((wchar_t*)s, (wchar_t*)p);
+		TCHAR* pos = _tcsstr((TCHAR*)s, (TCHAR*)p);
 		if(0){
 			stdstring sourcew(s);
 			stdstring patternw(p);
@@ -1278,28 +1278,28 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci){
 			OutputDBSIfDebugA("PbniRegex::FastReplace, found at least one occurrence.\n");
 			pbstring replace = ci->pArgs->GetAt(2)->GetString();
 			//stdstring replacew(m_pSession->GetString(replace));
-			wchar_t* rpl = (wchar_t*)m_pSession->GetString(replace);
-			wchar_t* trg = wcsdup(s);
-			wchar_t* prev;
+			TCHAR* rpl = (TCHAR*)m_pSession->GetString(replace);
+			TCHAR* trg = _tcsdup(s);
+			TCHAR* prev;
 			//here is the 'all' of 'replaceall' : replace each occurence
 			//unsigned int p = 0, startoffset = 0;
-			size_t p_len = wcslen(p);
-			size_t r_len = wcslen(rpl);
+			size_t p_len = _tcslen(p);
+			size_t r_len = _tcslen(rpl);
 
 			if(p_len<r_len){
 			//si length(rpl) > length(pattern) alors il faut compter combien il y a d'occurance
 			// et augmenter le buffer de la chaine de destination de: Occurences x ( length(rpl) - length(pattern) )
 				prev=pos;
 				unsigned long occ = 1;
-				while(pos = wcsstr(pos + p_len, p)){
+				while(pos = _tcsstr(pos + p_len, p)){
 					occ++;
 				}
 				pos = prev;
-				trg = (wchar_t*)realloc((void*)trg, sizeof(wchar_t)*(1 + wcslen(s) + occ*(r_len - p_len) ) );
+				trg = (TCHAR*)realloc((void*)trg, sizeof(TCHAR)*(1 + _tcslen(s) + occ*(r_len - p_len) ) );
 			}
-			prev = (wchar_t*)s;
-			trg[0] = (wchar_t)0;
-			wchar_t* tmp_trg = trg;
+			prev = (TCHAR*)s;
+			trg[0] = (TCHAR)0;
+			TCHAR* tmp_trg = trg;
 			size_t t_len;		//taille des chunks intermédiaires
 			while(pos/*(p = sourcew.find(patternw, startoffset)) != string::npos*/){
 #ifdef _DEBUG
@@ -1310,14 +1310,14 @@ PBXRESULT PbniRegex::FastReplace(PBCallInfo *ci){
 				//startoffset = p + replacew.length();
 				
 				t_len = pos - prev;
-				wcsncat(tmp_trg, prev, t_len);	//copie ce qui est avant le match (depuis le précédent match || début)
+				_tcsncat(tmp_trg, prev, t_len);	//copie ce qui est avant le match (depuis le précédent match || début)
 				tmp_trg += t_len;
-				wcscat(tmp_trg, rpl);
+				_tcscat(tmp_trg, rpl);
 				tmp_trg += r_len;
 				prev = pos + p_len;
-				pos = wcsstr(prev,p);
+				pos = _tcsstr(prev,p);
 			}
-			wcscat(tmp_trg, prev);
+			_tcscat(tmp_trg, prev);
 			//return the resulting string
 #ifdef _DEBUG
 //			_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex::FastReplace, final string is %ls\n", sourcew.c_str());
@@ -1352,9 +1352,11 @@ PBXRESULT PbniRegex::FastReplaceCase(PBCallInfo *ci){
 	stdstring patternw(patternStr);
 	stdstring replacew(replaceStr);
 
+#if defined (PBVER) && (PBVER > 90)
 	CommonReleaseString(m_pSession, sourceStr);
 	CommonReleaseString(m_pSession, patternStr);
 	CommonReleaseString(m_pSession, replaceStr);
+#endif
 
 	//sanity check : if empty pattern string, return source string
 	if(patternw.length() == 0){
@@ -1509,9 +1511,11 @@ PBXRESULT PbniRegex::FastReplaceNoCase(PBCallInfo *ci){
 	tstring_nocase patternw(patternStr);
 	tstring_nocase replacew(replaceStr);
 
+#if defined (PBVER) && (PBVER > 90)
 	CommonReleaseString(m_pSession, sourceStr);
 	CommonReleaseString(m_pSession, patternStr);
 	CommonReleaseString(m_pSession, replaceStr);
+#endif
 
 	//sanity check : if empty pattern string, return source string
 	if(patternw.length() == 0){

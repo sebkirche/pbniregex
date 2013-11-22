@@ -1,0 +1,22 @@
+$PBExportHeader$display_blob.srf
+global type display_blob from function_object
+end type
+
+forward prototypes
+global subroutine display_blob (blob abl_data)
+end prototypes
+
+global subroutine display_blob (blob abl_data);//display blob content in a messagebox : usefull for debugging.
+string ls_dump
+
+if isnull( abl_data ) then
+	messagebox( "Blob display", "Blob is null" )
+	return
+end if
+
+ls_dump = hexdump_blob(abl_data, true)
+
+messagebox( "Blob size: " + string(len(abl_data)), ls_dump) 
+
+end subroutine
+
