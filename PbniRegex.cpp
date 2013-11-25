@@ -11,6 +11,7 @@
 #ifdef UNICODE
 	#include <mbstring.h>
 #endif
+#include <assert.h>
 #include "main.h"
 #include "PbniRegex.h"
 #include "strconv.h"
@@ -54,10 +55,14 @@ PbniRegex::PbniRegex( IPB_Session * pSession )
 	m_matchCount = -1;
 	m_maxmatches = MAXMATCHES;
 	m_maxgroups = MAXGROUPS;
-	m_ovecsize = (m_maxgroups + 1) * 3;
+	/* the size of the vector for n capturing groups is 
+	   n + 1 matching infos (+ 1 for the match itself)
+	   the result is 2 ints per info and the lib needs 1 more third as working area */
+	m_ovecitems = (m_maxgroups + 1) * 3;
+	m_ovecbytes = m_ovecitems * sizeof(int);
 	m_hHeap = HeapCreate(HEAP_NO_SERIALIZE, 1024 * 64, 0);
-	m_matchinfo = (int *)HeapAlloc(m_hHeap, HEAP_ZERO_MEMORY, sizeof(int) * (m_maxmatches * m_ovecsize));
-	m_replacebuf = (int *)HeapAlloc(m_hHeap, HEAP_ZERO_MEMORY, sizeof(int) * m_ovecsize);
+	m_matchinfo = (int *)HeapAlloc(m_hHeap, HEAP_ZERO_MEMORY,  sizeof(int) * m_ovecitems * m_maxmatches);
+	m_replacebuf = (int *)HeapAlloc(m_hHeap, HEAP_ZERO_MEMORY, sizeof(int) * m_ovecitems);
 	m_groupcount = (int *)HeapAlloc(m_hHeap, HEAP_ZERO_MEMORY, sizeof(int) * m_maxmatches);
 	m_lastErr = (LPSTR)HeapAlloc(m_hHeap, HEAP_ZERO_MEMORY, 1);
 	m_lastErr[0] = '\0';
@@ -360,8 +365,9 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci){
 					OutputDebugStringA(dbgMsg);
 #endif
 					m_maxgroups = newmaxgroups;
-					m_ovecsize = (m_maxgroups + 1) * 3;
-					m_matchinfo = (int *)HeapReAlloc(m_hHeap, HEAP_ZERO_MEMORY, m_matchinfo, sizeof(int) * (m_maxmatches * m_ovecsize));
+					m_ovecitems = (m_maxgroups + 1) * 3;
+					m_ovecbytes = m_ovecitems * sizeof(int);
+					m_matchinfo = (int *)HeapReAlloc(m_hHeap, HEAP_ZERO_MEMORY, m_matchinfo, m_maxmatches * m_ovecbytes);
 					if(!m_matchinfo){
 						long err = GetLastError();
 						_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex :: initialize failed on memory reallocation for matches\n");
@@ -370,7 +376,7 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci){
 						ci->returnValue->SetBool(false);
 						pbxr = PBX_E_OUTOF_MEMORY;
 					}
-					m_replacebuf = (int *)HeapReAlloc(m_hHeap, HEAP_ZERO_MEMORY, m_replacebuf, sizeof(int) * m_ovecsize);
+					m_replacebuf = (int *)HeapReAlloc(m_hHeap, HEAP_ZERO_MEMORY, m_replacebuf, m_ovecbytes);
 					if(!m_replacebuf){
 						long err = GetLastError();
 						_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex :: initialize failed on memory reallocation for replace\n");
@@ -396,7 +402,11 @@ PBXRESULT PbniRegex::Initialize(PBCallInfo *ci){
 				m_bDuplicates = (m_Opts & PCRE_DUPNAMES 
 								||
 								(((ret = pcre_fullinfo(m_re, m_studinfo, PCRE_INFO_JCHANGED, &optionJ)) == 0) && (optionJ == 1)));
-
+			} else { //pcre-fullinfo was successful
+				ci->returnValue->SetBool(false);
+				_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex :: pcre_fullinfo() failed...\n");
+				OutputDebugStringA(dbgMsg);
+				SetLastErrMsg(dbgMsg);
 			}//pcre-fullinfo was successful
 		}//pcre_compile was successful
 
@@ -469,7 +479,7 @@ PBXRESULT PbniRegex::Test( PBCallInfo * ci ){
 		  0,                    /* default options */
 		  //TODO the m_matchinfo can be too short for all matching info
 		  m_matchinfo,          /* output vector for substring information */
-		  m_ovecsize);			/* number of elements in the output vector */
+		  m_ovecitems);			/* number of elements in the output vector */
 		if(rc < 0){
 			switch(rc){
 				case PCRE_ERROR_NOMATCH:
@@ -595,7 +605,7 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci){
 				OutputDebugStringA(dbgMsg);
 #endif
 				//TODO: should handle a try/catch if the mem alloc fails ?
-				m_matchinfo = (int *)HeapReAlloc(m_hHeap, HEAP_ZERO_MEMORY, m_matchinfo, sizeof(int) * (m_maxmatches * m_ovecsize));
+				m_matchinfo = (int *)HeapReAlloc(m_hHeap, HEAP_ZERO_MEMORY, m_matchinfo, m_maxmatches * m_ovecbytes);
 				if(!m_matchinfo){
 					long err = GetLastError();
 					_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "PbniRegex :: search failed on memory reallocation for matches\n");
@@ -614,20 +624,40 @@ PBXRESULT PbniRegex::Search(PBCallInfo *ci){
 					pbxr = PBX_E_OUTOF_MEMORY;
 				}
 			}
-			res = pcre_exec(m_re, m_studinfo, m_sData, (int)searchLen-1, startoffset, 0, &(m_matchinfo[nmatch * m_ovecsize]), m_ovecsize);
+			assert(m_ovecitems % 3 == 0);
+			res = pcre_exec(m_re, m_studinfo, m_sData, (int)searchLen-1, startoffset, 0, m_matchinfo + nmatch * m_ovecitems, m_ovecitems);
 			if (res > 0) {
 				m_groupcount[nmatch] = res - 1;
-				startoffset = m_matchinfo[(nmatch * m_ovecsize) + 1];
+				startoffset = m_matchinfo[(nmatch * m_ovecitems) + 1];
 				nmatch++;
 				// the match might have a null length : the start offset = the next offset, so we stop there
-				if(startoffset == m_matchinfo[((nmatch - 1) * m_ovecsize)])
+				if(startoffset == m_matchinfo[((nmatch - 1) * m_ovecitems)])
 					break;
 				// do not perform another search if we are at the end of the string
 				if (startoffset >= (searchLen - 1))
 					break;
-			} else
-				break;
+			} else {
 				//res = 0 if not enough space in the vector for all groups - this should not happen
+				dbgMsg[0] = '\0';
+				switch(res){
+				case PCRE_ERROR_NOMATCH:
+					break;
+				case PCRE_ERROR_NULL:
+					_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "pcre_exec failed due to null strings or vector\n");
+					break;
+				case PCRE_ERROR_BADOPTION:
+					_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "pcre_exec failed due to bad option\n");
+					break;
+				case PCRE_ERROR_NOMEMORY:
+					_snprintf(dbgMsg, sizeof(dbgMsg) - 1, "pcre_exec failed due to bad option\n");
+					break;
+				}
+				if(dbgMsg){
+					OutputDebugStringA(dbgMsg);
+					SetLastErrMsg(dbgMsg);
+				}
+				break;
+			}
 
 		//until there is no match left OR if we did not set the global attribute for a single search
 		}while (m_bGlobal && nmatch > 0); //negative res for errors or no match
@@ -703,7 +733,7 @@ PBXRESULT PbniRegex::MatchPos(PBCallInfo *ci){
 
 	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 	if(m_re != NULL && index >= 0 && index < m_matchCount)
-		ci->returnValue->SetLong(strnlen_utf8((const unsigned char*)m_sData, m_matchinfo[index * m_ovecsize + 0]) + 1);
+		ci->returnValue->SetLong(strnlen_utf8((const unsigned char*)m_sData, m_matchinfo[index * m_ovecitems + 0]) + 1);
 	else
 		ci->returnValue->SetLong(-1);
 	return pbxr;
@@ -716,7 +746,7 @@ PBXRESULT PbniRegex::MatchLen(PBCallInfo *ci)
 
 	long index = ci->pArgs->GetAt(0)->GetLong() - 1; //in PB the index starts at 1
 	if(m_re != NULL && index >= 0 && index <= m_matchCount)
-		ci->returnValue->SetLong(strnlen_utf8((const unsigned char*)m_sData + m_matchinfo[index * m_ovecsize + 0], m_matchinfo[index * m_ovecsize + 1] - m_matchinfo[index * m_ovecsize + 0]));
+		ci->returnValue->SetLong(strnlen_utf8((const unsigned char*)m_sData + m_matchinfo[index * m_ovecitems + 0], m_matchinfo[index * m_ovecitems + 1] - m_matchinfo[index * m_ovecitems + 0]));
 	else
 		ci->returnValue->SetLong(-1);
 	return pbxr;
@@ -744,7 +774,7 @@ PBXRESULT PbniRegex::GroupPos(PBCallInfo *ci){
 			return PBX_E_INVALID_ARGUMENT;
 
 		if(groupindex >= 0 && groupindex <= m_groupcount[matchindex])
-			ci->returnValue->SetLong(strnlen_utf8((const unsigned char*)m_sData, m_matchinfo[matchindex * m_ovecsize + 2 * groupindex]) + 1);
+			ci->returnValue->SetLong(strnlen_utf8((const unsigned char*)m_sData, m_matchinfo[matchindex * m_ovecitems + 2 * groupindex]) + 1);
 		else
 			ci->returnValue->SetLong(-1);
 	}
@@ -775,7 +805,7 @@ PBXRESULT PbniRegex::GroupLen(PBCallInfo *ci){
 			return PBX_E_INVALID_ARGUMENT;
 
 		if(groupindex >= 0 && groupindex <= m_groupcount[matchindex])
-			ci->returnValue->SetLong(strnlen_utf8((const unsigned char*)m_sData + m_matchinfo[matchindex * m_ovecsize + 2 * groupindex], m_matchinfo[matchindex * m_ovecsize + 2 * groupindex + 1] - m_matchinfo[matchindex * m_ovecsize + 2 * groupindex]));
+			ci->returnValue->SetLong(strnlen_utf8((const unsigned char*)m_sData + m_matchinfo[matchindex * m_ovecitems + 2 * groupindex], m_matchinfo[matchindex * m_ovecitems + 2 * groupindex + 1] - m_matchinfo[matchindex * m_ovecitems + 2 * groupindex]));
 		else
 			ci->returnValue->SetLong(-1);
 	}
@@ -807,9 +837,9 @@ PBXRESULT PbniRegex::Match(PBCallInfo *ci)
 
 	if(m_re != NULL && index >= 0 && index <= m_matchCount){
 		//extract the match from the data
-		matchLen = m_matchinfo[index * m_ovecsize + 1] - m_matchinfo[index * m_ovecsize + 0] + 1;
+		matchLen = m_matchinfo[index * m_ovecitems + 1] - m_matchinfo[index * m_ovecitems + 0] + 1;
 		LPSTR match = (LPSTR)malloc(matchLen + 1);
-		lstrcpynA(match, (LPCSTR)(m_sData + m_matchinfo[index * m_ovecsize + 0]), matchLen);
+		lstrcpynA(match, (LPCSTR)(m_sData + m_matchinfo[index * m_ovecitems + 0]), matchLen);
 		LPWSTR wstr = Utf8ToWC(match);
 
 		// return value
@@ -929,7 +959,7 @@ int PbniRegex::GetGroupIndex(int matchIndex, pbstring pbgroupname){
 			groupIndex = (*(unsigned char*)entryPtr << 8) | *((unsigned char*)entryPtr+1); //rebuild little-endian short from big-endian data
 			if ((m_groupcount[matchIndex] >= groupIndex)
 				&& 
-				(m_matchinfo[matchIndex * m_ovecsize + 2*groupIndex]) != -1)
+				(m_matchinfo[matchIndex * m_ovecitems + 2*groupIndex]) != -1)
 				break;
 		}
 
@@ -958,8 +988,6 @@ PBXRESULT PbniRegex::Group(PBCallInfo *ci){
 	PBXRESULT pbxr = PBX_OK;
 	int groupLen;
 	long groupindex;
-	pbstring pbgroupname;
-	const char *groupname;
 
 	if(ci->pArgs->GetCount() != 2)
 		return PBX_E_INVOKE_WRONG_NUM_ARGS;
@@ -985,15 +1013,15 @@ PBXRESULT PbniRegex::Group(PBCallInfo *ci){
 		//TODO: replace with pcre_copy_substring() or pcre_get_substring()
 		
 		if(groupindex >= 0 && groupindex <= m_groupcount[matchindex]){
-			if(-1 == m_matchinfo[matchindex * m_ovecsize + 2*groupindex]){
+			if(-1 == m_matchinfo[matchindex * m_ovecitems + 2*groupindex]){
 				//the group matched nothing
 				ci->returnValue->SetToNull();
 			}
 			else {
 				//extract the match from the data
-				groupLen = m_matchinfo[matchindex * m_ovecsize + 2*groupindex + 1] - m_matchinfo[matchindex * m_ovecsize + 2*groupindex] + 1;
+				groupLen = m_matchinfo[matchindex * m_ovecitems + 2*groupindex + 1] - m_matchinfo[matchindex * m_ovecitems + 2*groupindex] + 1;
 				LPSTR group = (LPSTR)malloc(groupLen + 1);
-				lstrcpynA(group, (LPCSTR)(m_sData + m_matchinfo[matchindex * m_ovecsize + 2*groupindex]), groupLen);
+				lstrcpynA(group, (LPCSTR)(m_sData + m_matchinfo[matchindex * m_ovecitems + 2*groupindex]), groupLen);
 				LPWSTR wstr = Utf8ToWC(group);
 
 				// return value
@@ -1044,10 +1072,10 @@ PBXRESULT PbniRegex::StrTest( PBCallInfo * ci ){
 		buf = (LPTCH)TEST;
 #else
 		int bufLen;
-		bufLen = _tcslen(strTest) + MultiByteToWideChar(CP_ACP,0,TEST,sizeof(TEST),0,0) + 1;
+		bufLen = _tcslen(strTest) + MultiByteToWideChar(CP_ACP,0,(char*)TEST,sizeof(TEST),0,0) + 1;
 		buf = new TCHAR[wcslen(strTest)+sizeof(TEST)+1];
 		memset(buf, 0, bufLen*sizeof(TCHAR));
-		LPCWSTR valeur = AnsiToWC(TEST);
+		LPCWSTR valeur = AnsiToWC((char*)TEST);
 		wcscpy(buf, strTest);
 		wcscat(buf,valeur);
 		free((void*)valeur);
@@ -1126,8 +1154,8 @@ PBXRESULT PbniRegex::Replace(PBCallInfo *ci){
 		GetNamedGroupsInfos();
 		do {
 			//crawl the matches and replace by the replacement string
-			char *entryPtr, *tmpEntry;
-			res = pcre_exec(m_re, m_studinfo, working.c_str(), strlen(working.c_str()), startoffset, 0, m_replacebuf, m_ovecsize);
+			char *entryPtr = NULL, *tmpEntry;
+			res = pcre_exec(m_re, m_studinfo, working.c_str(), strlen(working.c_str()), startoffset, 0, m_replacebuf, m_ovecitems);
 			if (res > 0) {
 				string rep(rep_utf8);
 				unsigned int p=0, k, grplen, backslashcount;
@@ -1158,7 +1186,7 @@ secondTryWithName:
 							repgroup = curgroup;
 							//either we are replacing the \nn notation and curgroup is ok
 							//or we are looking for another named group
-							if(m_replacebuf[repgroup*2] == -1 && bTryingGroupName && m_bDuplicates){
+							if(m_replacebuf[repgroup*2] == -1 && bTryingGroupName && m_bDuplicates && entryPtr != NULL){
 								int cmp;
 								for (tmpEntry = entryPtr-m_nameEntrySize/*start with previous entry*/;
 										tmpEntry >= m_nameTable ; /*until we reach the first entry*/

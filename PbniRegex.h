@@ -9,6 +9,7 @@
 #include "pcre.h"
 #include "strconv.h"
 
+//default sizes for vectors
 #define MAXMATCHES 30
 #define MAXGROUPS 20
 
@@ -136,7 +137,8 @@ protected:
 	bool m_jitted;				// did we invoked the jit in this regexp ?
 	long m_maxmatches;			// max match number, can be automagicaly increased during processing
 	long m_maxgroups;			// max group number for a match, can be automagicaly increased during processing
-	long m_ovecsize;			// size of the vector in number of ints
+	long m_ovecitems;			// size of the vector in number of ints
+	long m_ovecbytes;			// size of the vector in number of bytes
 	int m_Opts;					// compile options given to pcre_compile()
 	pbboolean m_bGlobal;		// option : global search / replace ?
 	pbboolean m_bCaseSensitive;	// option : be case-sensitive ?		- maps PCRE_CASELESS == /i option in perl
