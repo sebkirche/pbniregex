@@ -499,6 +499,9 @@ i_PCRETip.of_removetool(cbx_duplicates, handle(cbx_duplicates))
 
 i_UITip.of_removetool(ddlb_history, handle(ddlb_history))
 
+i_hextip.of_removetool(mle_data, handle(mle_data))
+i_hextip.of_removetool(mle_result, handle(mle_result))
+
 end subroutine
 
 public subroutine of_addtips ();
