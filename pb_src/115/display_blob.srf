@@ -1,4 +1,4 @@
-﻿$PBExportHeader$display_blob.srf
+HA$PBExportHeader$display_blob.srf
 global type display_blob from function_object
 end type
 
@@ -14,7 +14,7 @@ if isnull( abl_data ) then
 	return
 end if
 
-ls_dump = hexdump_blob(abl_data, true)
+ls_dump = hexdump_blob(abl_data, false, true)
 
 messagebox( "Blob size: " + string(len(abl_data)), ls_dump) 
 
