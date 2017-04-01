@@ -11,6 +11,8 @@ PbRegexCoach started as a basic test application for PbniRegex and grown
 to a full featured regex testing tool similar to the Regex Coach with 
 a unit testing graphical interface.
 
+There are some binaries available [here](http://sebastien.kirche.free.fr/powerbuilder/en.html#pbni).
+
 This is free code, released under the MIT license with the hope that
 it could be useful to someone else. There is absolutely NO WARRANTY.
 Please read the license.txt for details.
