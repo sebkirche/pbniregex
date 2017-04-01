@@ -23,7 +23,7 @@ regexdemo_unittests.xml
 pbregexcoach.pbr
 pbregexcoach*.exe
 
-readme.txt
+readme.md
 help-en.txt
 history_pbniregex.txt
 license.txt

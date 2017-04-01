@@ -1,21 +1,25 @@
-HISTORY -=- Last edit Time-stamp: <19/11/2013 21:30 Sebastien@PC-SEKI>
+HISTORY -=- Last edit Time-stamp: <31/03/2017 15:00 seki@bonemine.seki.fr>
 =======
+
+2017-03-31 - version 1.3.2 (copyright update)
+           - added the generation of pbx for PB125
+           - added the demo application for PB125
 
 2013-11-20 - Version 1.3.1
              - support for named capturing group, including in replace strings
-			 - bugfixed the empty pattern replacing that caused infinite loop
-			 - IMPORTANT : until now the lib PCRE was compiled with default newline=LF
-			               that is causing unexpected behavior when matching / replacing
-						   text near end of line.
-						   NOW it compiled with default newline=CRLF.
-						   To get back the old behavior, you can add the option (*LF)
-						   at the beginning of your patterns.
+             - bugfixed the empty pattern replacing that caused infinite loop
+             - IMPORTANT : until now the lib PCRE was compiled with default newline=LF
+                           that is causing unexpected behavior when matching / replacing
+                           text near end of line.
+                           NOW it compiled with default newline=CRLF.
+                           To get back the old behavior, you can add the option (*LF)
+                           at the beginning of your patterns.
 
 2013-07-01 - Version 1.3
              - upgraded the underlying PCRE to 8.33 !!!
              - addition of jit-enabled regexps (available in PCRE since v.8.20)
-			 - replaced the Hello() method by GetVersion() and GetVersionFull()
-			 - fixed some memory leaks when calling Study() some multiple times
+             - replaced the Hello() method by GetVersion() and GetVersionFull()
+             - fixed some memory leaks when calling Study() some multiple times
              - code cleanup
 
 2011-07-04 - Added the PB12 version
