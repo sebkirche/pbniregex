@@ -3,10 +3,10 @@ global type hexdump_blob from function_object
 end type
 
 forward prototypes
-global function string hexdump_blob (blob abl_data, boolean ab_fill_lastline)
+global function string hexdump_blob (blob abl_data, boolean abl_show_extended, boolean ab_fill_lastline)
 end prototypes
 
-global function string hexdump_blob (blob abl_data, boolean ab_fill_lastline);//display blob content in a messagebox : usefull for debuggin.
+global function string hexdump_blob (blob abl_data, boolean abl_show_extended, boolean ab_fill_lastline);//display blob content in a messagebox : usefull for debuggin.
 string ls_tohex = "0123456789ABCDEF"
 string ls_msg = "", ls_line, ls_binary
 long i, j, length
@@ -27,7 +27,11 @@ for i = 1 to length
 	ls_line += mid( ls_tohex, 1+ mod(int(b/16),16), 1)
 	ls_line += mid( ls_tohex, 1+ mod(b,16), 1)
 	ls_line += " "
-	ls_binary += string( iif(b>31 and b<128,char(b)," "))
+	if abl_show_extended then
+		ls_binary += string( iif(b>31 and b<127,char(b),iif(b>127,char(b),".")))
+	else
+		ls_binary += string( iif(b>31 and b<127,char(b),"."))
+	end if
 	if mod(i,16) = 0 and i > 0 then
 		ls_binary = fastreplaceall( ls_binary, "~r", "·")	//no cr/lf
 		ls_binary = fastreplaceall( ls_binary, "~n", "·")
