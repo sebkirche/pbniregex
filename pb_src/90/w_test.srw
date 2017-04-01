@@ -245,6 +245,7 @@ n_tooltip i_PCRETip, i_UITip, i_hexTip
 uo_regex regex
 string is_ini = "regexdemo.ini"
 end variables
+
 forward prototypes
 public subroutine of_makeresizable ()
 public subroutine of_auto_update ()
@@ -1231,7 +1232,6 @@ string tag = "LR;"
 integer x = 32
 integer y = 1392
 integer width = 2039
-boolean border = true
 boolean ib_livesizing = true
 boolean ib_keep_offsets = true
 end type

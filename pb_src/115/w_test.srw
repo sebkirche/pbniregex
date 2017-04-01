@@ -1,4 +1,4 @@
-﻿$PBExportHeader$w_test.srw
+HA$PBExportHeader$w_test.srw
 forward
 global type w_test from w_anc_response
 end type
@@ -329,7 +329,7 @@ for i = 1 to upperbound( lcbx_tab[] )
 next
 
 ls_rx = mle_key.text
-ls_rx = fastreplaceall(ls_rx, "~r~n", "¤¤")
+ls_rx = fastreplaceall(ls_rx, "~r~n", "$$HEX2$$a400a400$$ENDHEX$$")
 
 SetProfileString( is_ini, ls_section, mle_key.classname() , ls_rx )
 SetProfileString( is_ini, ls_section, mle_data.classname() , fastreplaceall(mle_data.text, "~r~n", "~~r~~n") )
@@ -372,7 +372,7 @@ for i = 1 to upperbound( lcbx_tab[] )
 next
 
 ls_rx = ProfileString( is_ini, ls_section, mle_key.classname() , "" )
-ls_rx = fastreplaceall(ls_rx, "¤¤", "~r~n")
+ls_rx = fastreplaceall(ls_rx, "$$HEX2$$a400a400$$ENDHEX$$", "~r~n")
 mle_key.text = ls_rx
 mle_data.text = fastreplaceall( ProfileString( is_ini, ls_section, mle_data.classname() , "" ), "~~r~~n", "~r~n")
 sle_replace.text = ProfileString( is_ini, ls_section, sle_replace.classname() , "" )
@@ -1256,7 +1256,6 @@ string tag = "LR;"
 integer x = 32
 integer y = 1224
 integer width = 2062
-boolean border = true
 long bordercolor = 8421504
 boolean ib_livesizing = true
 boolean ib_keep_offsets = true

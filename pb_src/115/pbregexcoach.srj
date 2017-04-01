@@ -1,10 +1,10 @@
-﻿$PBExportHeader$pbregexcoach.srj
-$PBExportComments$PBregex Coach, © Seki 2008
+HA$PBExportHeader$pbregexcoach.srj
+$PBExportComments$PBregex Coach, $$HEX2$$a9002000$$ENDHEX$$Seki 2008
 EXE:pbregexcoach115.exe,pbregexcoach.pbr,0,1,1
 CMP:0,0,0,2,0,0,1
 COM:Conceptware
 DES:Regex debug tool in PB for the PbniRegex object
-CPY:©  2008-2013  Sébastien Kirche & Nicolas Georges
+CPY:$$HEX3$$a90020002000$$ENDHEX$$2008-2017  S$$HEX1$$e900$$ENDHEX$$bastien Kirche & Nicolas Georges
 PRD:PBregex Coach - PB 11.5 version
 PVS:1.7
 PVN:1,7,0,0
@@ -14,14 +14,14 @@ MAN:0,asInvoker,0
 PBD:regexdemo115.pbl,,0
 PBD:pbniregex115.pbd,,1
 OBJ:c:\dev\powerbuilder\pbni\pbniregex\regexdemo115.pbl,display_blob,f
+OBJ:c:\dev\powerbuilder\pbni\pbniregex\pbniregex115.pbd,uo_regex,u
 OBJ:c:\dev\powerbuilder\pbni\pbniregex\regexdemo115.pbl,gettitleheight,f
-OBJ:C:\Dev\powerbuilder\pbni\pbniregex\pbniregex115.pbd,uo_regex,u
+OBJ:c:\dev\powerbuilder\pbni\pbniregex\pbniregex115.pbd,fastreplaceall2,f
 OBJ:c:\dev\powerbuilder\pbni\pbniregex\regexdemo115.pbl,n_tooltip,u
 OBJ:c:\dev\powerbuilder\pbni\pbniregex\regexdemo115.pbl,iif,f
-OBJ:C:\Dev\powerbuilder\pbni\pbniregex\pbniregex115.pbd,fastreplaceall2,f
-OBJ:C:\Dev\powerbuilder\pbni\pbniregex\regexdemo115.pbl,regexdemo,a
 OBJ:c:\dev\powerbuilder\pbni\pbniregex\regexdemo115.pbl,u_splitbar_vertical,u
 OBJ:c:\dev\powerbuilder\pbni\pbniregex\regexdemo115.pbl,hexdump_blob,f
+OBJ:c:\dev\powerbuilder\pbni\pbniregex\regexdemo115.pbl,regexdemo,a
 OBJ:c:\dev\powerbuilder\pbni\pbniregex\regexdemo115.pbl,u_splitbar_horizontal,u
 OBJ:c:\dev\powerbuilder\pbni\pbniregex\regexdemo115.pbl,replaceall,f
 OBJ:c:\dev\powerbuilder\pbni\pbniregex\regexdemo115.pbl,unvo_regexp,u
@@ -31,7 +31,7 @@ OBJ:c:\dev\powerbuilder\pbni\pbniregex\regexdemo115.pbl,nv_auto_resizer,u
 OBJ:c:\dev\powerbuilder\pbni\pbniregex\regexdemo115.pbl,hasmethod,f
 OBJ:c:\dev\powerbuilder\pbni\pbniregex\regexdemo115.pbl,w_unit_tests,w
 OBJ:c:\dev\powerbuilder\pbni\pbniregex\regexdemo115.pbl,debug_message,f
+OBJ:c:\dev\powerbuilder\pbni\pbniregex\pbniregex115.pbd,fastreplaceall,f
 OBJ:c:\dev\powerbuilder\pbni\pbniregex\regexdemo115.pbl,w_test,w
 OBJ:c:\dev\powerbuilder\pbni\pbniregex\regexdemo115.pbl,w_anc_response,w
 OBJ:c:\dev\powerbuilder\pbni\pbniregex\regexdemo115.pbl,m_main,m
-OBJ:C:\Dev\powerbuilder\pbni\pbniregex\pbniregex115.pbd,fastreplaceall,f
