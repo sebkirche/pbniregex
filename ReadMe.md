@@ -1,7 +1,7 @@
 PbniRegex - PbRegexCoach
 ------------------------
 
-PbniRegex is a PBNI extension for Powerbuilder 9 to 12.5 that provides 
+PbniRegex is a PBNI extension for Powerbuilder 9 to 12.6 that provides 
  - a uo_regex object wrapper to the PCRE regular expression engine
  - a FastReplaceAll() global function to perform string replacements
    implemented with C++ STL to save you from iterating with Pos() and
